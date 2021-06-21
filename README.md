@@ -106,7 +106,7 @@ pprint(dir())
 ## 📝 2021/06/11
 
 
-`objc-util` と`ctypes` を使っていく
+`objc-util` と`ctypes` を使う
 
 
 ```
