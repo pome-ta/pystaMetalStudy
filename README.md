@@ -2,6 +2,12 @@
 
 Pythonista でMetal やる
 
+
+
+## 📝 2021/06/30
+
+`CAMetalLayer` がもやっとするので、`MTKView` かなぁと
+
 ## 📝 2021/06/29
 
 Protocol の `MTLDevice`
