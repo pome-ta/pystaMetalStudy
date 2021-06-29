@@ -2,6 +2,31 @@
 
 Pythonista でMetal やる
 
+## 📝 2021/06/29
+
+Protocol の `MTLDevice`
+
+```
+MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
+
+MTLCreateSystemDefaultDevice.argtypes = []
+MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
+device = ObjCInstance(MTLCreateSystemDefaultDevice())
+
+```
+
+`MTLBuffer`
+
+```
+let dataSize = vertexData.count * MemoryLayout.size(ofValue: vertexData[0])
+vertexBuffer = device.makeBuffer(bytes: vertexData, length: dataSize, options: [])
+```
+```
+dataSize = len(vertexData) * 16
+vertexBuffer = device.newBufferWithBytes_length_options_(ns(vertexData), dataSize, 0)
+```
+`float` だから16 やろ！という安直な考え
+
 
 
 ## 📝 2021/06/13
@@ -130,4 +155,5 @@ MTLCreateSystemDefaultDevice.restype = c_void_p
 
 - [Metal を使って10万個のパーティクルを描画しよう](https://qiita.com/naru-jpn/items/9f4f1624495f3e72d6f9)
 	- [naru-jpn / 100000-particles](https://github.com/naru-jpn/100000-particles)
-- []
+- [Metal Tutorial: Getting Started | raywenderlich.com](https://www.raywenderlich.com/7475-metal-tutorial-getting-started)
+
