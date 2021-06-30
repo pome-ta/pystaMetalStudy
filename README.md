@@ -34,6 +34,10 @@ vertexBuffer = device.newBufferWithBytes_length_options_(ns(vertexData), dataSiz
 `float` だから16 やろ！という安直な考え
 
 
+ループの処理の部分で無理しそうと感じてる
+
+
+
 
 ## 📝 2021/06/13
 
