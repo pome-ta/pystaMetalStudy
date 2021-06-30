@@ -5,8 +5,8 @@ import ui
 import pdbg
 
 # xxx: いる？
-load_framework('Metal')
-load_framework('MetalKit')
+#load_framework('Metal')
+#load_framework('MetalKit')
 
 MTKView = ObjCClass('MTKView')
 
