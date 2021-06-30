@@ -8,6 +8,11 @@ Pythonista でMetal やる
 
 `CAMetalLayer` がもやっとするので、`MTKView` かなぁと
 
+
+[Metal 3D Graphics Part 1: Basic Rendering](https://donaldpinckney.com/metal/2018/07/05/metal-intro-1.html) これ参考にしてる
+
+順番にフォルダ作ってやってみる
+
 ## 📝 2021/06/29
 
 Protocol の `MTLDevice`
