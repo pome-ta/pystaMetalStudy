@@ -2,6 +2,38 @@
 
 Pythonista でMetal やる
 
+## 📝 2021/07/01
+
+### delegate まわり
+
+`drawInMTKView_` の呼び出し
+
+
+
+
+```
+renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
+    renderPassDescriptor)
+
+renderEncoder.endEncoding()
+commandBuffer.presentDrawable_(view.currentDrawable())
+commandBuffer.commit()
+```
+
+ここは、一括で処理しないと落ちた
+
+`renderEncoder` 格納のみ書いてて、だめだと思って`commit()` までだーっと書いたら行けた
+
+
+#### `commandBuffer`
+
+初回呼び出しの数秒後(5秒くらい)と、2回目以降の呼び出し直後で以下エラー吐き出し
+
+```
+commandBuffer = commandQueue.commandBuffer()
+AttributeError: 'NoneType' object has no attribute 'commandBuffer'
+
+```
 
 
 ## 📝 2021/06/30
