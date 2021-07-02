@@ -36,6 +36,9 @@ AttributeError: 'NoneType' object has no attribute 'commandBuffer'
 ```
 
 
+Python 側ではなくobjc-util 側だから取り回しがめんどう
+
+
 ## 📝 2021/06/30
 
 `CAMetalLayer` がもやっとするので、`MTKView` かなぁと
