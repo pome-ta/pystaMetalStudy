@@ -2,6 +2,38 @@
 
 Pythonista でMetal やる
 
+
+## 📝 2021/07/02
+
+```
+commandBuffer = commandQueue.commandBuffer()
+AttributeError: 'NoneType' object has no attribute 'commandBuffer'
+
+```
+
+
+delegate のinitialize で、`commandQueue` を持たせる方法が見つからなかったので
+
+
+view でdelegate をセットする前に
+
+
+```
+renderer = pyRenderer.alloc().init()
+renderer.commandQueue = self.mtkView.device().newCommandQueue()
+self.mtkView.setDelegate_(renderer)
+
+```
+
+として、delegate内のメソッドでも呼べるようにしてみた
+
+
+
+
+
+ずっと、呼んでるかもで、いきなり落ちる時はある、、、
+
+
 ## 📝 2021/07/01
 
 ### delegate まわり
