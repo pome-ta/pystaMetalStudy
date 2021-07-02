@@ -1,7 +1,7 @@
 import ctypes
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
-import pdbg
+#import pdbg
 
 MTKView = ObjCClass('MTKView')
 
@@ -12,10 +12,10 @@ MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
 
 def drawInMTKView_(_self, _cmd, _view):
+  d_self = ObjCInstance(_self)
+  commandBuffer = d_self.commandQueue.commandBuffer()
+  
   view = ObjCInstance(_view)
-  commandQueue = view.device().newCommandQueue()
-  commandBuffer = commandQueue.commandBuffer()
-
   renderPassDescriptor = view.currentRenderPassDescriptor()
   renderPassDescriptor.colorAttachments().objectAtIndexedSubscript(
     0).clearColor = (1.0, 0.0, 1.0, 1.0)
@@ -53,6 +53,7 @@ class View(ui.View):
     self.mtkView.initWithFrame_device_(((0, 0), (100, 100)), defaultDevice)
     self.mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     renderer = pyRenderer.alloc().init()
+    renderer.commandQueue = self.mtkView.device().newCommandQueue()
     self.mtkView.setDelegate_(renderer)
 
 
