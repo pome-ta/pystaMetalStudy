@@ -2,7 +2,7 @@ import pathlib
 import ctypes
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance, ns
 import ui
-#import pdbg
+import pdbg
 
 shader_path = pathlib.Path('./Shaders.metal')
 
@@ -32,8 +32,7 @@ def drawInMTKView_(_self, _cmd, _view):
   renderPassDescriptor.colorAttachments().objectAtIndexedSubscript(
     0).clearColor = (1.0, 0.0, 0.0, 1.0)
 
-  pdbg.state(
-    renderPassDescriptor.colorAttachments().objectAtIndexedSubscript(0))
+  #pdbg.state(renderPassDescriptor.colorAttachments().objectAtIndexedSubscript(0))
 
   renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
     renderPassDescriptor)
