@@ -2,7 +2,7 @@ import pathlib
 import ctypes
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance, ns
 import ui
-import pdbg
+#import pdbg
 
 shader_path = pathlib.Path('./Shaders.metal')
 
@@ -21,6 +21,7 @@ vertexData = [0.0, 1.0, 0.0, -1.0, -1.0, 0.0, 1.0, -1.0, 0.0]
 
 
 def drawInMTKView_(_self, _cmd, _view):
+  print('draw')
   d_self = ObjCInstance(_self)
   commandBuffer = d_self.commandQueue.commandBuffer()
 
@@ -58,6 +59,7 @@ PyRenderer = create_objc_class(
 
 class View(ui.View):
   def __init__(self, *args, **kwargs):
+    print('init')
     ui.View.__init__(self, *args, **kwargs)
     self.bg_color = 'maroon'
     self.instance = ObjCInstance(self)
@@ -105,5 +107,6 @@ class View(ui.View):
 
 if __name__ == '__main__':
   view = View()
+  print('view')
   view.present(style='fullscreen', orientations=['portrait'])
 
