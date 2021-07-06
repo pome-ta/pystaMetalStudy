@@ -50,8 +50,6 @@ class View(ui.View):
     _view.clearColor = (0.0, 0.5, 1.0, 1.0)
     _renderer = self.renderer_init(AAPLRenderer, _view)
     _view.delegate = _renderer
-    
-    
 
     self.instance.addSubview_(_view)
 
