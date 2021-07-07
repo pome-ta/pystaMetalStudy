@@ -1,26 +1,49 @@
+from pathlib import Path
 import ctypes
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
 import pdbg
 
+#shader_path = Path('./AAPLShaders.metal')
+shader_path = Path('./Shaders.metal')
+#shader_path = Path('./mShaders.metal')
+
+# todo: load objc classes
 MTKView = ObjCClass('MTKView')
+MTLCompileOptions = ObjCClass('MTLCompileOptions')
+MTLRenderPipelineDescriptor = ObjCClass('MTLRenderPipelineDescriptor')
+
+
+
+err_ptr = ctypes.c_void_p()
 
 MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
 
 MTLCreateSystemDefaultDevice.argtypes = []
 MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
+MTLPrimitiveTypeTriangle = 3
+
 
 def drawInMTKView_(_self, _cmd, _view):
   self = ObjCInstance(_self)
   view = ObjCInstance(_view)
-  renderPassDescriptor = view.currentRenderPassDescriptor()
+
   commandBuffer = self.commandQueue.commandBuffer()
-  commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
-    renderPassDescriptor)
-  commandEncoder.endEncoding()
-  drawable = view.currentDrawable()
-  commandBuffer.presentDrawable_(drawable)
+  commandBuffer.label = 'MyCommand'
+
+  renderPassDescriptor = view.currentRenderPassDescriptor()
+
+  if renderPassDescriptor != None:
+    renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
+      renderPassDescriptor)
+    
+    renderEncoder.label = 'MyRenderEncoder'
+    #renderEncoder.drawPrimitives_vertexStart_vertexCount_(MTLPrimitiveTypeTriangle, 0, 3)
+    renderEncoder.endEncoding()
+    commandBuffer.presentDrawable_(view.currentDrawable())
+  
+  
   commandBuffer.commit()
 
 
@@ -57,6 +80,20 @@ class View(ui.View):
   def renderer_init(self, delegate_cls, mtkView):
     renderer = delegate_cls.alloc().init()
     renderer.device = mtkView.device()
+
+    shader_sauce = shader_path.read_text('utf-8')
+    defaultLibrary = mtkView.device().newLibraryWithSource_options_error_(
+      shader_sauce, MTLCompileOptions.new(), err_ptr)
+
+    pdbg.state(defaultLibrary)
+    
+    #vertexFunction = defaultLibrary.newFunctionWithName_('vertexShader')
+    #fragmentProgram = defaultLibrary.newFunctionWithName_('fragmentShader')
+    
+    pipelineStateDescriptor = MTLRenderPipelineDescriptor.alloc().init()
+    
+    
+    
     renderer.commandQueue = renderer.device.newCommandQueue()
     return renderer
 
