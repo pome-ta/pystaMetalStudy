@@ -25,6 +25,7 @@ MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 MTLPrimitiveTypeTriangle = 3
 
 
+# todo: Delegate setup
 def drawInMTKView_(_self, _cmd, _view):
   self = ObjCInstance(_self)
   view = ObjCInstance(_view)
@@ -87,8 +88,8 @@ class View(ui.View):
 
     pdbg.state(defaultLibrary)
     
-    #vertexFunction = defaultLibrary.newFunctionWithName_('vertexShader')
-    #fragmentProgram = defaultLibrary.newFunctionWithName_('fragmentShader')
+    vertexFunction = defaultLibrary.newFunctionWithName_('vertexShader')
+    fragmentProgram = defaultLibrary.newFunctionWithName_('fragmentShader')
     
     pipelineStateDescriptor = MTLRenderPipelineDescriptor.alloc().init()
     
