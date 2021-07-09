@@ -18,8 +18,20 @@ MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
 MTLCreateSystemDefaultDevice.argtypes = []
 MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
-vertexData = [0.0, 1.0, 0.0, -1.0, -1.0, 0.0, 1.0, -1.0, 0.0]
+#vertexData = [0.0, 100.0, 0.0, -100.0, -100.0, 0.0, 100.0, -100.0, 0.0]
 
+vertexData = ns([ns([0.0, 50.0, 0.0]), ns([-50.0, -50.0, 0.0]), ns([50.0, -50.0, 0.0])])
+
+
+class VertexData(ctypes.Structure):
+  _fields_ = [
+    ('0', ctypes.c_float *3),
+    ('1', ctypes.c_float *3),
+    ('2', ctypes.c_float *3)
+  ]
+
+
+aaa = VertexData([0.0, 100.0, 0.0], [-100.0, -100.0, 0.0], [100.0, -100.0, 0.0])
 err_ptr = ctypes.c_void_p()
 
 
@@ -30,9 +42,9 @@ class View(ui.View):
     self.update_interval = 1 / interval
     self.bg_color = 'maroon'
     self.view_did_load()
-    self.render()
+    #self.render()
 
-  #@on_main_thread
+  @on_main_thread
   def view_did_load(self):
     _device = MTLCreateSystemDefaultDevice()
     device = ObjCInstance(_device)
@@ -48,9 +60,9 @@ class View(ui.View):
     self.metalLayer.frame = self.objc_instance.layer().frame()
     self.objc_instance.layer().addSublayer_(self.metalLayer)
 
-    dataSize = len(vertexData)# * 16
+    dataSize = 16#len(vertexData) * 16
     self.vertexBuffer = device.newBufferWithBytes_length_options_(
-      ns(vertexData), dataSize, 0)
+      vertexData, dataSize, 0)
 
     #pdbg.state(self.vertexBuffer)
     source = shader_path.read_text('utf-8')
@@ -73,10 +85,11 @@ class View(ui.View):
 
     #pdbg.state(self.pipelineState)
     self.commandQueue = device.newCommandQueue()
+    self.render()
     #pdbg.state(self.vertexBuffer)
     #print('------')
 
-  #@on_main_thread
+  @on_main_thread
   def render(self):
     #pdbg.state(self.vertexBuffer)
     #print('------')
@@ -105,6 +118,7 @@ class View(ui.View):
       3, 0, 3, 1)
 
     renderEncoder.endEncoding()
+    #pdbg.state(renderEncoder)
 
     commandBuffer.presentDrawable(drawable)
     commandBuffer.commit()
@@ -114,15 +128,11 @@ class View(ui.View):
     #print('render')
     #pdbg.state(drawable.texture().width())
 
-  def did_load(self):
-    print('did_load')
-  
   def draw(self):
     #self.render()
     #print('draw')
-    #pass
-    print(self.frame)
-    self.metalLayer.frame = self.objc_instance.layer().frame()
+    pass
+    
 
   def update(self):
     #print('update')
