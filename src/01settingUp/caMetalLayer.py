@@ -4,6 +4,8 @@ from objc_util import c, create_objc_class, ObjCClass, ObjCInstance, ns, on_main
 import ui
 import pdbg
 
+from random import random
+
 shader_path = Path('./Shaders.metal')
 
 CAMetalLayer = ObjCClass('CAMetalLayer')
@@ -24,7 +26,7 @@ err_ptr = ctypes.c_void_p()
 class View(ui.View):
   def __init__(self, *args, **kwargs):
     #ui.View.__init__(self, *args, **kwargs)
-    interval = 60
+    interval = 8
     self.update_interval = 1 / interval
     self.bg_color = 'maroon'
     self.view_did_load()
@@ -78,7 +80,7 @@ class View(ui.View):
   def render(self):
     #pdbg.state(self.vertexBuffer)
     #print('------')
-    self.set_needs_display()
+    #self.set_needs_display()
     drawable = self.metalLayer.nextDrawable()
     renderPassDescriptor = MTLRenderPassDescriptor.alloc().init()
 
@@ -87,8 +89,10 @@ class View(ui.View):
     renderPassDescriptor.colorAttachments().objectAtIndexedSubscript(
       0).loadAction = 2  # MTLLoadAction.clear
 
+    #(random(), random(), random(), 1.0)
+    #(0.0, 104.0 / 255.0, 55.0 / 255.0, 1.0)
     renderPassDescriptor.colorAttachments().objectAtIndexedSubscript(
-      0).clearColor = (0.0, 104.0 / 255.0, 55.0 / 255.0, 1.0)
+      0).clearColor = (random(), random(), random(), 1.0)
 
     commandBuffer = self.commandQueue.commandBuffer()
     renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
@@ -107,7 +111,7 @@ class View(ui.View):
     #self.set_needs_display()
 
     #texture
-    print('render')
+    #print('render')
     #pdbg.state(drawable.texture().width())
 
   def did_load(self):
@@ -116,7 +120,9 @@ class View(ui.View):
   def draw(self):
     #self.render()
     #print('draw')
-    pass
+    #pass
+    print(self.frame)
+    self.metalLayer.frame = self.objc_instance.layer().frame()
 
   def update(self):
     #print('update')
