@@ -23,7 +23,7 @@ MTLCreateSystemDefaultDevice.argtypes = []
 MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
 MTLPrimitiveTypeTriangle = 3
-AAPLVertexInputIndexVertices     = 0
+AAPLVertexInputIndexVertices = 0
 AAPLVertexInputIndexViewportSize = 1
 
 
@@ -31,19 +31,29 @@ AAPLVertexInputIndexViewportSize = 1
 def drawInMTKView_(_self, _cmd, _view):
   self = ObjCInstance(_self)
   view = ObjCInstance(_view)
+
+
+  '''
+  triangleVertices = ns(  # 2D positions,    RGBA colors
+    [[250.0, -250.0], [1.0, 0.0, 0.0, 1.0], [-250.0, -250.0],
+    [0.0, 1.0, 0.0, 1.0], [0.0, 250.0], [0.0, 0.0, 1.0, 1.0]])
+
+  '''
   
-  triangleVertices = ns(
-    (  # 2D positions,    RGBA colors
-      ( 250.0, -250.0), (1.0, 0.0, 0.0, 1.0),
-      (-250.0, -250.0), (0.0, 1.0, 0.0, 1.0),
-      (   0.0,  250.0), (0.0, 0.0, 1.0, 1.0),
-    )
-  )
+  triangleVertices = ns([
+    [[ 250.0, -250.0], [1.0, 0.0, 0.0, 1.0]],
+    [[-250.0, -250.0], [0.0, 1.0, 0.0, 1.0]],
+    [[   0.0,  250.0], [0.0, 0.0, 1.0, 1.0]]
+  ])
+  
+  
+
 
   commandBuffer = self.commandQueue.commandBuffer()
   commandBuffer.label = 'MyCommand'
 
   renderPassDescriptor = view.currentRenderPassDescriptor()
+  
 
   if renderPassDescriptor != None:
     renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
@@ -51,14 +61,26 @@ def drawInMTKView_(_self, _cmd, _view):
 
     renderEncoder.label = 'MyRenderEncoder'
     
-    renderEncoder.setViewport_((0.0, 0.0, self.viewportSize.x, self.viewportSize.y, 0.0, 1.0))
-    
+    renderEncoder.setViewport_((0.0, 0.0, self.viewportSize.x,
+                                self.viewportSize.y, 0.0, 1.0))
+
     renderEncoder.setRenderPipelineState_(self.pipelineState)
-    renderEncoder.setVertexBytes_length_atIndex_(ctypes.byref(triangleVertices), ctypes.sizeof(triangleVertices), AAPLVertexInputIndexVertices)
+    renderEncoder.setVertexBytes_length_atIndex_(
+      triangleVertices,
+      len(triangleVertices), AAPLVertexInputIndexVertices)
+
+    '''
+    renderEncoder.setVertexBytes_length_atIndex_(
+      self.viewportSize,
+      self.viewportSize.__sizeof__(), AAPLVertexInputIndexViewportSize)
     
-    renderEncoder.setVertexBytes_length_atIndex_(ctypes.byref(self.viewportSize), ctypes.sizeof(self.viewportSize), AAPLVertexInputIndexViewportSize)
+    '''
     
-    renderEncoder.drawPrimitives_vertexStart_vertexCount_(MTLPrimitiveTypeTriangle, 0, 3)
+    '''
+    renderEncoder.drawPrimitives_vertexStart_vertexCount_(
+      MTLPrimitiveTypeTriangle, 0, 3)
+    
+    '''
     renderEncoder.endEncoding()
     commandBuffer.presentDrawable_(view.currentDrawable())
 
@@ -70,6 +92,7 @@ def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
   self.viewportSize.x = _size.width
   self.viewportSize.y = _size.height
   print(_size.width, _size.height)
+  #pdbg.state(ctypes.byref(self.viewportSize))
   print('mtkView_drawableSizeWillChange_')
 
 
@@ -124,10 +147,10 @@ class View(ui.View):
       pipelineStateDescriptor, err_ptr)
 
     renderer.commandQueue = renderer.device.newCommandQueue()
-    
+
     renderer.viewportSize.x = 0
     renderer.viewportSize.y = 0
-    
+
     return renderer
 
 
