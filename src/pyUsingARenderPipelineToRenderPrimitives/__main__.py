@@ -31,51 +31,41 @@ AAPLVertexInputIndexViewportSize = 1
 def drawInMTKView_(_self, _cmd, _view):
   self = ObjCInstance(_self)
   view = ObjCInstance(_view)
-
-
   '''
   triangleVertices = ns(  # 2D positions,    RGBA colors
     [[250.0, -250.0], [1.0, 0.0, 0.0, 1.0], [-250.0, -250.0],
     [0.0, 1.0, 0.0, 1.0], [0.0, 250.0], [0.0, 0.0, 1.0, 1.0]])
 
   '''
-  
-  triangleVertices = ns([
-    [[ 250.0, -250.0], [1.0, 0.0, 0.0, 1.0]],
-    [[-250.0, -250.0], [0.0, 1.0, 0.0, 1.0]],
-    [[   0.0,  250.0], [0.0, 0.0, 1.0, 1.0]]
-  ])
-  
-  
 
+  triangleVertices = ns([[[250.0, -250.0], [1.0, 0.0, 0.0, 1.0]],
+                         [[-250.0, -250.0], [0.0, 1.0, 0.0, 1.0]],
+                         [[0.0, 250.0], [0.0, 0.0, 1.0, 1.0]]])
 
   commandBuffer = self.commandQueue.commandBuffer()
   commandBuffer.label = 'MyCommand'
 
   renderPassDescriptor = view.currentRenderPassDescriptor()
-  
 
   if renderPassDescriptor != None:
     renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
       renderPassDescriptor)
 
     renderEncoder.label = 'MyRenderEncoder'
-    
+
     renderEncoder.setViewport_((0.0, 0.0, self.viewportSize.x,
                                 self.viewportSize.y, 0.0, 1.0))
 
     renderEncoder.setRenderPipelineState_(self.pipelineState)
-    renderEncoder.setVertexBytes_length_atIndex_(
-      triangleVertices,
-      len(triangleVertices), AAPLVertexInputIndexVertices)
-
+    renderEncoder.setVertexBytes_length_atIndex_(triangleVertices,
+                                                 len(triangleVertices),
+                                                 AAPLVertexInputIndexVertices)
     '''
     renderEncoder.setVertexBytes_length_atIndex_(
       self.viewportSize,
       self.viewportSize.__sizeof__(), AAPLVertexInputIndexViewportSize)
     
     '''
-    
     '''
     renderEncoder.drawPrimitives_vertexStart_vertexCount_(
       MTLPrimitiveTypeTriangle, 0, 3)
