@@ -20,18 +20,9 @@ MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
 #vertexData = [0.0, 100.0, 0.0, -100.0, -100.0, 0.0, 100.0, -100.0, 0.0]
 
-vertexData = ns([ns([0.0, 50.0, 0.0]), ns([-50.0, -50.0, 0.0]), ns([50.0, -50.0, 0.0])])
 
+vertexData = ns([0.0, 1.1, 0.0, -1.1, -1.0, 0.0, 1.0, -1.0, 0.0])
 
-class VertexData(ctypes.Structure):
-  _fields_ = [
-    ('0', ctypes.c_float *3),
-    ('1', ctypes.c_float *3),
-    ('2', ctypes.c_float *3)
-  ]
-
-
-aaa = VertexData([0.0, 100.0, 0.0], [-100.0, -100.0, 0.0], [100.0, -100.0, 0.0])
 err_ptr = ctypes.c_void_p()
 
 
@@ -44,7 +35,7 @@ class View(ui.View):
     self.view_did_load()
     #self.render()
 
-  @on_main_thread
+  #@on_main_thread
   def view_did_load(self):
     _device = MTLCreateSystemDefaultDevice()
     device = ObjCInstance(_device)
@@ -60,7 +51,8 @@ class View(ui.View):
     self.metalLayer.frame = self.objc_instance.layer().frame()
     self.objc_instance.layer().addSublayer_(self.metalLayer)
 
-    dataSize = 16#len(vertexData) * 16
+    dataSize = vertexData.count() * vertexData.objectAtIndex_(0).__sizeof__()
+    print(dataSize)
     self.vertexBuffer = device.newBufferWithBytes_length_options_(
       vertexData, dataSize, 0)
 
@@ -89,7 +81,7 @@ class View(ui.View):
     #pdbg.state(self.vertexBuffer)
     #print('------')
 
-  @on_main_thread
+  #@on_main_thread
   def render(self):
     #pdbg.state(self.vertexBuffer)
     #print('------')
