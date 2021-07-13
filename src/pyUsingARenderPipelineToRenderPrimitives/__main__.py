@@ -5,9 +5,10 @@ import ui
 import pdbg
 
 #shader_path = Path('./AAPLShaders.metal')
+shader_path = Path('./pAAPLShaders.metal')
 #shader_path = Path('./Shaders.metal')
 #shader_path = Path('./mShaders.metal')
-shader_path = Path('./main.metal')
+#shader_path = Path('./main.metal')
 
 # --- load objc classes
 MTKView = ObjCClass('MTKView')
@@ -60,17 +61,16 @@ def drawInMTKView_(_self, _cmd, _view):
     renderEncoder.setVertexBytes_length_atIndex_(triangleVertices,
                                                  len(triangleVertices),
                                                  AAPLVertexInputIndexVertices)
-    '''
+    
     renderEncoder.setVertexBytes_length_atIndex_(
       self.viewportSize,
       self.viewportSize.__sizeof__(), AAPLVertexInputIndexViewportSize)
     
-    '''
-    '''
+    
     renderEncoder.drawPrimitives_vertexStart_vertexCount_(
       MTLPrimitiveTypeTriangle, 0, 3)
     
-    '''
+    
     renderEncoder.endEncoding()
     commandBuffer.presentDrawable_(view.currentDrawable())
 

@@ -6,6 +6,8 @@ import pdbg
 
 from random import random
 
+from pprint import pprint
+
 shader_path = Path('./Shaders.metal')
 
 CAMetalLayer = ObjCClass('CAMetalLayer')
@@ -21,7 +23,25 @@ MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 #vertexData = [0.0, 100.0, 0.0, -100.0, -100.0, 0.0, 100.0, -100.0, 0.0]
 
 
-vertexData = ns([0.0, 1.1, 0.0, -1.1, -1.0, 0.0, 1.0, -1.0, 0.0])
+vertexData = ns([0.0, 1.0, 0.0, -1.0, -1.0, 0.0, 1.0, -1.0, 0.0])
+
+
+pyvertexData = [0.0, 1.0, 0.0, -1.0, -1.0, 0.0, 1.0, -1.0, 0.0]
+
+pprint(dir(pyvertexData))
+#print(pyvertexData.__sizeof__())
+
+MTLCPUCacheModeDefaultCache = 0
+MTLResourceCPUCacheModeShift = 0
+
+MTLResourceCPUCacheModeDefaultCache = MTLCPUCacheModeDefaultCache << MTLResourceCPUCacheModeShift
+
+
+#MTLResourceCPUCacheModeDefaultCache = MTLCPUCacheModeDefaultCache  << MTLResourceCPUCacheModeShift
+
+
+#print('hoge')
+
 
 err_ptr = ctypes.c_void_p()
 
@@ -51,10 +71,11 @@ class View(ui.View):
     self.metalLayer.frame = self.objc_instance.layer().frame()
     self.objc_instance.layer().addSublayer_(self.metalLayer)
 
-    dataSize = vertexData.count() * vertexData.objectAtIndex_(0).__sizeof__()
-    print(dataSize)
+    #dataSize = 32#vertexData.count() * vertexData.objectAtIndex_(0).__sizeof__()
+    #print(dataSize)
+    dataSize = pyvertexData.__sizeof__()
     self.vertexBuffer = device.newBufferWithBytes_length_options_(
-      vertexData, dataSize, 0)
+      pyvertexData, dataSize, MTLResourceCPUCacheModeDefaultCache)
 
     #pdbg.state(self.vertexBuffer)
     source = shader_path.read_text('utf-8')
@@ -107,7 +128,7 @@ class View(ui.View):
     #pdbg.state(self.vertexBuffer)
     renderEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
     renderEncoder.drawPrimitives_vertexStart_vertexCount_instanceCount_(
-      3, 0, 3, 1)
+      4, 0, 3, 1)
 
     renderEncoder.endEncoding()
     #pdbg.state(renderEncoder)
@@ -133,8 +154,9 @@ class View(ui.View):
 
 
 if __name__ == '__main__':
-  view = View()
-  view.present(style='fullscreen', orientations=['portrait'])
+  pass
+  #view = View()
+  #view.present(style='fullscreen', orientations=['portrait'])
   #view.present()
 
 
