@@ -14,9 +14,8 @@ Pythonista でMetal やる
 
 ``` .swift
 let vertices = [Vertex(color: [1, 0, 0, 1], pos: [-1, -1]),
-								Vertex(color: [0, 1, 0, 1], pos: [0, 1]),
-								Vertex(color: [0, 0, 1, 1], pos: [1, -1])]
-
+                Vertex(color: [0, 1, 0, 1], pos: [0, 1]),
+                Vertex(color: [0, 0, 1, 1], pos: [1, -1])]
 ```
 
 ### log
