@@ -2,6 +2,22 @@
 
 Pythonista でMetal やる
 
+
+
+
+## 📝 2021/07/19
+
+実際のSwift 実行での、状況確認
+
+
+``` .swift
+Array<Vertex>
+```
+
+``` .swift
+[__C.Vertex(color: SIMD4<Float>(1.0, 0.0, 0.0, 1.0), pos: SIMD2<Float>(-1.0, -1.0)), __C.Vertex(color: SIMD4<Float>(0.0, 1.0, 0.0, 1.0), pos: SIMD2<Float>(0.0, 1.0)), __C.Vertex(color: SIMD4<Float>(0.0, 0.0, 1.0, 1.0), pos: SIMD2<Float>(1.0, -1.0))]
+```
+
 ## 📝 2021/07/04
 
 三角形ハロワ挑戦中
