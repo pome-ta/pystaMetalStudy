@@ -34,6 +34,8 @@ class Renderer: NSObject, MTKViewDelegate {
 
         print(vertices)
         print(type(of: vertices))
+        dump(vertices)
+
         vertexBuffer = device.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<Vertex>.stride, options: [])!
     }
 
