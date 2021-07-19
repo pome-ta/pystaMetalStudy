@@ -10,13 +10,76 @@ Pythonista でMetal やる
 実際のSwift 実行での、状況確認
 
 
+頂点の構造体指定の部分
+
 ``` .swift
+let vertices = [Vertex(color: [1, 0, 0, 1], pos: [-1, -1]),
+								Vertex(color: [0, 1, 0, 1], pos: [0, 1]),
+								Vertex(color: [0, 0, 1, 1], pos: [1, -1])]
+
+```
+
+### log
+
+以下、状況で取得し吐き出し
+
+
+- `dump` でなんか色々と出力するやつ
+
+``` .swift
+dump(vertices)
+```
+
+```
+▿ 3 elements
+  ▿ __C.Vertex
+    ▿ color: SIMD4<Float>(1.0, 0.0, 0.0, 1.0)
+      ▿ _storage: Swift.Float.SIMD4Storage
+        - _value: (Opaque Value)
+    ▿ pos: SIMD2<Float>(-1.0, -1.0)
+      ▿ _storage: Swift.Float.SIMD2Storage
+        - _value: (Opaque Value)
+  ▿ __C.Vertex
+    ▿ color: SIMD4<Float>(0.0, 1.0, 0.0, 1.0)
+      ▿ _storage: Swift.Float.SIMD4Storage
+        - _value: (Opaque Value)
+    ▿ pos: SIMD2<Float>(0.0, 1.0)
+      ▿ _storage: Swift.Float.SIMD2Storage
+        - _value: (Opaque Value)
+  ▿ __C.Vertex
+    ▿ color: SIMD4<Float>(0.0, 0.0, 1.0, 1.0)
+      ▿ _storage: Swift.Float.SIMD4Storage
+        - _value: (Opaque Value)
+    ▿ pos: SIMD2<Float>(1.0, -1.0)
+      ▿ _storage: Swift.Float.SIMD2Storage
+        - _value: (Opaque Value)
+```
+
+
+
+- `print` でざっくり吐き出し
+
+``` .swift
+print(vertices)
+```
+
+
+```
+[__C.Vertex(color: SIMD4<Float>(1.0, 0.0, 0.0, 1.0), pos: SIMD2<Float>(-1.0, -1.0)), __C.Vertex(color: SIMD4<Float>(0.0, 1.0, 0.0, 1.0), pos: SIMD2<Float>(0.0, 1.0)), __C.Vertex(color: SIMD4<Float>(0.0, 0.0, 1.0, 1.0), pos: SIMD2<Float>(1.0, -1.0))]
+```
+
+
+- 型確認
+
+```
+print(type(of: vertices))
+```
+
+```
 Array<Vertex>
 ```
 
-``` .swift
-[__C.Vertex(color: SIMD4<Float>(1.0, 0.0, 0.0, 1.0), pos: SIMD2<Float>(-1.0, -1.0)), __C.Vertex(color: SIMD4<Float>(0.0, 1.0, 0.0, 1.0), pos: SIMD2<Float>(0.0, 1.0)), __C.Vertex(color: SIMD4<Float>(0.0, 0.0, 1.0, 1.0), pos: SIMD2<Float>(1.0, -1.0))]
-```
+
 
 ## 📝 2021/07/04
 
