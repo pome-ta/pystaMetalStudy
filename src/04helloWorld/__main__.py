@@ -47,7 +47,6 @@ vertexData = PyVertex(
   Vertex((0.8, -0.8, 0.0, 1.0), (0.0, 1.0, 0.0, 1.0)),
   Vertex((0.0, 0.8, 0.0, 1.0), (0.0, 0.0, 1.0, 1.0)))
 
-print(dir(vertexData))
 
 
 def drawInMTKView_(_self, _cmd, _view):
