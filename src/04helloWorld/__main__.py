@@ -41,9 +41,9 @@ class PyVertex(ctypes.Structure):
 
 
 vertexData = PyVertex(
-  Vertex(Position(-0.8, -0.8, 0.0, 1.0), Color(1.0, 0.0, 0.0, 1.0)),
-  Vertex(Position(0.8, -0.8, 0.0, 1.0), Color(0.0, 1.0, 0.0, 1.0)),
-  Vertex(Position(0.0, 0.8, 0.0, 1.0), Color(0.0, 0.0, 1.0, 1.0)))
+  Vertex(Position(-0.8, -0.8,  0.0,  1.0), Color(1.0, 0.0, 0.0, 1.0)),
+  Vertex(Position( 0.8, -0.8,  0.0,  1.0), Color(0.0, 1.0, 0.0, 1.0)),
+  Vertex(Position( 0.0,  0.8,  0.0,  1.0), Color(0.0, 0.0, 1.0, 1.0)))
 
 
 dataSize = ctypes.sizeof(vertexData)# * 16
@@ -75,7 +75,6 @@ class View(ui.View):
     library = renderer.device.newLibraryWithSource_options_error_(source, MTLCompileOptions.new(), err_ptr)
 
     vertexProgram = library.newFunctionWithName_('vertex_func')
-
     fragmentProgram = library.newFunctionWithName_('fragment_func')
 
     pipelineDescriptor = MTLRenderPipelineDescriptor.alloc().init()
@@ -83,13 +82,9 @@ class View(ui.View):
     pipelineDescriptor.fragmentFunction = fragmentProgram
     pipelineDescriptor.colorAttachments().objectAtIndexedSubscript(0).pixelFormat = 80  # .bgra8Unorm
     
-    pipelineState = renderer.device.newRenderPipelineStateWithDescriptor_error_(pipelineDescriptor, err_ptr)
-
-    vertexBuffer = renderer.device.newBufferWithBytes_length_options_(ctypes.byref(vertexData), dataSize, 0)
+    renderer.pipelineState = renderer.device.newRenderPipelineStateWithDescriptor_error_(pipelineDescriptor, err_ptr)
+    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(ctypes.byref(vertexData), dataSize, 0)
     
-    renderer.pipelineState = pipelineState
-    renderer.vertexBuffer = vertexBuffer
-
     return renderer
 
 
