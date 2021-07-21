@@ -105,8 +105,8 @@ def drawInMTKView_(_self, _cmd, _view):
 
 
 def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
-  #print('drawableSizeWillChange')
-  pass
+  self = ObjCInstance(_self)
+  view = ObjCInstance(_view)
 
 
 PyRenderer = create_objc_class(
