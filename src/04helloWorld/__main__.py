@@ -47,6 +47,7 @@ vertexData = PyVertex(
 
 
 dataSize = ctypes.sizeof(vertexData)
+# 96
 
 class View(ui.View):
   def __init__(self, *args, **kwargs):

@@ -40,12 +40,41 @@ vertices.count
 MemoryLayout<Vertex>.stride
 //  32
 
-
+length = vertices.count * MemoryLayout<Vertex>.stride
 //96
 
 ```
 
+``` .python
+class Position(ctypes.Structure):
+  _fields_ = [('x', ctypes.c_float), ('y', ctypes.c_float),
+              ('z', ctypes.c_float), ('w', ctypes.c_float)]
 
+
+class Color(ctypes.Structure):
+  _fields_ = [('r', ctypes.c_float), ('g', ctypes.c_float),
+              ('b', ctypes.c_float), ('a', ctypes.c_float)]
+
+
+class Vertex(ctypes.Structure):
+  _fields_ = [('position', Position), ('color', Color)]
+
+
+class PyVertex(ctypes.Structure):
+  _fields_ = [('x', Vertex), ('y', Vertex), ('z', Vertex)]
+
+
+vertexData = PyVertex(
+  Vertex(Position(-0.8, -0.8,  0.0,  1.0), Color(1.0, 0.0, 0.0, 1.0)),
+  Vertex(Position( 0.8, -0.8,  0.0,  1.0), Color(0.0, 1.0, 0.0, 1.0)),
+  Vertex(Position( 0.0,  0.8,  0.0,  1.0), Color(0.0, 0.0, 1.0, 1.0)))
+
+
+dataSize = ctypes.sizeof(vertexData)
+# 96
+```
+
+`ctypes.sizeof` で良さそう
 
 
 
