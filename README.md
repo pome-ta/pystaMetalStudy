@@ -4,6 +4,51 @@ Pythonista でMetal やる
 
 
 
+
+
+
+
+## 📝 2021/07/23
+
+[Using a Render Pipeline to Render Primitives](https://developer.apple.com/documentation/metal/using_a_render_pipeline_to_render_primitives?language=objc) のコード
+
+
+``` AAPLRenderer.m
+// Pass in the parameter data.
+NSLog(@"triangleVertices %lu", sizeof(triangleVertices));
+//  96
+[renderEncoder setVertexBytes:triangleVertices
+                       length:sizeof(triangleVertices)
+                      atIndex:AAPLVertexInputIndexVertices];
+
+NSLog(@"_viewportSize %lu", sizeof(_viewportSize));
+//  8
+[renderEncoder setVertexBytes:&_viewportSize
+                       length:sizeof(_viewportSize)
+                      atIndex:AAPLVertexInputIndexViewportSize];
+```
+
+
+
+
+あと、過去のswift で取得した参照のLog とり
+
+```
+print(vertices.count)
+//  3
+
+MemoryLayout<Vertex>.stride
+//  32
+
+
+//96
+
+```
+
+
+
+
+
 ## 📝 2021/07/21
 
 サイズの取得があやしい
