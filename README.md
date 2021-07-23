@@ -13,7 +13,7 @@ Pythonista でMetal やる
 [Using a Render Pipeline to Render Primitives](https://developer.apple.com/documentation/metal/using_a_render_pipeline_to_render_primitives?language=objc) のコード
 
 
-``` AAPLRenderer.m
+``` objc
 // Pass in the parameter data.
 NSLog(@"triangleVertices %lu", sizeof(triangleVertices));
 //  96
@@ -33,8 +33,8 @@ NSLog(@"_viewportSize %lu", sizeof(_viewportSize));
 
 あと、過去のswift で取得した参照のLog とり
 
-```
-print(vertices.count)
+``` .swift
+vertices.count
 //  3
 
 MemoryLayout<Vertex>.stride
