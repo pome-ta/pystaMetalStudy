@@ -10,6 +10,12 @@ Pythonista でMetal やる
 
 ## 📝 2021/07/23
 
+
+参照コードが点在しすぎだから、そろそろ調整していかないと
+
+
+### 構造体からの`length` 確認
+
 [Using a Render Pipeline to Render Primitives](https://developer.apple.com/documentation/metal/using_a_render_pipeline_to_render_primitives?language=objc) のコード
 
 
