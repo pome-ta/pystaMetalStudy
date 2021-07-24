@@ -5,6 +5,33 @@ Pythonista でMetal やる
 
 
 
+## 📝 2021/07/24
+
+実機でのプリントデバック
+
+
+``` .swift
+private func buildBuffer() {
+    vertexBuffer = mtlDevice.makeBuffer(bytes: vertices, length: vertices.count*MemoryLayout<Vertex>.stride, options: [])
+    indexBuffer = mtlDevice.makeBuffer(bytes: indices, length: indices.count*MemoryLayout<UInt16>.stride, options: [])
+
+    print("vertexBuffer", vertices.count*MemoryLayout<Vertex>.stride)
+    //  64
+
+    print("indexBuffer", indices.count*MemoryLayout<UInt16>.stride)
+    //  12
+}
+```
+
+``` .swift
+commandEncoder?.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+commandEncoder?.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 1)
+print("Uniforms", MemoryLayout<Uniforms>.stride)
+//  16
+commandEncoder?.drawIndexedPrimitives(type: .triangle, indexCount: indices.count, indexType: .uint16, indexBuffer: indexBuffer, indexBufferOffset: 0)
+print("indices.count", indices.count)
+// 6
+```
 
 
 
