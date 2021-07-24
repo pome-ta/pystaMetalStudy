@@ -21,6 +21,7 @@ private func buildBuffer() {
     print("indexBuffer", indices.count*MemoryLayout<UInt16>.stride)
     //  12
 }
+
 ```
 
 ``` .swift
@@ -31,6 +32,7 @@ print("Uniforms", MemoryLayout<Uniforms>.stride)
 commandEncoder?.drawIndexedPrimitives(type: .triangle, indexCount: indices.count, indexType: .uint16, indexBuffer: indexBuffer, indexBufferOffset: 0)
 print("indices.count", indices.count)
 // 6
+
 ```
 
 
