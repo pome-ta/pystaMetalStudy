@@ -7,6 +7,48 @@ Pythonista でMetal やる
 
 ## 📝 2021/07/24
 
+```
+vertices Optional([MetalDay1.Vertex(position: SIMD3<Float>(-1.0, -1.0, 0.0)),
+                   MetalDay1.Vertex(position: SIMD3<Float>(1.0, -1.0, 0.0)),
+                   MetalDay1.Vertex(position: SIMD3<Float>(-1.0, 1.0, 0.0)),
+                   MetalDay1.Vertex(position: SIMD3<Float>(1.0, 1.0, 0.0))])
+
+▿ Optional([MetalDay1.Vertex(position: SIMD3<Float>(-1.0, -1.0, 0.0)),
+            MetalDay1.Vertex(position: SIMD3<Float>(1.0, -1.0, 0.0)),
+            MetalDay1.Vertex(position: SIMD3<Float>(-1.0, 1.0, 0.0)),
+            MetalDay1.Vertex(position: SIMD3<Float>(1.0, 1.0, 0.0))])
+
+  ▿ some: 4 elements
+    ▿ MetalDay1.Vertex
+      ▿ position: SIMD3<Float>(-1.0, -1.0, 0.0)
+        ▿ _storage: Swift.Float.SIMD4Storage
+          - _value: (Opaque Value)
+    ▿ MetalDay1.Vertex
+      ▿ position: SIMD3<Float>(1.0, -1.0, 0.0)
+        ▿ _storage: Swift.Float.SIMD4Storage
+          - _value: (Opaque Value)
+    ▿ MetalDay1.Vertex
+      ▿ position: SIMD3<Float>(-1.0, 1.0, 0.0)
+        ▿ _storage: Swift.Float.SIMD4Storage
+          - _value: (Opaque Value)
+    ▿ MetalDay1.Vertex
+      ▿ position: SIMD3<Float>(1.0, 1.0, 0.0)
+        ▿ _storage: Swift.Float.SIMD4Storage
+          - _value: (Opaque Value)
+---
+indices Optional([0, 1, 2, 1, 2, 3])
+
+▿ Optional([0, 1, 2, 1, 2, 3])
+  ▿ some: 6 elements
+    - 0
+    - 1
+    - 2
+    - 1
+    - 2
+    - 3
+```
+
+
 実機でのプリントデバック
 
 
