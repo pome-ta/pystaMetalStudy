@@ -12,6 +12,19 @@ Pythonista でMetal やる
 
 
 
+> There are two ways we can prepare our class for drawing: either conform to the MTKViewDelegate protocol and implement its drawInView(:) method, or subclass MTKView and override its drawRect(:)method. 
+
+
+> We choose the latter, so go ahead and change the class type from NSView to MTKView, and create a new method named render() that has the following content:
+
+> 後者(`drawRect(:)`)を選択するので、先に進んでクラスタイプをNSViewからMTKViewに変更し、次の内容を持つrender（）という名前の新しいメソッドを作成します。
+
+
+
+
+override はキモいので、`MTKViewDelegate` から、`drawInView(:)` でやる
+
+
 
 ## 📝 2021/07/25
 
