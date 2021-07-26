@@ -116,18 +116,15 @@ class View(ui.View):
     # --- buildBuffer
     renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(ctypes.byref(vertices), 64, 0)
     
-    #print('ve', ctypes.sizeof(vertices))
 
     renderer.indexBuffer = renderer.device.newBufferWithBytes_length_options_(indices, ctypes.sizeof(indices), 0)
     
-    #print('in', ctypes.sizeof(indices))
 
     renderer.preferredFramesTime = 1.0 / _mtkView.preferredFramesPerSecond()
 
     renderer.uniforms = Uniforms()
     size = _mtkView.frame().size
     renderer.uniforms.aspectRatio = size.width / size.height
-    #renderer.uniforms.aspectRatio = 1
 
     return renderer
 
@@ -149,7 +146,6 @@ def drawInMTKView_(_self, _cmd, _view):
 
   renderEncoder.setVertexBytes_length_atIndex_(ctypes.byref(self.uniforms), ctypes.sizeof(self.uniforms), 1)
   
-  #print(ctypes.sizeof(self.uniforms))
 
   renderEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(3, 6, 0, self.indexBuffer, 0)
   renderEncoder.endEncoding()
@@ -162,8 +158,7 @@ def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
   view = ObjCInstance(_view)
   size = view.frame().size
   self.uniforms.aspectRatio = size.width / size.height
-  #self.uniforms.aspectRatio = 1
-  #print(self.uniforms.aspectRatio)
+  
 
 
 PyRenderer = create_objc_class(
