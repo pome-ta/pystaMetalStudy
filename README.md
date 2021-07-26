@@ -25,6 +25,14 @@ Pythonista でMetal やる
 override はキモいので、`MTKViewDelegate` から、`drawInView(:)` でやる
 
 
+### お、、、
+
+リポジトリと記事にズレあり？とりま、脳内補完で進む
+
+
+metal 使ったkodelife やりたいなー
+
+
 
 ## 📝 2021/07/25
 
