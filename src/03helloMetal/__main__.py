@@ -45,7 +45,7 @@ def drawInMTKView_(_self, _cmd, _view):
   renderEncoder.setRenderPipelineState_(self.pipelineState)
   renderEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
   renderEncoder.drawPrimitives_vertexStart_vertexCount_instanceCount_(
-    3, 0, 3, 1)
+    3, 0, 3, 1)     
   renderEncoder.endEncoding()
   commandBuffer.presentDrawable_(view.currentDrawable())
   commandBuffer.commit()
