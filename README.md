@@ -3,6 +3,16 @@
 Pythonista でMetal やる
 
 
+## 📝 2021/07/26
+
+まーた、チュートリアルサイト参考先を変える
+
+
+[このリポジトリ](https://github.com/MetalKit/metal)
+
+
+
+
 ## 📝 2021/07/25
 
 ### 構造体からの`length` 確認 その2
