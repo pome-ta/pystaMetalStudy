@@ -20,6 +20,24 @@ MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 err_ptr = ctypes.c_void_p()
 
 
+# xxx: クソダサ
+def create_buffer(structure, array):
+  for s1, a1 in enumerate(array):
+    for s2, a2 in enumerate(a1):
+      for s3, a3 in enumerate(a2):
+        structure[s1][s2][s3] = a3
+  return structure
+
+# --- set Vertex
+Vertex = (((ctypes.c_float * 4) * 2) * 3)()
+
+bf_array = [[[-0.5, -0.5, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0]],
+            [[0.5, -0.5, 0.0, 1.0], [0.0, 1.0, 0.0, 1.0]],
+            [[0.0, 0.5, 0.0, 1.0], [0.0, 0.0, 1.0, 1.0]]]
+
+vertexData = create_buffer(Vertex, bf_array)
+
+
 class MetalView(ui.View):
   def __init__(self, *args, **kwargs):
     ui.View.__init__(self, *args, **kwargs)
@@ -41,22 +59,17 @@ class MetalView(ui.View):
 
   def renderer_init(self, delegate, _mtkView):
     renderer = delegate.alloc().init()
+
+    # --- createBuffer
     renderer.device = _mtkView.device()
     renderer.commandQueue = renderer.device.newCommandQueue()
 
-    vertexData = (ctypes.c_float * 12)()
-    array_vertex = [
-      -1.0, -1.0, 0.0, 1.0, 1.0, -1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0
-    ]
-    for n, i in enumerate(array_vertex):
-      vertexData[n] = i
-
     # xxx: 要確認
-    dataSize = vertexData.__len__() * 16  # 192
-    #dataSize = ctypes.sizeof(vertexData)  # 48
-    
-    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(ctypes.byref(vertexData), dataSize, 0)
+    dataSize = 16 * (3 * 2)
 
+    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(vertexData, dataSize, 0)
+
+    # --- registerShaders
     source = shader_path.read_text('utf-8')
     library = renderer.device.newLibraryWithSource_options_error_(source, MTLCompileOptions.new(), err_ptr)
 

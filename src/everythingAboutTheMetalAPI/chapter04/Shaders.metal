@@ -1,8 +1,8 @@
 //
 //  Shaders.metal
-//  chapter03
+//  chapter04
 //
-//  Created by Marius on 1/12/16.
+//  Created by Marius on 1/26/16.
 //  Copyright © 2016 Marius Horga. All rights reserved.
 //
 
@@ -11,6 +11,7 @@ using namespace metal;
 
 struct Vertex {
     float4 position [[position]];
+    float4 color;
 };
 
 vertex Vertex vertex_func(constant Vertex *vertices [[buffer(0)]],
@@ -19,5 +20,5 @@ vertex Vertex vertex_func(constant Vertex *vertices [[buffer(0)]],
 }
 
 fragment float4 fragment_func(Vertex vert [[stage_in]]) {
-    return float4(0.7, 1, 1, 1);
+    return vert.color;
 }
