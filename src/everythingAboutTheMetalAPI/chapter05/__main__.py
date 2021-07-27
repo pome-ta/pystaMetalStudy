@@ -1,4 +1,5 @@
 import pathlib
+from math import sin, cos
 import ctypes
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
@@ -28,6 +29,7 @@ def create_vertex(structure, array):
         structure[s1][s2][s3] = a3
   return structure
 
+
 # --- set Vertex
 Vertex = (((ctypes.c_float * 4) * 2) * 3)()
 
@@ -37,16 +39,57 @@ bf_array = [[[-1.0, -1.0, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0]],
 
 vertexData = create_vertex(Vertex, bf_array)
 
-m = (ctypes.c_float * 16)()
-bf_m = [1.0, 0.0, 0.0, 0.0,
-        0.0, 1.0, 0.0, 0.0,
-        0.0, 0.0, 1.0, 0.0,
-        0.0, 0.0, 0.0, 1.0]
+
+class Matrix:
+  def __init__(self):
+    bf_m = [
+      1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+      0.0, 1.0
+    ]
+    m = (ctypes.c_float * 16)()
+    for n, i in enumerate(bf_m):
+      m[n] = i
+    self.m = m
+
+  def translationMatrix(self, matrix, position):
+    matrix.m[12] = position[0]
+    matrix.m[13] = position[1]
+    matrix.m[14] = position[2]
+    return matrix
+
+  def scalingMatrix(self, matrix, scale):
+    matrix.m[0] = scale
+    matrix.m[5] = scale
+    matrix.m[10] = scale
+    matrix.m[15] = 1.0
+    return matrix
+
+  def rotationMatrix(self, matrix, rot):
+    matrix.m[0] = cos(rot[1]) * cos(rot[2])
+    matrix.m[
+      4] = cos(rot[2]) * sin(rot[0]) * sin(rot[1]) - cos(rot[0]) * sin(rot[2])
+    matrix.m[
+      8] = cos(rot[0]) * cos(rot[2]) * sin(rot[1]) + sin(rot[0]) * sin(rot[2])
+    matrix.m[1] = cos(rot[1]) * sin(rot[2])
+    matrix.m[
+      5] = cos(rot[0]) * cos(rot[2]) + sin(rot[0]) * sin(rot[1]) * sin(rot[2])
+    matrix.m[9] = -cos(rot[2]) * sin(rot[0]) + cos(rot[0]) * sin(rot[1]) * sin(
+      rot[2])
+    matrix.m[2] = -sin(rot[1])
+    matrix.m[6] = cos(rot[1]) * sin(rot[0])
+    matrix.m[10] = cos(rot[0]) * cos(rot[1])
+    matrix.m[15] = 1.0
+    return matrix
+
+  def modelMatrix(self, matrix):
+    matrix = self.rotationMatrix(matrix, [0.0, 0.0, 0.1])
+    matrix = self.scalingMatrix(matrix, 0.25)
+    matrix = self.translationMatrix(matrix, [0.0, 0.5, 0.0])
+
+    return matrix
 
 
-
-for n, i in enumerate(bf_m):
-  m[n] = i
+m_byt = Matrix().modelMatrix(Matrix()).m
 
 
 class MetalView(ui.View):
@@ -79,13 +122,18 @@ class MetalView(ui.View):
     dataSize = 16 * (3 * 2)
 
     renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(vertexData, dataSize, 0)
-    
-    renderer.uniformBuffer = renderer.device.newBufferWithBytes_length_options_(m, 16 * 16, 0)
-    
+
+    renderer.uniformBuffer = renderer.device.newBufferWithBytes_length_options_(m_byt, 16 * 16, 0)
+
+    #renderer.uniformBuffer = renderer.device.newBufferWithLength_options_(16*16, 0)
+
+    #bufferPointer = renderer.uniformBuffer.contents()
+
 
     # --- registerShaders
     source = shader_path.read_text('utf-8')
-    library = renderer.device.newLibraryWithSource_options_error_(source, MTLCompileOptions.new(), err_ptr)
+    library = renderer.device.newLibraryWithSource_options_error_(
+      source, MTLCompileOptions.new(), err_ptr)
 
     vertex_func = library.newFunctionWithName_('vertex_func')
     frag_func = library.newFunctionWithName_('fragment_func')
