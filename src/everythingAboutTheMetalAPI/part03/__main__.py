@@ -52,10 +52,10 @@ class MetalView(ui.View):
       vertexData[n] = i
 
     # xxx: 要確認
-    dataSize = vertexData.__len__() * 16
-    #dataSize = ctypes.sizeof(vertexData)
-    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(
-      ctypes.byref(vertexData), dataSize, 0)
+    dataSize = vertexData.__len__() * 16  # 192
+    #dataSize = ctypes.sizeof(vertexData)  # 48
+    
+    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(ctypes.byref(vertexData), dataSize, 0)
 
     source = shader_path.read_text('utf-8')
     library = renderer.device.newLibraryWithSource_options_error_(source, MTLCompileOptions.new(), err_ptr)
