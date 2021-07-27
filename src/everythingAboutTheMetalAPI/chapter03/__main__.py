@@ -55,7 +55,7 @@ class MetalView(ui.View):
     dataSize = vertexData.__len__() * 16  # 192
     #dataSize = ctypes.sizeof(vertexData)  # 48
     
-    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(ctypes.byref(vertexData), dataSize, 0)
+    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(vertexData, dataSize, 0)
 
     source = shader_path.read_text('utf-8')
     library = renderer.device.newLibraryWithSource_options_error_(source, MTLCompileOptions.new(), err_ptr)
