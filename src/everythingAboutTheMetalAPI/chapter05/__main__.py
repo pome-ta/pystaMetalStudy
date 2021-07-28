@@ -18,6 +18,12 @@ MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
 MTLCreateSystemDefaultDevice.argtypes = []
 MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
+
+memcpy = c.memcpy
+memcpy.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_size_t]
+memcpy.restype = ctypes.c_void_p
+
+
 err_ptr = ctypes.c_void_p()
 
 
@@ -43,8 +49,10 @@ vertexData = create_vertex(Vertex, bf_array)
 class Matrix:
   def __init__(self):
     bf_m = [
-      1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
-      0.0, 1.0
+      1.0, 0.0, 0.0, 0.0,
+      0.0, 1.0, 0.0, 0.0,
+      0.0, 0.0, 1.0, 0.0,
+      0.0, 0.0, 0.0, 1.0
     ]
     m = (ctypes.c_float * 16)()
     for n, i in enumerate(bf_m):
@@ -118,22 +126,17 @@ class MetalView(ui.View):
     renderer.device = _mtkView.device()
     renderer.commandQueue = renderer.device.newCommandQueue()
 
-    # xxx: 要確認
-    dataSize = 16 * (3 * 2)
+    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(vertexData, 16 * (3 * 2), 0)
 
-    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(vertexData, dataSize, 0)
+    renderer.uniformBuffer = renderer.device.newBufferWithLength_options_(16*16, 0)
 
-    renderer.uniformBuffer = renderer.device.newBufferWithBytes_length_options_(m_byt, 16 * 16, 0)
-
-    #renderer.uniformBuffer = renderer.device.newBufferWithLength_options_(16*16, 0)
-
-    #bufferPointer = renderer.uniformBuffer.contents()
+    bufferPointer = renderer.uniformBuffer.contents()
+    memcpy(bufferPointer, m_byt, 16*16)
 
 
     # --- registerShaders
     source = shader_path.read_text('utf-8')
-    library = renderer.device.newLibraryWithSource_options_error_(
-      source, MTLCompileOptions.new(), err_ptr)
+    library = renderer.device.newLibraryWithSource_options_error_(source, MTLCompileOptions.new(), err_ptr)
 
     vertex_func = library.newFunctionWithName_('vertex_func')
     frag_func = library.newFunctionWithName_('fragment_func')
