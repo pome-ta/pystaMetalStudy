@@ -4,9 +4,10 @@ import ctypes
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
 
-import pdbg
+#import pdbg
 
 shader_path = pathlib.Path('./Shaders.metal')
+
 
 # --- load objc classes
 MTKView = ObjCClass('MTKView')
@@ -24,7 +25,6 @@ memcpy.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_size_t]
 memcpy.restype = ctypes.c_void_p
 
 
-
 err_ptr = ctypes.c_void_p()
 
 
@@ -38,42 +38,31 @@ def create_vertex(structure, array):
 
 
 # --- set Vertex
-Vertex = (((ctypes.c_float * 4) * 2) * 8)()
+Vertex = (((ctypes.c_float * 4) * 2) * 4)()
 
-bf_array = [
-  [[-1.0, -1.0,  1.0, 1.0], [1.0, 1.0, 1.0, 1.0]],
-  [[ 1.0, -1.0,  1.0, 1.0], [1.0, 0.0, 0.0, 1.0]],
-  [[ 1.0,  1.0,  1.0, 1.0], [1.0, 1.0, 0.0, 1.0]],
-  [[-1.0,  1.0,  1.0, 1.0], [0.0, 1.0, 0.0, 1.0]],
-  [[-1.0, -1.0, -1.0, 1.0], [0.0, 0.0, 1.0, 1.0]],
-  [[ 1.0, -1.0, -1.0, 1.0], [1.0, 0.0, 1.0, 1.0]],
-  [[-1.0,  1.0, -1.0, 1.0], [0.0, 0.0, 0.0, 1.0]],
-  [[-1.0,  1.0, -1.0, 1.0], [0.0, 1.0, 1.0, 1.0]]
-  ]
+vertex_array = [
+  [[-1.0, -1.0, 0.0,  1.0], [1.0, 0.0, 0.0, 1.0]],
+  [[ 1.0, -1.0, 0.0,  1.0], [0.0, 1.0, 0.0, 1.0]],
+  [[ 1.0,  1.0, 0.0,  1.0], [0.0, 0.0, 1.0, 1.0]],
+  [[-1.0,  1.0, 0.0,  1.0], [1.0, 1.0, 1.0, 1.0]]
+]
 
-vertexData = create_vertex(Vertex, bf_array)
+vertexData = create_vertex(Vertex, vertex_array)
 
 
-
-indexData = (ctypes.c_int16 * 36)()
-bf_index = [0, 1, 2, 2, 3, 0,   # front
-            1, 5, 6, 6, 2, 1,   # right
-            3, 2, 6, 6, 7, 3,   # top
-            4, 5, 1, 1, 0, 4,   # bottom
-            4, 0, 3, 3, 7, 4,   # left
-            7, 6, 5, 5, 4, 7]   # back
-
-
-for ni, ii in enumerate(bf_index):
+indexData = (ctypes.c_int16 * 6)()
+index_array = [0, 1, 2, 2, 3, 0]
+for ni, ii in enumerate(index_array):
   indexData[ni] = ii
-
 
 
 class Matrix:
   def __init__(self):
     bf_m = [
-      1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
-      0.0, 1.0
+      1.0, 0.0, 0.0, 0.0,
+      0.0, 1.0, 0.0, 0.0,
+      0.0, 0.0, 1.0, 0.0,
+      0.0, 0.0, 0.0, 1.0
     ]
     m = (ctypes.c_float * 16)()
     for n, i in enumerate(bf_m):
@@ -95,15 +84,11 @@ class Matrix:
 
   def rotationMatrix(self, matrix, rot):
     matrix.m[0] = cos(rot[1]) * cos(rot[2])
-    matrix.m[
-      4] = cos(rot[2]) * sin(rot[0]) * sin(rot[1]) - cos(rot[0]) * sin(rot[2])
-    matrix.m[
-      8] = cos(rot[0]) * cos(rot[2]) * sin(rot[1]) + sin(rot[0]) * sin(rot[2])
+    matrix.m[4] = cos(rot[2]) * sin(rot[0]) * sin(rot[1]) - cos(rot[0]) * sin(rot[2])
+    matrix.m[8] = cos(rot[0]) * cos(rot[2]) * sin(rot[1]) + sin(rot[0]) * sin(rot[2])
     matrix.m[1] = cos(rot[1]) * sin(rot[2])
-    matrix.m[
-      5] = cos(rot[0]) * cos(rot[2]) + sin(rot[0]) * sin(rot[1]) * sin(rot[2])
-    matrix.m[9] = -cos(rot[2]) * sin(rot[0]) + cos(rot[0]) * sin(rot[1]) * sin(
-      rot[2])
+    matrix.m[5] = cos(rot[0]) * cos(rot[2]) + sin(rot[0]) * sin(rot[1]) * sin(rot[2])
+    matrix.m[9] = -cos(rot[2]) * sin(rot[0]) + cos(rot[0]) * sin(rot[1]) * sin(rot[2])
     matrix.m[2] = -sin(rot[1])
     matrix.m[6] = cos(rot[1]) * sin(rot[0])
     matrix.m[10] = cos(rot[0]) * cos(rot[1])
@@ -111,9 +96,9 @@ class Matrix:
     return matrix
 
   def modelMatrix(self, matrix):
-    #matrix = self.rotationMatrix(matrix, [0.0, 0.0, 0.1])
-    #matrix = self.scalingMatrix(matrix, 0.25)
-    #matrix = self.translationMatrix(matrix, [0.0, 0.5, 0.0])
+    matrix = self.rotationMatrix(matrix, [0.0, 0.0, 0.1])
+    matrix = self.scalingMatrix(matrix, 0.25)
+    matrix = self.translationMatrix(matrix, [0.0, 0.5, 0.0])
 
     return matrix
 
@@ -130,11 +115,11 @@ class MetalView(ui.View):
   def view_did_load(self):
     mtkView = MTKView.alloc()
     _device = MTLCreateSystemDefaultDevice()
-    _frame = ((0.0, 0.0), (100.0, 100.0))
+    _frame = ((0.0, 0.0), (320.0, 320.0))
 
     devices = ObjCInstance(_device)
     mtkView.initWithFrame_device_(_frame, devices)
-    mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
+    #mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     renderer = self.renderer_init(PyRenderer, mtkView)
     mtkView.delegate = renderer
 
@@ -142,33 +127,24 @@ class MetalView(ui.View):
 
   def renderer_init(self, delegate, _mtkView):
     renderer = delegate.alloc().init()
-
+    
     # --- createBuffer
     renderer.device = _mtkView.device()
     renderer.commandQueue = renderer.device.newCommandQueue()
 
-    # xxx: 要確認
-    #dataSize = 16 * (3 * 2)
+    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(vertexData, 16 * (4 * 2), 0)
+    
+    renderer.indexBuffer = renderer.device.newBufferWithBytes_length_options_(indexData, 16 * 6, 0)
 
-    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(vertexData, 16 * (3 * 2), 0)
-    
-    renderer.indexBuffer = renderer.device.newBufferWithBytes_length_options_(indexData, 16 * 32, 0)
-    
-    #pdbg.state(renderer.indexBuffer.length())
-    
-    
-
-    #renderer.uniformBuffer = renderer.device.newBufferWithBytes_length_options_(m_byt, 16 * 16, 0)
 
     renderer.uniformBuffer = renderer.device.newBufferWithLength_options_(16*16, 0)
-
-    #bufferPointer = renderer.uniformBuffer.contents()
+    bufferPointer = renderer.uniformBuffer.contents()
+    memcpy(bufferPointer, m_byt, 16*16)
 
 
     # --- registerShaders
     source = shader_path.read_text('utf-8')
-    library = renderer.device.newLibraryWithSource_options_error_(
-      source, MTLCompileOptions.new(), err_ptr)
+    library = renderer.device.newLibraryWithSource_options_error_(source, MTLCompileOptions.new(), err_ptr)
 
     vertex_func = library.newFunctionWithName_('vertex_func')
     frag_func = library.newFunctionWithName_('fragment_func')
@@ -181,12 +157,15 @@ class MetalView(ui.View):
     renderer.rps = renderer.device.newRenderPipelineStateWithDescriptor_error_(rpld, err_ptr)
 
     return renderer
+    
 
 
 # --- MTKViewDelegate
 def drawInMTKView_(_self, _cmd, _view):
   self = ObjCInstance(_self)
   view = ObjCInstance(_view)
+  # --- update
+  
   drawable = view.currentDrawable()
   rpd = view.currentRenderPassDescriptor()
   rpd.colorAttachments().objectAtIndexedSubscript(0).clearColor = (0.0, 0.5, 0.5, 1.0)
@@ -194,25 +173,17 @@ def drawInMTKView_(_self, _cmd, _view):
   commandBuffer = self.commandQueue.commandBuffer()
   commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
   commandEncoder.setRenderPipelineState_(self.rps)
-  
-  commandEncoder.setFrontFacingWinding_(1)
-  commandEncoder.setCullMode_(2)
   commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
   commandEncoder.setVertexBuffer_offset_atIndex_(self.uniformBuffer, 0, 1)
-  #commandEncoder.drawPrimitives_vertexStart_vertexCount_instanceCount_(3, 0, 3, 1)  # .triangle
+  #
+  commandEncoder.drawPrimitives_vertexStart_vertexCount_instanceCount_(3, 0, 3, 1)  # .triangle
   
-  # MTLWinding.clockwise = 0
-  # MTLWinding.counterClockwise = 1
-  # MTLCullMode
-  # none = 0
-  # front = 1
-  # back = 2
+  commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(3, (self.indexBuffer.length() // 16), 0, self.indexBuffer, 0)
   
-  commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(3, indexBuffer.length()/16, 0, self.indexBuffer, 0)  # MTLIndexType.uint16  = 0
-
   commandEncoder.endEncoding()
   commandBuffer.presentDrawable_(drawable)
   commandBuffer.commit()
+  
 
 
 def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
@@ -228,4 +199,3 @@ PyRenderer = create_objc_class(
 if __name__ == '__main__':
   view = MetalView()
   view.present(style='fullscreen', orientations=['portrait'])
-
