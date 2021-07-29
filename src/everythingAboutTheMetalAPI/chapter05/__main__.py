@@ -39,11 +39,11 @@ def create_vertex(structure, array):
 # --- set Vertex
 Vertex = (((ctypes.c_float * 4) * 2) * 3)()
 
-bf_array = [[[-1.0, -1.0, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0]],
+vertex_array = [[[-1.0, -1.0, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0]],
             [[1.0, -1.0, 0.0, 1.0], [0.0, 1.0, 0.0, 1.0]],
             [[0.0, 1.0, 0.0, 1.0], [0.0, 0.0, 1.0, 1.0]]]
 
-vertexData = create_vertex(Vertex, bf_array)
+vertexData = create_vertex(Vertex, vertex_array)
 
 
 class Matrix:
