@@ -1,13 +1,14 @@
 import pathlib
 from math import sin, cos
 import ctypes
+import numpy as np
+
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
 
 #import pdbg
 
 shader_path = pathlib.Path('./Shaders.metal')
-
 
 # --- load objc classes
 MTKView = ObjCClass('MTKView')
@@ -19,27 +20,14 @@ MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
 MTLCreateSystemDefaultDevice.argtypes = []
 MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
-
 memcpy = c.memcpy
 memcpy.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_size_t]
 memcpy.restype = ctypes.c_void_p
 
-
 err_ptr = ctypes.c_void_p()
 
-
-# xxx: クソダサ
-def create_vertex(structure, array):
-  for s1, a1 in enumerate(array):
-    for s2, a2 in enumerate(a1):
-      for s3, a3 in enumerate(a2):
-        structure[s1][s2][s3] = a3
-  return structure
-
-
 # --- set Vertex
-Vertex = (((ctypes.c_float * 4) * 2) * 8)()
-
+Vertex = (((ctypes.c_float * 4) * 2) * 8)
 vertex_array = [
   [[-1.0, -1.0,  1.0, 1.0], [1.0, 0.0, 0.0, 1.0]],
   [[ 1.0, -1.0,  1.0, 1.0], [0.0, 1.0, 0.0, 1.0]],
@@ -48,73 +36,75 @@ vertex_array = [
   [[-1.0, -1.0, -1.0, 1.0], [0.0, 0.0, 1.0, 1.0]],
   [[ 1.0, -1.0, -1.0, 1.0], [1.0, 1.0, 1.0, 1.0]],
   [[ 1.0,  1.0, -1.0, 1.0], [1.0, 0.0, 0.0, 1.0]],
-  [[-1.0,  1.0, -1.0, 1.0], [0.0, 1.0, 0.0, 1.0]]
+  [[-1.0,  1.0, -1.0, 1.0], [0.0, 1.0, 0.0, 1.0]],
 ]
+np_vertex = np.array(vertex_array, dtype=np.float32)
 
-vertexData = create_vertex(Vertex, vertex_array)
-
-
-indexData = (ctypes.c_int16 * 36)()
+Index = (ctypes.c_uint16 * 36)
 index_array = [
-  0, 1, 2, 2, 3, 0,   # front
-  1, 5, 6, 6, 2, 1,   # right
-  3, 2, 6, 6, 7, 3,   # top
-  4, 5, 1, 1, 0, 4,   # bottom
-  4, 0, 3, 3, 7, 4,   # left
-  7, 6, 5, 5, 4, 7,   # back
-  ]
-for ni, ii in enumerate(index_array):
-  indexData[ni] = ii
+  0, 1, 2, 2, 3, 0,  # front
+  1, 5, 6, 6, 2, 1,  # right
+  3, 2, 6, 6, 7, 3,  # top
+  4, 5, 1, 1, 0, 4,  # bottom
+  4, 0, 3, 3, 7, 4,  # left
+  7, 6, 5, 5, 4, 7,  # back
+]
+np_index = np.array(index_array, dtype=np.uint16)
+
+Matrix = (ctypes.c_float * 16)
+matrix_array = [
+  1.0, 0.0, 0.0, 0.0,
+  0.0, 1.0, 0.0, 0.0,
+  0.0, 0.0, 1.0, 0.0,
+  0.0, 0.0, 0.0, 1.0,
+]
+np_m = np.array(matrix_array, dtype=np.float32)
 
 
-class Matrix:
-  def __init__(self):
-    bf_m = [
-      1.0, 0.0, 0.0, 0.0,
-      0.0, 1.0, 0.0, 0.0,
-      0.0, 0.0, 1.0, 0.0,
-      0.0, 0.0, 0.0, 1.0
-    ]
-    m = (ctypes.c_float * 16)()
-    for n, i in enumerate(bf_m):
-      m[n] = i
-    self.m = m
-
-  def translationMatrix(self, matrix, position):
-    matrix.m[12] = position[0]
-    matrix.m[13] = position[1]
-    matrix.m[14] = position[2]
-    return matrix
-
-  def scalingMatrix(self, matrix, scale):
-    matrix.m[0] = scale
-    matrix.m[5] = scale
-    matrix.m[10] = scale
-    matrix.m[15] = 1.0
-    return matrix
-
-  def rotationMatrix(self, matrix, rot):
-    matrix.m[0] = cos(rot[1]) * cos(rot[2])
-    matrix.m[4] = cos(rot[2]) * sin(rot[0]) * sin(rot[1]) - cos(rot[0]) * sin(rot[2])
-    matrix.m[8] = cos(rot[0]) * cos(rot[2]) * sin(rot[1]) + sin(rot[0]) * sin(rot[2])
-    matrix.m[1] = cos(rot[1]) * sin(rot[2])
-    matrix.m[5] = cos(rot[0]) * cos(rot[2]) + sin(rot[0]) * sin(rot[1]) * sin(rot[2])
-    matrix.m[9] = -cos(rot[2]) * sin(rot[0]) + cos(rot[0]) * sin(rot[1]) * sin(rot[2])
-    matrix.m[2] = -sin(rot[1])
-    matrix.m[6] = cos(rot[1]) * sin(rot[0])
-    matrix.m[10] = cos(rot[0]) * cos(rot[1])
-    matrix.m[15] = 1.0
-    return matrix
-
-  def modelMatrix(self, matrix):
-    #matrix = self.rotationMatrix(matrix, [0.0, 0.0, 0.1])
-    matrix = self.scalingMatrix(matrix, 0.5)
-    #matrix = self.translationMatrix(matrix, [0.0, 0.5, 0.0])
-
-    return matrix
+# --- Matrix
+def translationMatrix(matrix, position):
+  matrix[12] = position[0]
+  matrix[13] = position[1]
+  matrix[14] = position[2]
+  return matrix
 
 
-m_byt = Matrix().modelMatrix(Matrix()).m
+def scalingMatrix(matrix, scale):
+  matrix[0] = scale
+  matrix[5] = scale
+  matrix[10] = scale
+  matrix[15] = 1.0
+  return matrix
+
+
+def rotationMatrix(matrix, rot):
+  matrix[0] = cos(rot[1]) * cos(rot[2])
+  matrix[4] = cos(rot[2]) * sin(rot[0]) * sin(rot[1]) - cos(rot[0]) * sin(rot[2])
+  matrix[8] = cos(rot[0]) * cos(rot[2]) * sin(rot[1]) + sin(rot[0]) * sin(rot[2])
+  matrix[1] = cos(rot[1]) * sin(rot[2])
+  matrix[5] = cos(rot[0]) * cos(rot[2]) + sin(rot[0]) * sin(rot[1]) * sin(rot[2])
+  matrix[9] = -cos(rot[2]) * sin(rot[0]) + cos(rot[0]) * sin(rot[1]) * sin(rot[2])
+  matrix[2] = -sin(rot[1])
+  matrix[6] = cos(rot[1]) * sin(rot[0])
+  matrix[10] = cos(rot[0]) * cos(rot[1])
+  matrix[15] = 1.0
+  return matrix
+
+
+def modelMatrix(matrix):
+  #matrix = rotationMatrix(matrix, [0.0, 0.0, 0.1])
+  matrix = scalingMatrix(matrix, 0.5)
+  #matrix = translationMatrix(matrix, [0.0, 0.5, 0.0])
+
+  return matrix
+
+
+vertexData = np_vertex.ctypes.data_as(ctypes.POINTER(Vertex)).contents
+
+indexData = np_index.ctypes.data_as(ctypes.POINTER(Index)).contents
+
+_matrixData = np_m.ctypes.data_as(ctypes.POINTER(Matrix)).contents
+matrixData = modelMatrix(_matrixData)
 
 
 class MetalView(ui.View):
@@ -126,40 +116,40 @@ class MetalView(ui.View):
   def view_did_load(self):
     mtkView = MTKView.alloc()
     _device = MTLCreateSystemDefaultDevice()
-    
+
     # todo: 端末サイズにて要調整
     _uw, _uh = ui.get_window_size()
     _w = min(_uw, _uh) * 0.96
     _x = (_uw - _w) / 2
     _y = _uh / 4
+
     #_frame = ((32.0, 32.0), (300.0, 300.0))
     #_frame = ((0.0, 0.0), (300.0, 300.0))
     _frame = ((_x, _y), (_w, _w))
-    
+
     devices = ObjCInstance(_device)
     mtkView.initWithFrame_device_(_frame, devices)
     #mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     renderer = self.renderer_init(PyRenderer, mtkView)
     mtkView.delegate = renderer
-
     self.objc_instance.addSubview_(mtkView)
 
   def renderer_init(self, delegate, _mtkView):
     renderer = delegate.alloc().init()
-    
+
     # --- createBuffer
     renderer.device = _mtkView.device()
     renderer.commandQueue = renderer.device.newCommandQueue()
 
-    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(vertexData, 16 * (8 * 2), 0)
-    
-    renderer.indexBuffer = renderer.device.newBufferWithBytes_length_options_(indexData, 16 * 36, 0)
+    # xxx: length
+    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(vertexData, np_vertex.nbytes, 0)
 
+    # xxx: 576  72
+    renderer.indexBuffer = renderer.device.newBufferWithBytes_length_options_(indexData, np_index.nbytes * 8, 0)
 
-    renderer.uniformBuffer = renderer.device.newBufferWithLength_options_(16*16, 0)
+    renderer.uniformBuffer = renderer.device.newBufferWithLength_options_(16 * 16, 0)
     bufferPointer = renderer.uniformBuffer.contents()
-    memcpy(bufferPointer, m_byt, 16*16)
-
+    memcpy(bufferPointer, matrixData, 16 * 16)
 
     # --- registerShaders
     source = shader_path.read_text('utf-8')
@@ -176,7 +166,6 @@ class MetalView(ui.View):
     renderer.rps = renderer.device.newRenderPipelineStateWithDescriptor_error_(rpld, err_ptr)
 
     return renderer
-    
 
 
 # --- MTKViewDelegate
@@ -184,7 +173,7 @@ def drawInMTKView_(_self, _cmd, _view):
   self = ObjCInstance(_self)
   view = ObjCInstance(_view)
   # --- update
-  
+
   drawable = view.currentDrawable()
   rpd = view.currentRenderPassDescriptor()
   rpd.colorAttachments().objectAtIndexedSubscript(0).clearColor = (0.0, 0.5, 0.5, 1.0)
@@ -194,15 +183,12 @@ def drawInMTKView_(_self, _cmd, _view):
   commandEncoder.setRenderPipelineState_(self.rps)
   commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
   commandEncoder.setVertexBuffer_offset_atIndex_(self.uniformBuffer, 0, 1)
-  #
-  #commandEncoder.drawPrimitives_vertexStart_vertexCount_instanceCount_(3, 0, 3, 1)  # .triangle
-  
+
   commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(3, (self.indexBuffer.length() // 16), 0, self.indexBuffer, 0)
-  
+
   commandEncoder.endEncoding()
   commandBuffer.presentDrawable_(drawable)
   commandBuffer.commit()
-  
 
 
 def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
