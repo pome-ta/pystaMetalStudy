@@ -61,7 +61,7 @@ matrix_array = [
 np_m = np.array(matrix_array, dtype=np.float32)
 
 
-# --- Matrix
+# --- Matrix func
 def translationMatrix(matrix, position):
   matrix[12] = position[0]
   matrix[13] = position[1]
