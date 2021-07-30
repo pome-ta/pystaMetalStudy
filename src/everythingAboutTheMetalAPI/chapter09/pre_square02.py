@@ -143,8 +143,6 @@ class MetalView(ui.View):
 
     # xxx: length
     renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(vertexData, np_vertex.nbytes, 0)
-
-    # xxx: 576  72
     renderer.indexBuffer = renderer.device.newBufferWithBytes_length_options_(indexData, np_index.nbytes * 8, 0)
 
     renderer.uniformBuffer = renderer.device.newBufferWithLength_options_(16 * 16, 0)
