@@ -66,6 +66,7 @@ def scalingMatrix(scale):
   _xyzw[0, 0] = scale
   _xyzw[1, 1] = scale
   _xyzw[2, 2] = scale
+  _xyzw[3, 3] = 1.0
   
   return _xyzw
   
@@ -104,13 +105,17 @@ def matrixMultiply(a3x2, a3x3):
 
 def modelMatrix():
   scaled = scalingMatrix(0.5)
-  rotatedY = rotationMatrix(np.pi / 4, [0.0, 1.0, 0.0])
-  rotatedX = rotationMatrix(np.pi / 4, [1.0, 0.0, 0.0])
+  rotatedY = rotationMatrix(np.pi / 4, [1.0, 0.0, 0.0])
+  rotatedX = rotationMatrix(np.pi / 4, [0.0, 1.0, 0.0])
+  
+  print(rotatedY)
   
   #_xy = matrixMultiply(rotatedX, rotatedY)
-  _xy = rotatedX * rotatedY
+  _xy = np.dot(rotatedX, rotatedY)
+  print(_xy)
   #_matrix = matrixMultiply(_xy, scaled)
   _matrix = _xy * scaled
+  print(_matrix)
   
   
   return _matrix
@@ -169,6 +174,7 @@ class MetalView(ui.View):
     
     # todo: ここで、`ctypes` へキャスト
     _modelViewProjectionMatrix = modelMatrix()
+    print(_modelViewProjectionMatrix)
     modelViewProjectionMatrix = _modelViewProjectionMatrix.ctypes.data_as(ctypes.POINTER(MatrixFloat4x4)).contents
     
     uniforms = Uniforms(modelViewProjectionMatrix)
