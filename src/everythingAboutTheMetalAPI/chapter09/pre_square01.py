@@ -1,6 +1,7 @@
 import pathlib
-from math import sin, cos
 import ctypes
+import numpy as np
+
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
 
@@ -38,22 +39,21 @@ def create_vertex(structure, array):
 
 
 # --- set Vertex
-Vertex = (((ctypes.c_float * 4) * 2) * 4)()
-
+Vertex = (((ctypes.c_float * 4) * 2) * 4)
 vertex_array = [
   [[-1.0, -1.0, 0.0,  1.0], [1.0, 0.0, 0.0, 1.0]],
   [[ 1.0, -1.0, 0.0,  1.0], [0.0, 1.0, 0.0, 1.0]],
   [[ 1.0,  1.0, 0.0,  1.0], [0.0, 0.0, 1.0, 1.0]],
   [[-1.0,  1.0, 0.0,  1.0], [1.0, 1.0, 1.0, 1.0]]
 ]
+np_vertex = np.array(vertex_array, dtype=np.float32)
+vertexData = np_vertex.ctypes.data_as(ctypes.POINTER(Vertex)).contents
 
-vertexData = create_vertex(Vertex, vertex_array)
 
-
-indexData = (ctypes.c_int16 * 6)()
+Index = (ctypes.c_int16 * 6)
 index_array = [0, 1, 2, 2, 3, 0]
-for ni, ii in enumerate(index_array):
-  indexData[ni] = ii
+np_index = np.array(index_array, dtype=np.uint16)
+indexData = np_index.ctypes.data_as(ctypes.POINTER(Index)).contents
 
 
 class Matrix:
@@ -83,15 +83,15 @@ class Matrix:
     return matrix
 
   def rotationMatrix(self, matrix, rot):
-    matrix.m[0] = cos(rot[1]) * cos(rot[2])
-    matrix.m[4] = cos(rot[2]) * sin(rot[0]) * sin(rot[1]) - cos(rot[0]) * sin(rot[2])
-    matrix.m[8] = cos(rot[0]) * cos(rot[2]) * sin(rot[1]) + sin(rot[0]) * sin(rot[2])
-    matrix.m[1] = cos(rot[1]) * sin(rot[2])
-    matrix.m[5] = cos(rot[0]) * cos(rot[2]) + sin(rot[0]) * sin(rot[1]) * sin(rot[2])
-    matrix.m[9] = -cos(rot[2]) * sin(rot[0]) + cos(rot[0]) * sin(rot[1]) * sin(rot[2])
-    matrix.m[2] = -sin(rot[1])
-    matrix.m[6] = cos(rot[1]) * sin(rot[0])
-    matrix.m[10] = cos(rot[0]) * cos(rot[1])
+    matrix.m[0] = np.cos(rot[1]) * np.cos(rot[2])
+    matrix.m[4] = np.cos(rot[2]) * np.sin(rot[0]) * np.sin(rot[1]) - np.cos(rot[0]) * np.sin(rot[2])
+    matrix.m[8] = np.cos(rot[0]) * np.cos(rot[2]) * np.sin(rot[1]) + np.sin(rot[0]) * np.sin(rot[2])
+    matrix.m[1] = np.cos(rot[1]) * np.sin(rot[2])
+    matrix.m[5] = np.cos(rot[0]) * np.cos(rot[2]) + np.sin(rot[0]) * np.sin(rot[1]) * np.sin(rot[2])
+    matrix.m[9] = -np.cos(rot[2]) * np.sin(rot[0]) + np.cos(rot[0]) * np.sin(rot[1]) * np.sin(rot[2])
+    matrix.m[2] = -np.sin(rot[1])
+    matrix.m[6] = np.cos(rot[1]) * np.sin(rot[0])
+    matrix.m[10] = np.cos(rot[0]) * np.cos(rot[1])
     matrix.m[15] = 1.0
     return matrix
 
