@@ -3,6 +3,18 @@
 Pythonista でMetal やる
 
 
+
+
+## 📝 2021/08/02
+
+```
+>>> import numpy as np
+>>> np.__version__
+'1.8.0'
+
+
+```
+
 ## 📝 2021/07/31
 
 
