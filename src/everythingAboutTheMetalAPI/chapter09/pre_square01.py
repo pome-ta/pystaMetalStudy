@@ -29,15 +29,6 @@ memcpy.restype = ctypes.c_void_p
 err_ptr = ctypes.c_void_p()
 
 
-# xxx: クソダサ
-def create_vertex(structure, array):
-  for s1, a1 in enumerate(array):
-    for s2, a2 in enumerate(a1):
-      for s3, a3 in enumerate(a2):
-        structure[s1][s2][s3] = a3
-  return structure
-
-
 # --- set Vertex
 Vertex = (((ctypes.c_float * 4) * 2) * 4)
 vertex_array = [
@@ -56,54 +47,48 @@ np_index = np.array(index_array, dtype=np.uint16)
 indexData = np_index.ctypes.data_as(ctypes.POINTER(Index)).contents
 
 
-class Matrix:
-  def __init__(self):
-    bf_m = [
-      1.0, 0.0, 0.0, 0.0,
-      0.0, 1.0, 0.0, 0.0,
-      0.0, 0.0, 1.0, 0.0,
-      0.0, 0.0, 0.0, 1.0
-    ]
-    m = (ctypes.c_float * 16)()
-    for n, i in enumerate(bf_m):
-      m[n] = i
-    self.m = m
-
-  def translationMatrix(self, matrix, position):
-    matrix.m[12] = position[0]
-    matrix.m[13] = position[1]
-    matrix.m[14] = position[2]
-    return matrix
-
-  def scalingMatrix(self, matrix, scale):
-    matrix.m[0] = scale
-    matrix.m[5] = scale
-    matrix.m[10] = scale
-    matrix.m[15] = 1.0
-    return matrix
-
-  def rotationMatrix(self, matrix, rot):
-    matrix.m[0] = np.cos(rot[1]) * np.cos(rot[2])
-    matrix.m[4] = np.cos(rot[2]) * np.sin(rot[0]) * np.sin(rot[1]) - np.cos(rot[0]) * np.sin(rot[2])
-    matrix.m[8] = np.cos(rot[0]) * np.cos(rot[2]) * np.sin(rot[1]) + np.sin(rot[0]) * np.sin(rot[2])
-    matrix.m[1] = np.cos(rot[1]) * np.sin(rot[2])
-    matrix.m[5] = np.cos(rot[0]) * np.cos(rot[2]) + np.sin(rot[0]) * np.sin(rot[1]) * np.sin(rot[2])
-    matrix.m[9] = -np.cos(rot[2]) * np.sin(rot[0]) + np.cos(rot[0]) * np.sin(rot[1]) * np.sin(rot[2])
-    matrix.m[2] = -np.sin(rot[1])
-    matrix.m[6] = np.cos(rot[1]) * np.sin(rot[0])
-    matrix.m[10] = np.cos(rot[0]) * np.cos(rot[1])
-    matrix.m[15] = 1.0
-    return matrix
-
-  def modelMatrix(self, matrix):
-    matrix = self.rotationMatrix(matrix, [0.0, 0.0, 0.1])
-    matrix = self.scalingMatrix(matrix, 0.25)
-    matrix = self.translationMatrix(matrix, [0.0, 0.5, 0.0])
-
-    return matrix
+Matrix = (ctypes.c_float * 16)
+np_m = np.eye(4, dtype=np.float32)
+_matrixData = np_m.ctypes.data_as(ctypes.POINTER(Matrix)).contents
 
 
-m_byt = Matrix().modelMatrix(Matrix()).m
+
+
+def translationMatrix(matrix, position):
+  matrix[12] = position[0]
+  matrix[13] = position[1]
+  matrix[14] = position[2]
+  return matrix
+
+def scalingMatrix(matrix, scale):
+  matrix[0] = scale
+  matrix[5] = scale
+  matrix[10] = scale
+  matrix[15] = 1.0
+  return matrix
+
+def rotationMatrix(matrix, rot):
+  matrix[0] = np.cos(rot[1]) * np.cos(rot[2])
+  matrix[4] = np.cos(rot[2]) * np.sin(rot[0]) * np.sin(rot[1]) - np.cos(rot[0]) * np.sin(rot[2])
+  matrix[8] = np.cos(rot[0]) * np.cos(rot[2]) * np.sin(rot[1]) + np.sin(rot[0]) * np.sin(rot[2])
+  matrix[1] = np.cos(rot[1]) * np.sin(rot[2])
+  matrix[5] = np.cos(rot[0]) * np.cos(rot[2]) + np.sin(rot[0]) * np.sin(rot[1]) * np.sin(rot[2])
+  matrix[9] = -np.cos(rot[2]) * np.sin(rot[0]) + np.cos(rot[0]) * np.sin(rot[1]) * np.sin(rot[2])
+  matrix[2] = -np.sin(rot[1])
+  matrix[6] = np.cos(rot[1]) * np.sin(rot[0])
+  matrix[10] = np.cos(rot[0]) * np.cos(rot[1])
+  matrix[15] = 1.0
+  return matrix
+
+def modelMatrix(matrix):
+  
+  matrix = rotationMatrix(matrix, [0.0, 0.0, 0.1])
+  matrix = scalingMatrix(matrix, 0.25)
+  matrix = translationMatrix(matrix, [0.0, 0.5, 0.0])
+
+  return matrix
+
+matrixData = modelMatrix(_matrixData)
 
 
 class MetalView(ui.View):
@@ -122,9 +107,6 @@ class MetalView(ui.View):
     _w = min(_uw, _uh) * 0.96
     _x = (_uw - _w) / 2
     _y = _uh / 4
-
-    #_frame = ((32.0, 32.0), (300.0, 300.0))
-    #_frame = ((0.0, 0.0), (300.0, 300.0))
     _frame = ((_x, _y), (_w, _w))
 
     
@@ -132,7 +114,6 @@ class MetalView(ui.View):
     #mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     renderer = self.renderer_init(PyRenderer, mtkView)
     mtkView.delegate = renderer
-
     self.objc_instance.addSubview_(mtkView)
 
   def renderer_init(self, delegate, _mtkView):
@@ -149,7 +130,7 @@ class MetalView(ui.View):
 
     renderer.uniformBuffer = renderer.device.newBufferWithLength_options_(16*16, 0)
     bufferPointer = renderer.uniformBuffer.contents()
-    memcpy(bufferPointer, m_byt, 16*16)
+    memcpy(bufferPointer, matrixData, 16*16)
 
 
     # --- registerShaders
