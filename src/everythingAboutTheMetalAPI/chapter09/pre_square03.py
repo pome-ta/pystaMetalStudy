@@ -28,7 +28,6 @@ err_ptr = ctypes.c_void_p()
 
 
 # --- set Vertex
-Vertex = (((ctypes.c_float * 4) * 2) * 8)
 vertex_array = [
   [[-1.0, -1.0,  1.0, 1.0], [1.0, 0.0, 0.0, 1.0]],
   [[ 1.0, -1.0,  1.0, 1.0], [0.0, 1.0, 0.0, 1.0]],
@@ -39,9 +38,10 @@ vertex_array = [
   [[ 1.0,  1.0, -1.0, 1.0], [1.0, 0.0, 0.0, 1.0]],
   [[-1.0,  1.0, -1.0, 1.0], [0.0, 1.0, 0.0, 1.0]],
 ]
+Vertex = (((ctypes.c_float * 4) * 2) * 8)
 np_vertex = np.array(vertex_array, dtype=np.float32)
 
-Index = (ctypes.c_uint16 * 36)
+
 index_array = [
   0, 1, 2, 2, 3, 0,  # front
   1, 5, 6, 6, 2, 1,  # right
@@ -50,6 +50,7 @@ index_array = [
   4, 0, 3, 3, 7, 4,  # left
   7, 6, 5, 5, 4, 7,  # back
 ]
+Index = (ctypes.c_uint16 * 36)
 np_index = np.array(index_array, dtype=np.uint16)
 
 #MatrixFloat4x4 = ((ctypes.c_float * 4) *4)
@@ -61,13 +62,17 @@ class Uniforms(ctypes.Structure):
 
 
 # --- Matrix func
+def translationMatrix(position):
+  _xyzw = np.identity(4, dtype=np.float32)
+  _xyzw[3] = [position[0], position[1], position[2], 1.0]
+  return _xyzw
+
 def scalingMatrix(scale):
   _xyzw = np.identity(4, dtype=np.float32)
   _xyzw[0, 0] = scale
   _xyzw[1, 1] = scale
   _xyzw[2, 2] = scale
   _xyzw[3, 3] = 1.0
-  
   return _xyzw
   
 def rotationMatrix(angle, axis):
@@ -92,32 +97,21 @@ def rotationMatrix(angle, axis):
   w = np.zeros(4, dtype=np.float32)
   w[3] = 1.0
   
-  #_xyzw = np.array([x, y, z, w], dtype=np.float32)
   _xyzw = np.vstack((x, y, z, w))
-  
   return _xyzw
 
 
-def matrixMultiply(a3x2, a3x3):
-  return np.dot(a3x2[:2, :3], a3x3[:3, :3])
-  
-  
+
 
 def modelMatrix():
   scaled = scalingMatrix(0.5)
-  rotatedY = rotationMatrix(np.pi / 4, [1.0, 0.0, 0.0])
-  rotatedX = rotationMatrix(np.pi / 4, [0.0, 1.0, 0.0])
+  rotatedY = rotationMatrix(np.pi / 4, [0.0, 1.0, 0.0])
+  rotatedX = rotationMatrix(np.pi / 4, [1.0, 0.0, 0.0])
   
-  print(rotatedY)
-  
-  #_xy = matrixMultiply(rotatedX, rotatedY)
-  _xy = np.dot(rotatedX, rotatedY)
-  print(_xy)
-  #_matrix = matrixMultiply(_xy, scaled)
-  _matrix = _xy * scaled
+  _matrix = np.dot(np.dot(rotatedX, rotatedY), scaled)
+  #_xy = np.dot(rotatedX, rotatedY)
+  #_matrix = np.dot(_xy, scaled)
   print(_matrix)
-  
-  
   return _matrix
 
 
@@ -174,7 +168,7 @@ class MetalView(ui.View):
     
     # todo: ここで、`ctypes` へキャスト
     _modelViewProjectionMatrix = modelMatrix()
-    print(_modelViewProjectionMatrix)
+    
     modelViewProjectionMatrix = _modelViewProjectionMatrix.ctypes.data_as(ctypes.POINTER(MatrixFloat4x4)).contents
     
     uniforms = Uniforms(modelViewProjectionMatrix)
