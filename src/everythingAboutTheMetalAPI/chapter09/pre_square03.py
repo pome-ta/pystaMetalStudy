@@ -111,7 +111,7 @@ def modelMatrix():
   _matrix = np.dot(np.dot(rotatedX, rotatedY), scaled)
   #_xy = np.dot(rotatedX, rotatedY)
   #_matrix = np.dot(_xy, scaled)
-  print(_matrix)
+  #print(_matrix)
   return _matrix
 
 
