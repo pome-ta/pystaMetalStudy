@@ -115,9 +115,19 @@ class MetalView(ui.View):
   def view_did_load(self):
     mtkView = MTKView.alloc()
     _device = MTLCreateSystemDefaultDevice()
-    _frame = ((0.0, 0.0), (320.0, 320.0))
-
     devices = ObjCInstance(_device)
+    
+    # todo: 端末サイズにて要調整
+    _uw, _uh = ui.get_window_size()
+    _w = min(_uw, _uh) * 0.96
+    _x = (_uw - _w) / 2
+    _y = _uh / 4
+
+    #_frame = ((32.0, 32.0), (300.0, 300.0))
+    #_frame = ((0.0, 0.0), (300.0, 300.0))
+    _frame = ((_x, _y), (_w, _w))
+
+    
     mtkView.initWithFrame_device_(_frame, devices)
     #mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     renderer = self.renderer_init(PyRenderer, mtkView)
@@ -175,8 +185,6 @@ def drawInMTKView_(_self, _cmd, _view):
   commandEncoder.setRenderPipelineState_(self.rps)
   commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
   commandEncoder.setVertexBuffer_offset_atIndex_(self.uniformBuffer, 0, 1)
-  #
-  commandEncoder.drawPrimitives_vertexStart_vertexCount_instanceCount_(3, 0, 3, 1)  # .triangle
   
   commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(3, (self.indexBuffer.length() // 16), 0, self.indexBuffer, 0)
   
