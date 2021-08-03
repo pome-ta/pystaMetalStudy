@@ -5,7 +5,7 @@ import numpy as np
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
 
-#import pdbg
+import pdbg
 
 shader_path = pathlib.Path('./Shaders.metal')
 
@@ -48,6 +48,8 @@ class MetalView(ui.View):
     #mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     renderer = self.renderer_init(PyRenderer, mtkView)
     mtkView.delegate = renderer
+    
+    
     self.objc_instance.addSubview_(mtkView)
 
   def renderer_init(self, delegate, _mtkView):
@@ -77,12 +79,19 @@ def drawInMTKView_(_self, _cmd, _view):
   drawable = view.currentDrawable()
   
   commandBuffer = self.commandQueue.commandBuffer()
-  commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
-  commandEncoder.setRenderPipelineState_(self.rps)
-  commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
-  commandEncoder.setVertexBuffer_offset_atIndex_(self.uniformBuffer, 0, 1)
+  commandEncoder = commandBuffer.computeCommandEncoder()
+  commandEncoder.setComputePipelineState_(self.cps)
+  '''
+  commandEncoder.setTexture_atIndex_(drawable.texture(), 0)
   
-  commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(3, (self.indexBuffer.length() // 16), 0, self.indexBuffer, 0)
+  threadGroupCount = (8, 8, 1)
+  # width = 8
+  # height = 8
+  # depth = 1
+  threadGroups = (drawable.texture().width / 8, drawable.texture().height / 8, 1)
+  
+  commandEncoder.dispatchThreadgroups_threadsPerThreadgroup(threadGroups, threadGroupCount)
+  '''
   
   commandEncoder.endEncoding()
   commandBuffer.presentDrawable_(drawable)
