@@ -55,8 +55,8 @@ index_array = [
 Index = (ctypes.c_uint16 * 36)
 np_index = np.array(index_array, dtype=np.uint16)
 
-#MatrixFloat4x4 = ((ctypes.c_float * 4) *4)
-MatrixFloat4x4 = (ctypes.c_float *16)
+MatrixFloat4x4 = ((ctypes.c_float * 4) *4)
+#MatrixFloat4x4 = (ctypes.c_float *16)
 
 
 class Uniforms(ctypes.Structure):
@@ -168,11 +168,15 @@ class MetalView(ui.View):
     renderer.commandQueue = renderer.device.newCommandQueue()
 
     # xxx: length
+    # vertexData.count:  256
     renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(vertexData, np_vertex.nbytes, 0)
-    renderer.indexBuffer = renderer.device.newBufferWithBytes_length_options_(indexData, np_index.nbytes, 0)
-    print(np_index.nbytes)
     
-    renderer.uniformBuffer = renderer.device.newBufferWithLength_options_(64, 0)
+    # indexData.count:  72
+    renderer.indexBuffer = renderer.device.newBufferWithBytes_length_options_(indexData, np_index.nbytes, 0)
+    
+    
+    # size:  64
+    renderer.uniformBuffer = renderer.device.newBufferWithLength_options_(ctypes.sizeof(Uniforms), 0)
     bufferPointer = renderer.uniformBuffer.contents()
     
     renderer.rotation = 0.0
@@ -208,13 +212,15 @@ def drawInMTKView_(_self, _cmd, _view):
   cameraPosition = [0.0, 0.0, -3.0]
   viewMatrix = translationMatrix(cameraPosition)
   projMatrix = projectionMatrix(0.0, 10.0, 1.0, 1.0)
-  # todo: ここで、`ctypes` へキャスト
+  
   _modelViewProjectionMatrix = np.dot(projMatrix, np.dot(viewMatrix, modelMatrix))
+  # todo: ここで、`ctypes` へキャスト
   modelViewProjectionMatrix = _modelViewProjectionMatrix.ctypes.data_as(ctypes.POINTER(MatrixFloat4x4)).contents
   
   bufferPointer = self.uniformBuffer.contents()
   uniforms = Uniforms(modelViewProjectionMatrix)
-  memcpy(bufferPointer, ctypes.byref(uniforms), 64)
+  # size:  64
+  ctypes.memmove(bufferPointer, ctypes.byref(uniforms), ctypes.sizeof(uniforms))
   
   
   drawable = view.currentDrawable()
@@ -237,7 +243,10 @@ def drawInMTKView_(_self, _cmd, _view):
   commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
   commandEncoder.setVertexBuffer_offset_atIndex_(self.uniformBuffer, 0, 1)
 
-  commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(3, 36, 0, self.indexBuffer, 0)
+  # indexCount:  36
+  # --- indexBuffer.length:  72
+  # --- MemoryLayout<UInt16>.size:  2
+  commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(3, (self.indexBuffer.length() // 2), 0, self.indexBuffer, 0)
 
   commandEncoder.endEncoding()
   commandBuffer.presentDrawable_(drawable)
