@@ -3,6 +3,67 @@
 Pythonista でMetal やる
 
 
+## 📝 2021/08/03
+
+
+### translationMatrix
+
+```
+translationMatrix simd_float4x4(
+  [[1.0, 0.0, 0.0, 0.0],
+  [0.0, 1.0, 0.0, 0.0],
+  [0.0, 0.0, 1.0, 0.0],
+  [0.0, 0.0, -3.0, 1.0]]
+)
+```
+
+###
+
+```
+scalingMatrix simd_float4x4(
+  [[0.5, 0.0, 0.0, 0.0],
+  [0.0, 0.5, 0.0, 0.0],
+  [0.0, 0.0, 0.5, 0.0],
+  [0.0, 0.0, 0.0, 1.0]]
+)
+```
+
+###
+
+```
+rotationMatrix simd_float4x4(
+  [[1.0, 0.0, 0.0, 0.0],
+  [0.0, 0.7071068, -0.70710677, 0.0],
+  [0.0, 0.70710677, 0.7071068, 0.0],
+  [0.0, 0.0, 0.0, 1.0]]
+)
+```
+
+###
+
+```
+projectionMatrix simd_float4x4(
+  [[1.8304877, 0.0, 0.0, 0.0],
+  [0.0, 1.8304877, 0.0, 0.0],
+  [0.0, 0.0, -1.0, -1.0],
+  [0.0, 0.0, -0.0, 0.0]]
+)
+```
+
+
+### size 関係
+
+```
+MemoryLayout<Vertex>.size * vertexData.count:  256
+MemoryLayout<UInt16>.size * indexData.count:  72
+MemoryLayout<matrix_float4x4>.size:  64
+MemoryLayout<Uniforms>.size:  64
+indexCount:  36
+--- indexBuffer.length:  72
+--- MemoryLayout<UInt16>.size:  2
+```
+
+
 
 
 ## 📝 2021/08/02
@@ -76,7 +137,7 @@ Numpy でガチャーっとできるのかしら？そっちの方が有益か�
 
 
 
-> There are two ways we can prepare our class for drawing: either conform to the MTKViewDelegate protocol and implement its drawInView(:) method, or subclass MTKView and override its drawRect(:)method. 
+> There are two ways we can prepare our class for drawing: either conform to the MTKViewDelegate protocol and implement its drawInView(:) method, or subclass MTKView and override its drawRect(:)method.
 
 
 > We choose the latter, so go ahead and change the class type from NSView to MTKView, and create a new method named render() that has the following content:
