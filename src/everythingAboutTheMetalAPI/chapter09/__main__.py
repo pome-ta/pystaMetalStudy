@@ -28,7 +28,7 @@ memcpy.restype = ctypes.c_void_p
 
 err_ptr = ctypes.c_void_p()
 
-
+nd_type = np.float32
 # --- set Vertex
 vertex_array = [
   [[-1.0, -1.0,  1.0, 1.0], [1.0, 0.0, 0.0, 1.0]],
@@ -41,7 +41,7 @@ vertex_array = [
   [[-1.0,  1.0, -1.0, 1.0], [0.0, 1.0, 0.0, 1.0]],
 ]
 Vertex = (((ctypes.c_float * 4) * 2) * 8)
-np_vertex = np.array(vertex_array, dtype=np.float32)
+np_vertex = np.array(vertex_array, dtype=nd_type)
 
 
 index_array = [
@@ -55,8 +55,8 @@ index_array = [
 Index = (ctypes.c_uint16 * 36)
 np_index = np.array(index_array, dtype=np.uint16)
 
-MatrixFloat4x4 = ((ctypes.c_float * 4) *4)
-#MatrixFloat4x4 = (ctypes.c_float *16)
+#MatrixFloat4x4 = ((ctypes.c_float * 4) *4)
+MatrixFloat4x4 = (ctypes.c_float *16)
 
 
 class Uniforms(ctypes.Structure):
@@ -65,13 +65,13 @@ class Uniforms(ctypes.Structure):
 
 # --- Matrix func
 def translationMatrix(position):
-  _matrix4x4 = np.identity(4, dtype=np.float32)
+  _matrix4x4 = np.identity(4, dtype=nd_type)
   _matrix4x4[3] = [position[0], position[1], position[2], 1.0]
   
   return _matrix4x4
 
 def scalingMatrix(scale):
-  _matrix4x4 = np.identity(4, dtype=np.float32)
+  _matrix4x4 = np.identity(4, dtype=nd_type)
   _matrix4x4[0, 0] = scale
   _matrix4x4[1, 1] = scale
   _matrix4x4[2, 2] = scale
@@ -80,25 +80,25 @@ def scalingMatrix(scale):
   return _matrix4x4
   
 def rotationMatrix(angle, axis):
-  X = np.zeros(4, dtype=np.float32)
+  X = np.zeros(4, dtype=nd_type)
   X[0] = axis[0] * axis[0] + (1.0 - axis[0] * axis[0]) * np.cos(angle)
   X[1] = axis[0] * axis[1] * (1.0 - np.cos(angle)) - axis[2] * np.sin(angle)
   X[2] = axis[0] * axis[2] * (1.0 - np.cos(angle)) + axis[1] * np.sin(angle)
   X[3] = 0.0
   
-  Y = np.zeros(4, dtype=np.float32)
+  Y = np.zeros(4, dtype=nd_type)
   Y[0] = axis[0] * axis[1] * (1.0 - np.cos(angle))  + axis[2] * np.sin(angle)
   Y[1] = axis[1] * axis[1] + (1.0 - axis[1] * axis[1]) * np.cos(angle)
   Y[2] = axis[1] * axis[2] * (1.0 - np.cos(angle)) - axis[0] * np.sin(angle)
   Y[3] = 0.0
   
-  Z = np.zeros(4, dtype=np.float32)
+  Z = np.zeros(4, dtype=nd_type)
   Z[0] = axis[0] * axis[2] * (1.0 - np.cos(angle)) - axis[1] * np.sin(angle)
   Z[1] = axis[1] * axis[2] * (1.0 - np.cos(angle)) + axis[0] * np.sin(angle)
   Z[2] = axis[2] * axis[2] + (1.0 - axis[2] * axis[2]) * np.cos(angle)
   Z[3] = 0.0
   
-  W = np.zeros(4, dtype=np.float32)
+  W = np.zeros(4, dtype=nd_type)
   W[3] = 1.0
   
   _matrix4x4 = np.vstack((X, Y, Z, W))
@@ -170,14 +170,17 @@ class MetalView(ui.View):
     # xxx: length
     # vertexData.count:  256
     renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(vertexData, np_vertex.nbytes, 0)
+    print('vertexData.count: ', np_vertex.nbytes)
     
     # indexData.count:  72
     renderer.indexBuffer = renderer.device.newBufferWithBytes_length_options_(indexData, np_index.nbytes, 0)
+    print('indexData.count: ', np_index.nbytes)
     
     
     # size:  64
     renderer.uniformBuffer = renderer.device.newBufferWithLength_options_(ctypes.sizeof(Uniforms), 0)
-    bufferPointer = renderer.uniformBuffer.contents()
+    print('Uniforms.size: ', ctypes.sizeof(Uniforms))
+    renderer.bufferPointer = renderer.uniformBuffer.contents()
     
     renderer.rotation = 0.0
     
@@ -214,13 +217,15 @@ def drawInMTKView_(_self, _cmd, _view):
   projMatrix = projectionMatrix(0.0, 10.0, 1.0, 1.0)
   
   _modelViewProjectionMatrix = np.dot(projMatrix, np.dot(viewMatrix, modelMatrix))
+  
   # todo: ここで、`ctypes` へキャスト
   modelViewProjectionMatrix = _modelViewProjectionMatrix.ctypes.data_as(ctypes.POINTER(MatrixFloat4x4)).contents
   
-  bufferPointer = self.uniformBuffer.contents()
+  
+  self.bufferPointer = self.uniformBuffer.contents()
   uniforms = Uniforms(modelViewProjectionMatrix)
   # size:  64
-  ctypes.memmove(bufferPointer, ctypes.byref(uniforms), ctypes.sizeof(uniforms))
+  ctypes.memmove(self.bufferPointer, ctypes.byref(uniforms), ctypes.sizeof(uniforms))
   
   
   drawable = view.currentDrawable()
