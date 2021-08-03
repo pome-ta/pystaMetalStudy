@@ -104,10 +104,10 @@ def rotationMatrix(angle, axis):
 
 
 def projectionMatrix(near, far, aspect, fovy):
-  scaleY = 1 / np.tan(fovy * 0.5)
+  scaleY = 1.0 / np.tan(fovy * 0.5)
   scaleX = scaleY / aspect
   scaleZ = -(far + near) / (far - near)
-  scaleW = -2 * far * near / (far - near)
+  scaleW = -2.0 * far * near / (far - near)
   X = np.array([scaleX, 0.0, 0.0, 0.0], dtype=np.float32)
   Y = np.array([0.0, scaleY, 0.0, 0.0], dtype=np.float32)
   Z = np.array([0.0, 0.0, scaleZ, -1.0], dtype=np.float32)
@@ -203,9 +203,9 @@ def drawInMTKView_(_self, _cmd, _view):
   view = ObjCInstance(_view)
   # --- update
   scaled = scalingMatrix(0.5)
-  self.rotation += 1 / 100 * np.pi / 4
+  self.rotation += 1 / 100 * np.pi / 4.0
   rotatedY = rotationMatrix(self.rotation, [0.0, 1.0, 0.0])
-  rotatedX = rotationMatrix(np.pi / 4, [1.0, 0.0, 0.0])
+  rotatedX = rotationMatrix(np.pi / 4.0, [1.0, 0.0, 0.0])
   modelMatrix = np.dot(np.dot(rotatedX, rotatedY), scaled)
   cameraPosition = [0.0, 0.0, -3.0]
   viewMatrix = translationMatrix(cameraPosition)

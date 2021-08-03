@@ -130,7 +130,7 @@ class MetalView(ui.View):
 
     renderer.uniformBuffer = renderer.device.newBufferWithLength_options_(16*16, 0)
     bufferPointer = renderer.uniformBuffer.contents()
-    memcpy(bufferPointer, matrixData, 16*16)
+    memcpy(bufferPointer, matrixData, 16 * 16)
 
 
     # --- registerShaders
