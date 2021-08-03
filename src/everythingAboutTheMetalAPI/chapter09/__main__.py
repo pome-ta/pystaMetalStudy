@@ -67,6 +67,7 @@ class Uniforms(ctypes.Structure):
 def translationMatrix(position):
   _matrix4x4 = np.identity(4, dtype=np.float32)
   _matrix4x4[3] = [position[0], position[1], position[2], 1.0]
+  
   return _matrix4x4
 
 def scalingMatrix(scale):
@@ -75,6 +76,7 @@ def scalingMatrix(scale):
   _matrix4x4[1, 1] = scale
   _matrix4x4[2, 2] = scale
   _matrix4x4[3, 3] = 1.0
+  
   return _matrix4x4
   
 def rotationMatrix(angle, axis):
@@ -100,6 +102,7 @@ def rotationMatrix(angle, axis):
   W[3] = 1.0
   
   _matrix4x4 = np.vstack((X, Y, Z, W))
+  
   return _matrix4x4
 
 
@@ -114,16 +117,10 @@ def projectionMatrix(near, far, aspect, fovy):
   W = np.array([0.0, 0.0, scaleW, 0.0], dtype=np.float32)
   
   _matrix4x4 = np.vstack((X, Y, Z, W))
+  
   return _matrix4x4
   
 
-def modelMatrix():
-  scaled = scalingMatrix(0.5)
-  rotatedY = rotationMatrix(np.pi / 4, [0.0, 1.0, 0.0])
-  rotatedX = rotationMatrix(np.pi / 4, [1.0, 0.0, 0.0])
-  
-  _matrix = np.dot(np.dot(rotatedX, rotatedY), scaled)
-  return _matrix
 
 
 # todo: 無駄にキャストするテスト
@@ -172,9 +169,10 @@ class MetalView(ui.View):
 
     # xxx: length
     renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(vertexData, np_vertex.nbytes, 0)
-    renderer.indexBuffer = renderer.device.newBufferWithBytes_length_options_(indexData, np_index.nbytes * 8, 0)
+    renderer.indexBuffer = renderer.device.newBufferWithBytes_length_options_(indexData, np_index.nbytes, 0)
+    print(np_index.nbytes)
     
-    renderer.uniformBuffer = renderer.device.newBufferWithLength_options_(16 * 16, 0)
+    renderer.uniformBuffer = renderer.device.newBufferWithLength_options_(64, 0)
     bufferPointer = renderer.uniformBuffer.contents()
     
     renderer.rotation = 0.0
@@ -216,7 +214,7 @@ def drawInMTKView_(_self, _cmd, _view):
   
   bufferPointer = self.uniformBuffer.contents()
   uniforms = Uniforms(modelViewProjectionMatrix)
-  memcpy(bufferPointer, ctypes.byref(uniforms), 16 * 16)
+  memcpy(bufferPointer, ctypes.byref(uniforms), 64)
   
   
   drawable = view.currentDrawable()
@@ -239,7 +237,7 @@ def drawInMTKView_(_self, _cmd, _view):
   commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
   commandEncoder.setVertexBuffer_offset_atIndex_(self.uniformBuffer, 0, 1)
 
-  commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(3, (self.indexBuffer.length() // 16), 0, self.indexBuffer, 0)
+  commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(3, 36, 0, self.indexBuffer, 0)
 
   commandEncoder.endEncoding()
   commandBuffer.presentDrawable_(drawable)
