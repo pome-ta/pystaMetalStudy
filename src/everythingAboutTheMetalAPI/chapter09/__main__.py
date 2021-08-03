@@ -173,7 +173,7 @@ class MetalView(ui.View):
     # xxx: length
     renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(vertexData, np_vertex.nbytes, 0)
     renderer.indexBuffer = renderer.device.newBufferWithBytes_length_options_(indexData, np_index.nbytes * 8, 0)
-
+    
     renderer.uniformBuffer = renderer.device.newBufferWithLength_options_(16 * 16, 0)
     bufferPointer = renderer.uniformBuffer.contents()
     
@@ -227,12 +227,13 @@ def drawInMTKView_(_self, _cmd, _view):
   commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
   commandEncoder.setRenderPipelineState_(self.rps)
   
-  # MTLWinding.clockwise = 0
-  # MTLWinding.counterClockwise = 1
+  # MTLWinding
+  #   clockwise = 0
+  #   counterClockwise = 1
   # MTLCullMode
-  # none = 0
-  # front = 1
-  # back = 2
+  #   none = 0
+  #   front = 1
+  #   back = 2
   commandEncoder.setFrontFacingWinding_(1)  # .counterClockwise
   commandEncoder.setCullMode_(2)  # .back
   commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
