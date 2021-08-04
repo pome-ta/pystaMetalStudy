@@ -10,7 +10,6 @@ shader_path = pathlib.Path('./Shaders.metal')
 
 # --- load objc classes
 MTKView = ObjCClass('MTKView')
-MTLCompileOptions = ObjCClass('MTLCompileOptions')
 
 # --- initialize MetalDevice
 MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
@@ -32,14 +31,13 @@ class MetalView(ui.View):
     devices = ObjCInstance(_device)
 
     # todo: 端末サイズにて要調整
-    '''
     _uw, _uh = ui.get_window_size()
     _w = min(_uw, _uh) * 0.96
     _x = (_uw - _w) / 2
     _y = _uh / 4
     _frame = ((_x, _y), (_w, _w))
-    '''
-    _frame = ((0.0, 0.0), (400.0, 400.0))
+    
+    #_frame = ((0.0, 0.0), (290.0, 290.0))
 
     mtkView.initWithFrame_device_(_frame, devices)
     #mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
@@ -66,7 +64,9 @@ class MetalView(ui.View):
     # maxTotalThreadsPerThreadgroup: 1024
     # threadExecutionWidth: 32
     renderer.cps = device.newComputePipelineStateWithFunction_error_(kernel, err_ptr)
-
+    renderer.tew = renderer.cps.threadExecutionWidth()
+    renderer.mttpt = renderer.cps.maxTotalThreadsPerThreadgroup()
+    
     return renderer
 
 
@@ -74,17 +74,18 @@ class MetalView(ui.View):
 def drawInMTKView_(_self, _cmd, _view):
   self = ObjCInstance(_self)
   view = ObjCInstance(_view)
+  
 
   drawable = view.currentDrawable()
 
   commandBuffer = self.commandQueue.commandBuffer()
+  
   commandEncoder = commandBuffer.computeCommandEncoder()
   commandEncoder.setComputePipelineState_(self.cps)
-
   commandEncoder.setTexture_atIndex_(drawable.texture(), 0)
 
-  _width = 8
-  _height = 8
+  _width = 1
+  _height = 1
   _depth = 1
 
   threadGroupCount = (_width, _height, _depth)
