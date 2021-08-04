@@ -36,6 +36,7 @@ class MetalView(ui.View):
     _x = (_uw - _w) / 2
     _y = _uh / 4
     _frame = ((_x, _y), (_w, _w))
+    print(_frame)
     #_frame = ((0.0, 0.0), (290.0, 290.0))
 
     mtkView.initWithFrame_device_(_frame, devices)
