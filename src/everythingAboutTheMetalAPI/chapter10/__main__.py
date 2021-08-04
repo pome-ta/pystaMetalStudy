@@ -36,7 +36,6 @@ class MetalView(ui.View):
     _x = (_uw - _w) / 2
     _y = _uh / 4
     _frame = ((_x, _y), (_w, _w))
-    
     #_frame = ((0.0, 0.0), (290.0, 290.0))
 
     mtkView.initWithFrame_device_(_frame, devices)
@@ -47,12 +46,10 @@ class MetalView(ui.View):
     #mtkView.enableSetNeedsDisplay = True
     mtkView.framebufferOnly = False
     #mtkView.setNeedsDisplay()
-
     self.objc_instance.addSubview_(mtkView)
 
   def renderer_init(self, delegate, _mtkView):
     renderer = delegate.alloc().init()
-
     device = _mtkView.device()
     renderer.commandQueue = device.newCommandQueue()
 

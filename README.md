@@ -27,6 +27,9 @@ dispatchThreads_threadsPerThreadgroup_()
 しかし、そうなると、画面サイズ変わるん？
 
 
+割り算で`int` するし、、、
+
+
 
 
 
