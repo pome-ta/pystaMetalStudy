@@ -74,9 +74,6 @@ class MetalView(ui.View):
     # case version2_1 = 131073
     # case version2_2 = 131074
     # case version2_4 = 131076
-    
-    pdbg.state(MTLCompileOptions.new().languageVersion())
-
     kernel = library.newFunctionWithName_('compute')
     
     # maxTotalThreadsPerThreadgroup: 1024
@@ -106,9 +103,6 @@ def drawInMTKView_(_self, _cmd, _view):
   _depth = 1
   
   threadGroupCount = (_width, _height, _depth)
-  # width = 8
-  # height = 8
-  # depth = 1
   
   t_w = drawable.texture().width()
   t_h = drawable.texture().height()
