@@ -158,6 +158,7 @@ class MetalView(ui.View):
     #mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     renderer = self.renderer_init(PyRenderer, mtkView)
     mtkView.delegate = renderer
+    mtkView.framebufferOnly = False
     self.objc_instance.addSubview_(mtkView)
 
   def renderer_init(self, delegate, _mtkView):
@@ -256,6 +257,7 @@ def drawInMTKView_(_self, _cmd, _view):
   commandEncoder.endEncoding()
   commandBuffer.presentDrawable_(drawable)
   commandBuffer.commit()
+  commandBuffer.waitUntilCompleted()
 
 
 def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
