@@ -52,28 +52,23 @@ class MetalView(ui.View):
     renderer = self.renderer_init(PyRenderer, mtkView)
     mtkView.delegate = renderer
     
+    #mtkView.enableSetNeedsDisplay = True
+    mtkView.framebufferOnly = False
+    #mtkView.setNeedsDisplay()
+    
     self.objc_instance.addSubview_(mtkView)
 
   def renderer_init(self, delegate, _mtkView):
     renderer = delegate.alloc().init()
     
-    # --- createBuffer
     renderer.device = _mtkView.device()
     renderer.commandQueue = renderer.device.newCommandQueue()
+    
 
     # --- registerShaders
     source = shader_path.read_text('utf-8')
     library = renderer.device.newLibraryWithSource_options_error_(source, err_ptr, err_ptr)
     
-    # fastMathEnabled: true
-    # 131075  version2_3
-    # case version1_0 = 65536
-    # case version1_1 = 65537
-    # case version1_2 = 65538
-    # case version2_0 = 131072
-    # case version2_1 = 131073
-    # case version2_2 = 131074
-    # case version2_4 = 131076
     kernel = library.newFunctionWithName_('compute')
     
     # maxTotalThreadsPerThreadgroup: 1024
