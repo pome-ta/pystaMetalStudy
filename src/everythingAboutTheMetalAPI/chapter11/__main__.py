@@ -36,8 +36,6 @@ class MetalView(ui.View):
     _x = (_uw - _w) / 2
     _y = _uh / 4
     _frame = ((_x, _y), (_w, _w))
-    print(_frame)
-    #_frame = ((0.0, 0.0), (290.0, 290.0))
 
     mtkView.initWithFrame_device_(_frame, devices)
     #mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
@@ -89,7 +87,7 @@ def drawInMTKView_(_self, _cmd, _view):
 
   t_w = drawable.texture().width()
   t_h = drawable.texture().height()
-  threadGroups = (t_w // _width, t_h // _height, 1)
+  threadGroups = (-(-t_w // _width), -(-t_h // _height), 1)
   commandEncoder.dispatchThreadgroups_threadsPerThreadgroup_(threadGroups, threadGroupCount)
 
   commandEncoder.endEncoding()
