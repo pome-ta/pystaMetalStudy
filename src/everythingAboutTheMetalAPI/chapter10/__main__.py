@@ -79,13 +79,12 @@ def drawInMTKView_(_self, _cmd, _view):
   drawable = view.currentDrawable()
 
   commandBuffer = self.commandQueue.commandBuffer()
-  
   commandEncoder = commandBuffer.computeCommandEncoder()
   commandEncoder.setComputePipelineState_(self.cps)
   commandEncoder.setTexture_atIndex_(drawable.texture(), 0)
 
-  _width = 1
-  _height = 1
+  _width = 8
+  _height = 8
   _depth = 1
 
   threadGroupCount = (_width, _height, _depth)
@@ -93,7 +92,7 @@ def drawInMTKView_(_self, _cmd, _view):
   t_w = drawable.texture().width()
   t_h = drawable.texture().height()
   threadGroups = (t_w // _width, t_h // _height, 1)
-  commandEncoder.dispatchThreads_threadsPerThreadgroup_(threadGroups, threadGroupCount)
+  commandEncoder.dispatchThreadgroups_threadsPerThreadgroup_(threadGroups, threadGroupCount)
 
   commandEncoder.endEncoding()
   commandBuffer.presentDrawable_(drawable)
