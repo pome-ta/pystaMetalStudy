@@ -6,7 +6,7 @@ Pythonista でMetal やる
 ## 📝 2021/08/04
 
 
-### スレッドが一つしか走ってない？
+### ~~スレッドが一つしか走ってない？~~
 
 
 [【Swift Metal】dispatchThreadgroupsの最適化ついて解説](https://hirauchi-genta.com/swift-metal-dispatchthreadgroups/)
