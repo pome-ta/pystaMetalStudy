@@ -3,6 +3,28 @@
 Pythonista でMetal やる
 
 
+## 📝 2021/08/04
+
+
+### スレッドが一つしか走ってない？
+
+
+[【Swift Metal】dispatchThreadgroupsの最適化ついて解説](https://hirauchi-genta.com/swift-metal-dispatchthreadgroups/)
+
+[【Swift Metal】thread_position_in_grid等の属性について解説](https://hirauchi-genta.com/swift-metal-attribute/)
+
+
+### Shader 拡張子
+
+
+Pythonista で毎回見づらいから、`.js` にした
+
+
+普通に動いてるぽから、よかった
+
+
+
+
 ## 📝 2021/08/03
 
 
