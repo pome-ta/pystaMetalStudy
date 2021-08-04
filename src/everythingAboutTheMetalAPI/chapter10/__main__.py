@@ -6,7 +6,7 @@ import ui
 
 import pdbg
 
-shader_path = pathlib.Path('./Shaders.metal')
+shader_path = pathlib.Path('./Shaders.js')
 
 # --- load objc classes
 MTKView = ObjCClass('MTKView')
