@@ -9,6 +9,27 @@ Pythonista でMetal やる
 ### ~~スレッドが一つしか走ってない？~~
 
 
+呼び出すコードまちがえてますた 😇
+
+``` .py
+# 正解
+
+dispatchThreadgroups_threadsPerThreadgroup_()
+```
+
+
+``` .py
+# 間違え
+
+dispatchThreads_threadsPerThreadgroup_()
+```
+
+しかし、そうなると、画面サイズ変わるん？
+
+
+
+
+
 [【Swift Metal】dispatchThreadgroupsの最適化ついて解説](https://hirauchi-genta.com/swift-metal-dispatchthreadgroups/)
 
 [【Swift Metal】thread_position_in_grid等の属性について解説](https://hirauchi-genta.com/swift-metal-attribute/)
