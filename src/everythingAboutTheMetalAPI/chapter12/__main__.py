@@ -15,11 +15,7 @@ MTKView = ObjCClass('MTKView')
 MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
 MTLCreateSystemDefaultDevice.argtypes = []
 MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
-'''
-memcpy = c.memcpy
-memcpy.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_size_t]
-memcpy.restype = ctypes.c_void_p
-'''
+
 
 err_ptr = ctypes.c_void_p()
 
@@ -27,8 +23,14 @@ err_ptr = ctypes.c_void_p()
 class MetalView(ui.View):
   def __init__(self, *args, **kwargs):
     ui.View.__init__(self, *args, **kwargs)
-    self.bg_color = 'maroon'
+    self.bg_color = '#242424'
     self.view_did_load()
+    
+  def touch_began(self, touch):
+    print(touch.location)
+
+  def touch_moved(self, touch):
+    pass
 
   def view_did_load(self):
     mtkView = MTKView.alloc()
@@ -36,11 +38,11 @@ class MetalView(ui.View):
     devices = ObjCInstance(_device)
 
     # todo: 端末サイズにて要調整
-    _uw, _uh = ui.get_window_size()
-    _w = min(_uw, _uh) * 0.96
-    _x = (_uw - _w) / 2
-    _y = _uh / 4
-    _frame = ((_x, _y), (_w, _w))
+    s_size = min(ui.get_window_size()) * 0.96
+    _frame = ((0.0, 0.0), (s_size, s_size))
+    self.width = s_size
+    self.height = s_size
+    self.s_size = s_size
 
     mtkView.initWithFrame_device_(_frame, devices)
     #mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
@@ -118,6 +120,9 @@ PyRenderer = create_objc_class(
   protocols=['MTKViewDelegate'])
 
 if __name__ == '__main__':
-  view = MetalView()
-  view.present(style='fullscreen', orientations=['portrait'])
+  metal = MetalView()
+  main_view = ui.View()
+  main_view.add_subview(metal)
+  metal.flex = 'LRTB'
+  main_view.present(style='fullscreen', orientations=['portrait'])
 
