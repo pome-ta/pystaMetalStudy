@@ -158,4 +158,3 @@ if __name__ == '__main__':
   main_view.add_subview(metal)
   metal.flex = 'LRTB'
   main_view.present(style='fullscreen', orientations=['portrait'])
-

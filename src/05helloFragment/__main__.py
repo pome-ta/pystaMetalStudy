@@ -5,7 +5,7 @@ import ui
 
 import pdbg
 
-#shader_path = pathlib.Path('./pyShaders.metal')
+
 shader_path = pathlib.Path('./Shaders.metal')
 
 # --- load objc classes
