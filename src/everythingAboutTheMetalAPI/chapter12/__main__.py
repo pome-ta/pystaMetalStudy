@@ -154,6 +154,7 @@ PyRenderer = create_objc_class(
 if __name__ == '__main__':
   metal = MetalView()
   main_view = ui.View()
+  main_view.bg_color = 'maroon'
   main_view.add_subview(metal)
   metal.flex = 'LRTB'
   main_view.present(style='fullscreen', orientations=['portrait'])
