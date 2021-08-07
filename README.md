@@ -3,6 +3,17 @@
 Pythonista でMetal やる
 
 
+## 📝 2021/08/07
+
+
+頂点のやつ
+
+
+[MTLResourceOptions Enum](https://docs.microsoft.com/en-us/dotnet/api/metal.mtlresourceoptions?view=xamarin-ios-sdk-12)
+
+これか？
+
+
 ## 📝 2021/08/05
 
 ### todo
