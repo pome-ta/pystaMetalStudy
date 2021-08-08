@@ -1,15 +1,13 @@
 from pathlib import Path
 import ctypes
 
-import numpy as np
-
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance, ns
 import ui
 
 import pdbg
 
 # --- load Shader code
-shader_path = Path('./Shaders.py')
+shader_path = Path('./Shaders01.py')
 
 # --- load objc classes
 MTKView = ObjCClass('MTKView')
@@ -23,18 +21,14 @@ MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 err_ptr = ctypes.c_void_p()
 
 # --- Structure
-Vertices = ((ctypes.c_float * 7) * 4)
-vertices_array = [[ 1.0, -1.0, 0.0, 1.0, 0.0, 0.0, 1.0],
-                  [ 1.0,  1.0, 0.0, 0.0, 1.0, 0.0, 1.0],
-                  [-1.0,  1.0, 0.0, 0.0, 0.0, 1.0, 1.0],
-                  [-1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0]]
-np_vertices = np.array(vertices_array, dtype=np.float32)
-verticesData = np_vertices.ctypes.data_as(ctypes.POINTER(Vertices)).contents
+vertices = ((ctypes.c_float * 7) * 4)(
+  ( 1.0, -1.0, 0.0, 1.0, 0.0, 0.0, 1.0),
+  ( 1.0,  1.0, 0.0, 0.0, 1.0, 0.0, 1.0),
+  (-1.0,  1.0, 0.0, 0.0, 0.0, 1.0, 1.0),
+  (-1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0))
 
-Indices = (ctypes.c_uint32 * 6)
-indices_array = [0, 1, 2, 2, 3, 0]
-np_indices = np.array(indices_array, dtype=np.uint32)
-indicesData = np_indices.ctypes.data_as(ctypes.POINTER(Indices)).contents
+
+indices = (ctypes.c_uint32 * 6)(0, 1, 2, 2, 3, 0)
 
 
 class MetalView(ui.View):
@@ -73,9 +67,9 @@ class MetalView(ui.View):
     renderer.commandQueue = device.newCommandQueue()
 
     renderer.vertexBuffer = device.newBufferWithBytes_length_options_(
-      verticesData, np_vertices.nbytes, 0)
+      vertices, ctypes.sizeof(vertices), 0)
     renderer.indicesBuffer = device.newBufferWithBytes_length_options_(
-      indicesData, np_indices.nbytes, 0)
+      indices, ctypes.sizeof(indices), 0)
 
     source = shader_path.read_text('utf-8')
     library = device.newLibraryWithSource_options_error_(
