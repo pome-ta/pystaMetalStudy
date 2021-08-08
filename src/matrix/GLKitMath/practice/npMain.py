@@ -3,10 +3,10 @@ import ctypes
 
 import numpy as np
 
-from objc_util import c, create_objc_class, ObjCClass, ObjCInstance, ns
+from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
 
-import pdbg
+#import pdbg
 
 # --- load Shader code
 shader_path = Path('./Shaders01.py')
