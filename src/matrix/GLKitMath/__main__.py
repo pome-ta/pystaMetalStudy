@@ -8,7 +8,7 @@ import ui
 import pdbg
 
 # --- load Shader code
-shader_path = Path('./Shaders02.py')
+shader_path = Path('./Shaders.metal')
 
 # --- load objc classes
 MTKView = ObjCClass('MTKView')
@@ -305,7 +305,8 @@ class MetalView(ui.View):
     _y = _uh / 4
     _frame = ((_x, _y), (_w, _w))
     '''
-    _frame = ((0.0, 0.0), (128.0, 128.0))
+    
+    _frame = ((0.0, 0.0), (100.0, 100.0))
 
     mtkView.initWithFrame_device_(_frame, devices)
     mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
@@ -344,8 +345,9 @@ class MetalView(ui.View):
       rpld, err_ptr)
 
     renderer.rotation = 0.0
-    renderer.preferredFramesTime = 1.0 / _mtkView.preferredFramesPerSecond()
-
+    #renderer.timer = 0.0
+    renderer.preferredFramesTime = 1 / _mtkView.preferredFramesPerSecond()
+    
     return renderer
 
 
@@ -371,6 +373,9 @@ def drawInMTKView_(_self, _cmd, _view):
   commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
 
   modelViewMatrix = GLKMatrix4MakeTranslation(0.0, 0.0, -6.0)
+  #self.timer += self.preferredFramesTime
+  self.rotation += 90 * self.preferredFramesTime
+  modelViewMatrix = GLKMatrix4Rotate(modelViewMatrix, math.radians(self.rotation), 0, 0, 1)
   sceneMatrices.modelviewMatrix = modelViewMatrix
 
   uniformBuffer = view.device().newBufferWithBytes_length_options_(
