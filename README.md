@@ -3,6 +3,28 @@
 Pythonista でMetal やる
 
 
+
+
+## 2021/08/08
+
+
+[Moving from OpenGL to Metal | raywenderlich.com](https://www.raywenderlich.com/9211-moving-from-opengl-to-metal)
+
+
+
+これを、[移植してみた](https://github.com/pome-ta/pystaMetalStudy/tree/main/src/matrix/GLKitMath)
+
+
+
+GLKit のmatrix 計算をまるっと
+
+
+[OpenGLES-Pythonista | Cethric](https://github.com/Cethric/OpenGLES-Pythonista)
+
+
+お借りしたけど、3系とかにいつか書き換えたいねー
+
+
 ## 📝 2021/08/07
 
 

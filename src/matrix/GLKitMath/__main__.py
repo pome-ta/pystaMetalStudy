@@ -5,22 +5,23 @@ import ctypes
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
 
-import pdbg
+#import pdbg
 
 # --- load Shader code
 shader_path = Path('./Shaders.metal')
+
 
 # --- load objc classes
 MTKView = ObjCClass('MTKView')
 MTLRenderPipelineDescriptor = ObjCClass('MTLRenderPipelineDescriptor')
 
-# todo: MetalDevice
+
+# Metal Device
 MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
 MTLCreateSystemDefaultDevice.argtypes = []
 MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
 err_ptr = ctypes.c_void_p()
-
 
 
 # --- GLKit Math
