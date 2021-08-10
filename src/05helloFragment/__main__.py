@@ -114,7 +114,7 @@ class View(ui.View):
     renderer.pipelineState = renderer.device.newRenderPipelineStateWithDescriptor_error_(pipelineDescriptor, err_ptr)
 
     # --- buildBuffer
-    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(ctypes.byref(vertices), 64, 0)
+    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(ctypes.byref(vertices), ctypes.sizeof(vertices), 0)
     
 
     renderer.indexBuffer = renderer.device.newBufferWithBytes_length_options_(indices, ctypes.sizeof(indices), 0)
@@ -147,7 +147,7 @@ def drawInMTKView_(_self, _cmd, _view):
   renderEncoder.setVertexBytes_length_atIndex_(ctypes.byref(self.uniforms), ctypes.sizeof(self.uniforms), 1)
   
 
-  renderEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(3, 6, 0, self.indexBuffer, 0)
+  renderEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(2, 16, 0, self.indexBuffer, 0)
   renderEncoder.endEncoding()
   commandBuffer.presentDrawable_(drawable)
   commandBuffer.commit()
