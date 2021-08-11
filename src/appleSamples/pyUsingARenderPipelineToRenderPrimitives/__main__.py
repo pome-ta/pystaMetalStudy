@@ -21,6 +21,18 @@ MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 err_ptr = ctypes.c_void_p()
 
 
+triangleVertices = ((ctypes.c_float * 6) * 3)(
+  ( 250.0, -250.0, 1.0, 0.0, 0.0, 1.0),
+  (-250.0, -250.0, 0.0, 1.0, 0.0, 1.0),
+  (   0.0,  250.0, 0.0, 0.0, 1.0, 1.0))
+viewportSize = (ctypes.c_float * 2)(0.0, 0.0)
+
+
+
+AAPLVertexInputIndexVertices     = 0
+AAPLVertexInputIndexViewportSize = 1
+
+
 class MetalView(ui.View):
   def __init__(self, *args, **kwargs):
     ui.View.__init__(self, *args, **kwargs)
@@ -89,11 +101,32 @@ def drawInMTKView_(_self, _cmd, _view):
   
   commandBuffer = self.commandQueue.commandBuffer()
   commandBuffer.label = 'MyCommand'
-  commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(view.currentRenderPassDescriptor())
   
-  pdbg.state(commandEncoder)
+  rpd = view.currentRenderPassDescriptor()
+  commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
+  commandEncoder.label = 'MyRenderEncoder'
   
+  commandEncoder.setViewport_((0.0, 0.0,
+    viewportSize[0], viewportSize[1],
+    0.0, 1.0))
   commandEncoder.setRenderPipelineState_(self.rps)
+  
+  
+  
+  commandEncoder.setVertexBytes_length_atIndex_(
+    triangleVertices,
+    #ctypes.sizeof(triangleVertices),
+    16 * 6,
+    AAPLVertexInputIndexVertices)
+  
+  commandEncoder.setVertexBytes_length_atIndex_(
+    viewportSize,
+    #ctypes.sizeof(viewportSize) * 2,
+    16 * 2,
+    AAPLVertexInputIndexViewportSize)
+  
+  
+  commandEncoder.drawPrimitives_vertexStart_vertexCount_(3, 0, 3)
   
   commandEncoder.endEncoding()
   commandBuffer.presentDrawable_(view.currentDrawable())
@@ -105,8 +138,12 @@ def drawInMTKView_(_self, _cmd, _view):
 def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
   self = ObjCInstance(_self)
   view = ObjCInstance(_view)
-  self.viewportSize_width = _size.width
-  self.viewportSize_height = _size.height
+  viewportSize[0] = _size.width
+  viewportSize[1] = _size.height
+  print('mtkView_drawableSizeWillChange')
+  
+  
+  
 
 
 PyRenderer = create_objc_class(
