@@ -1,8 +1,11 @@
 # pystaMetalStudy
 
-Pythonista でMetal やる
+[Pythonista 3](http://omz-software.com/pythonista/) でMetal をチャレンジするリポリトリ
+
+さまざまなサイトを参照しているので、参照URL などは、各ディレクトリ内に明記予定
 
 
+以下列記は、実装日誌的なメモ
 
 
 ## 2021/08/08
