@@ -1,150 +1,120 @@
 from pathlib import Path
 import ctypes
-from objc_util import c, create_objc_class, ObjCClass, ObjCInstance, ns, sel
+
+from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
+
 import ui
 import pdbg
 
-#shader_path = Path('./AAPLShaders.metal')
-shader_path = Path('./pAAPLShaders.metal')
-#shader_path = Path('./Shaders.metal')
-#shader_path = Path('./mShaders.metal')
-#shader_path = Path('./main.metal')
+# --- load Shader code
+shader_path = Path('./pyAAPLShaders.js')
 
 # --- load objc classes
 MTKView = ObjCClass('MTKView')
-MTLCompileOptions = ObjCClass('MTLCompileOptions')
 MTLRenderPipelineDescriptor = ObjCClass('MTLRenderPipelineDescriptor')
 
-# --- objc definition
-err_ptr = ctypes.c_void_p()
 
 MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
-
 MTLCreateSystemDefaultDevice.argtypes = []
 MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
-MTLPrimitiveTypeTriangle = 3
-AAPLVertexInputIndexVertices = 0
-AAPLVertexInputIndexViewportSize = 1
+err_ptr = ctypes.c_void_p()
 
 
-# --- delegate setup
-def drawInMTKView_(_self, _cmd, _view):
-  self = ObjCInstance(_self)
-  view = ObjCInstance(_view)
-  '''
-  triangleVertices = ns(  # 2D positions,    RGBA colors
-    [[250.0, -250.0], [1.0, 0.0, 0.0, 1.0], [-250.0, -250.0],
-    [0.0, 1.0, 0.0, 1.0], [0.0, 250.0], [0.0, 0.0, 1.0, 1.0]])
-
-  '''
-
-  triangleVertices = ns([[[250.0, -250.0], [1.0, 0.0, 0.0, 1.0]],
-                         [[-250.0, -250.0], [0.0, 1.0, 0.0, 1.0]],
-                         [[0.0, 250.0], [0.0, 0.0, 1.0, 1.0]]])
-
-  commandBuffer = self.commandQueue.commandBuffer()
-  commandBuffer.label = 'MyCommand'
-
-  renderPassDescriptor = view.currentRenderPassDescriptor()
-
-  if renderPassDescriptor != None:
-    renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
-      renderPassDescriptor)
-
-    renderEncoder.label = 'MyRenderEncoder'
-
-    renderEncoder.setViewport_((0.0, 0.0, self.viewportSize.x,
-                                self.viewportSize.y, 0.0, 1.0))
-
-    renderEncoder.setRenderPipelineState_(self.pipelineState)
-    renderEncoder.setVertexBytes_length_atIndex_(triangleVertices,
-                                                 len(triangleVertices),
-                                                 AAPLVertexInputIndexVertices)
-    
-    renderEncoder.setVertexBytes_length_atIndex_(
-      self.viewportSize,
-      self.viewportSize.__sizeof__(), AAPLVertexInputIndexViewportSize)
-    
-    
-    renderEncoder.drawPrimitives_vertexStart_vertexCount_(
-      MTLPrimitiveTypeTriangle, 0, 3)
-    
-    
-    renderEncoder.endEncoding()
-    commandBuffer.presentDrawable_(view.currentDrawable())
-
-  commandBuffer.commit()
-
-
-def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
-  self = ObjCInstance(_self)
-  self.viewportSize.x = _size.width
-  self.viewportSize.y = _size.height
-  print(_size.width, _size.height)
-  #pdbg.state(ctypes.byref(self.viewportSize))
-  print('mtkView_drawableSizeWillChange_')
-
-
-AAPLRenderer = create_objc_class(
-  name='AAPLRenderer',
-  methods=[drawInMTKView_, mtkView_drawableSizeWillChange_],
-  protocols=['MTKViewDelegate'])
-
-
-class View(ui.View):
+class MetalView(ui.View):
   def __init__(self, *args, **kwargs):
     ui.View.__init__(self, *args, **kwargs)
-    self.instance = ObjCInstance(self)
     self.bg_color = 'maroon'
     self.view_did_load()
 
   def view_did_load(self):
-    _view = MTKView.alloc()
-    _view.enableSetNeedsDisplay = True
-    _view.initWithFrame_device_(((0, 0), (32, 32)),
-                                ObjCInstance(MTLCreateSystemDefaultDevice()))
-    _view.setAutoresizingMask_((1 << 1) | (1 << 4))
-    _view.clearColor = (0.0, 0.5, 1.0, 1.0)
-    _renderer = self.renderer_init(AAPLRenderer, _view)
-    _view.delegate = _renderer
+    mtkView = MTKView.alloc()
+    _device = MTLCreateSystemDefaultDevice()
+    devices = ObjCInstance(_device)
+    '''
+    # todo: 端末サイズにて要調整
+    _uw, _uh = ui.get_window_size()
+    _w = min(_uw, _uh) * 0.96
+    _x = (_uw - _w) / 2
+    _y = _uh / 4
+    _frame = ((_x, _y), (_w, _w))
+    '''
+    
+    _frame = ((0.0, 0.0), (100.0, 100.0))
 
-    self.instance.addSubview_(_view)
+    mtkView.initWithFrame_device_(_frame, devices)
+    mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
 
-  # todo: initWithMetalKitView:
-  def renderer_init(self, delegate_cls, mtkView):
-    renderer = delegate_cls.alloc().init()
-    renderer.device = mtkView.device()
+    renderer = self.renderer_init(PyRenderer, mtkView)
+    mtkView.delegate = renderer
+    #mtkView.enableSetNeedsDisplay = True
+    #mtkView.framebufferOnly = False
+    #mtkView.setNeedsDisplay()
+    self.objc_instance.addSubview_(mtkView)
+    
+  def renderer_init(self, delegate, _mtkView):
+    renderer = delegate.alloc().init()
+    device = _mtkView.device()
+    
+    source = shader_path.read_text('utf-8')
+    library = device.newLibraryWithSource_options_error_(
+      source, err_ptr, err_ptr)
 
-    shader_sauce = shader_path.read_text('utf-8')
-    defaultLibrary = renderer.device.newLibraryWithSource_options_error_(
-      shader_sauce, MTLCompileOptions.new(), err_ptr)
+    vertex_func = library.newFunctionWithName_('vertexShader')
+    frag_func = library.newFunctionWithName_('fragmentShader')
+    
+    rpld = MTLRenderPipelineDescriptor.new()
+    rpld.label = 'Simple Pipeline'
+    rpld.vertexFunction = vertex_func
+    rpld.fragmentFunction = frag_func
+    
+    rpld.colorAttachments().objectAtIndexedSubscript(
+      0).pixelFormat = 80  # .bgra8Unorm
+      
+    renderer.rps = device.newRenderPipelineStateWithDescriptor_error_(
+      rpld, err_ptr)
 
-    vertexFunction = defaultLibrary.newFunctionWithName_('vertexShader')
-    fragmentFunction = defaultLibrary.newFunctionWithName_('fragmentShader')
-
-    pipelineStateDescriptor = MTLRenderPipelineDescriptor.alloc().init()
-
-    pipelineStateDescriptor.label = 'Simple Pipeline'
-
-    pipelineStateDescriptor.vertexFunction = vertexFunction
-    pipelineStateDescriptor.fragmentFunction = fragmentFunction
-
-    pipelineStateDescriptor.colorAttachments().objectAtIndexedSubscript_(
-      0).pixelFormat = mtkView.colorPixelFormat()
-
-    renderer.pipelineState = renderer.device.newRenderPipelineStateWithDescriptor_error_(
-      pipelineStateDescriptor, err_ptr)
-
-    renderer.commandQueue = renderer.device.newCommandQueue()
-
-    renderer.viewportSize.x = 0
-    renderer.viewportSize.y = 0
-
+    renderer.commandQueue = device.newCommandQueue()
+    
     return renderer
 
 
+# --- MTKViewDelegate
+def drawInMTKView_(_self, _cmd, _view):
+  self = ObjCInstance(_self)
+  view = ObjCInstance(_view)
+  
+  # --- triangleVertices
+  
+  
+  commandBuffer = self.commandQueue.commandBuffer()
+  commandBuffer.label = 'MyCommand'
+  commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(view.currentRenderPassDescriptor())
+  
+  pdbg.state(commandEncoder)
+  
+  commandEncoder.setRenderPipelineState_(self.rps)
+  
+  commandEncoder.endEncoding()
+  commandBuffer.presentDrawable_(view.currentDrawable())
+  commandBuffer.commit()
+  
+  
+
+
+def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
+  self = ObjCInstance(_self)
+  view = ObjCInstance(_view)
+  self.viewportSize_width = _size.width
+  self.viewportSize_height = _size.height
+
+
+PyRenderer = create_objc_class(
+  name='PyRenderer',
+  methods=[drawInMTKView_, mtkView_drawableSizeWillChange_],
+  protocols=['MTKViewDelegate'])
+
 if __name__ == '__main__':
-  view = View()
+  view = MetalView()
   view.present(style='fullscreen', orientations=['portrait'])
 
