@@ -33,6 +33,7 @@ typedef struct
     vector_float4 color;
 } AAPLVertex;
 
+
 // Vertex shader outputs and fragment shader inputs
 struct RasterizerData
 {
@@ -65,8 +66,13 @@ vertex RasterizerData vertexShader(uint vertexID [[vertex_id]],
 
     // To convert from positions in pixel space to positions in clip-space,
     //  divide the pixel coordinates by half the size of the viewport.
-    out.position = vector_float4(0.0, 0.0, 0.0, 1.0);
-    out.position.xy = pixelSpacePosition / (viewportSize / 2.0);
+    //out.position = vector_float4(0.0, 0.0, 0.0, 1.0);
+    
+    // 拾えているかのテスト
+    out.position = vector_float4(pixelSpacePosition, 0.0, 1.0);
+    
+    
+    //out.position.xy = pixelSpacePosition / (viewportSize / 2.0);
 
     // Pass the input color directly to the rasterizer.
     out.color = vertices[vertexID].color;

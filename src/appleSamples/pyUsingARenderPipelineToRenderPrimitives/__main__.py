@@ -140,7 +140,7 @@ def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
   view = ObjCInstance(_view)
   viewportSize[0] = _size.width
   viewportSize[1] = _size.height
-  print('mtkView_drawableSizeWillChange')
+  #print('mtkView_drawableSizeWillChange')
   
   
   
