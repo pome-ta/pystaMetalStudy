@@ -106,6 +106,7 @@ def drawInMTKView_(_self, _cmd, _view):
   commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
   commandEncoder.label = 'MyRenderEncoder'
   
+  #print(viewportSize[0])
   commandEncoder.setViewport_((0.0, 0.0,
     viewportSize[0], viewportSize[1],
     0.0, 1.0))
@@ -115,14 +116,14 @@ def drawInMTKView_(_self, _cmd, _view):
   
   commandEncoder.setVertexBytes_length_atIndex_(
     triangleVertices,
-    #ctypes.sizeof(triangleVertices),
-    16 * 6,
+    ctypes.sizeof(triangleVertices),
+    #16 * 6,
     AAPLVertexInputIndexVertices)
   
   commandEncoder.setVertexBytes_length_atIndex_(
-    viewportSize,
-    #ctypes.sizeof(viewportSize) * 2,
-    16 * 2,
+    ctypes.byref(viewportSize),
+    ctypes.sizeof(viewportSize),
+    #16 * 2,
     AAPLVertexInputIndexViewportSize)
   
   
@@ -138,8 +139,8 @@ def drawInMTKView_(_self, _cmd, _view):
 def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
   self = ObjCInstance(_self)
   view = ObjCInstance(_view)
-  viewportSize[0] = _size.width
-  viewportSize[1] = _size.height
+  viewportSize[0] = ctypes.c_float(_size.width)
+  viewportSize[1] = ctypes.c_float(_size.height)
   #print('mtkView_drawableSizeWillChange')
   
   

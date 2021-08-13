@@ -63,19 +63,28 @@ vertex RasterizerData vertexShader(uint vertexID [[vertex_id]],
     // Get the viewport size and cast to float.
     vector_float2 viewportSize = vector_float2(*viewportSizePointer);
     
+    
+    
 
     // To convert from positions in pixel space to positions in clip-space,
     //  divide the pixel coordinates by half the size of the viewport.
     //out.position = vector_float4(0.0, 0.0, 0.0, 1.0);
     
     // 拾えているかのテスト
+    
     out.position = vector_float4(pixelSpacePosition, 0.0, 1.0);
     
     
     //out.position.xy = pixelSpacePosition / (viewportSize / 2.0);
+    float2 xyxy = pixelSpacePosition / (viewportSize / 2.0);
 
     // Pass the input color directly to the rasterizer.
-    out.color = vertices[vertexID].color;
+    //out.color = vertices[vertexID].color;
+    //out.color = out.position;
+    float xxx = (-(1/viewportSize.x - 1)) - 0.5 ;
+    out.color = float4(xxx, 0.0, 0.0, 1.0);
+    
+    
 
     return out;
 }
