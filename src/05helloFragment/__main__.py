@@ -3,7 +3,7 @@ import ctypes
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
 
-import pdbg
+#import pdbg
 
 
 shader_path = pathlib.Path('./Shaders.metal')

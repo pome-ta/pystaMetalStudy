@@ -7,6 +7,19 @@
 
 以下列記は、実装日誌的なメモ
 
+
+## 📝 2021/08/14
+
+
+`setVertexBytes_length_atIndex_` と`setVertexBuffer_offset_atIndex_` 
+
+
+`setVertexBytes_` がうまく渡せていない？
+
+
+
+
+
 ## 📝 2021/08/13
 
 [Using a Render Pipeline to Render Primitives](https://developer.apple.com/documentation/metal/using_a_render_pipeline_to_render_primitives?language=objc) の、`AAPLShaderTypes.h` 扱い問題
