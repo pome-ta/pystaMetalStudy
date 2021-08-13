@@ -7,8 +7,18 @@
 
 以下列記は、実装日誌的なメモ
 
+## 📝 2021/08/13
 
-## 2021/08/08
+[Using a Render Pipeline to Render Primitives](https://developer.apple.com/documentation/metal/using_a_render_pipeline_to_render_primitives?language=objc) の、`AAPLShaderTypes.h` 扱い問題
+
+
+そもそも、何かしらの呼び出しがだめかもしれん
+
+うまいログだし方法を考えないといけない
+
+
+
+## 📝 2021/08/08
 
 
 [Moving from OpenGL to Metal | raywenderlich.com](https://www.raywenderlich.com/9211-moving-from-opengl-to-metal)
