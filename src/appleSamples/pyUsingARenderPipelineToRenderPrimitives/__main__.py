@@ -113,13 +113,14 @@ def drawInMTKView_(_self, _cmd, _view):
   commandEncoder.setRenderPipelineState_(self.rps)
   
   
-  
+  # --- mac log 96
   commandEncoder.setVertexBytes_length_atIndex_(
     triangleVertices,
     ctypes.sizeof(triangleVertices),
     #16 * 6,
     AAPLVertexInputIndexVertices)
   
+  # --- mac log 8
   commandEncoder.setVertexBytes_length_atIndex_(
     ctypes.byref(viewportSize),
     ctypes.sizeof(viewportSize),
