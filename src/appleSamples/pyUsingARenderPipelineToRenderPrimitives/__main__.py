@@ -9,6 +9,7 @@ import pdbg
 # --- load Shader code
 shader_path = Path('./pyAAPLShaders.js')
 
+
 # --- load objc classes
 MTKView = ObjCClass('MTKView')
 MTLRenderPipelineDescriptor = ObjCClass('MTLRenderPipelineDescriptor')
@@ -114,8 +115,8 @@ def drawInMTKView_(_self, _cmd, _view):
   
   # --- mac log 96
   commandEncoder.setVertexBytes_length_atIndex_(
-    ctypes.addressof(triangleVertices),
-    #ctypes.byref(triangleVertices),
+    #ctypes.addressof(triangleVertices),
+    ctypes.byref(triangleVertices),
     #ctypes.byref(triangleVertices, 6),
     #ctypes.sizeof(triangleVertices),
     16 * 6,

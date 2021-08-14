@@ -57,10 +57,21 @@ class View(ui.View):
   def view_did_load(self):
     mtkView = MTKView.alloc()
     _device = MTLCreateSystemDefaultDevice()
-    
     defaultDevice = ObjCInstance(_device)
-    mtkView.initWithFrame_device_(((0, 0), (100, 100)), defaultDevice)
-    mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
+    
+    
+    # todo: 端末サイズにて要調整
+    _uw, _uh = ui.get_window_size()
+    _w = min(_uw, _uh) * 0.96
+    _x = (_uw - _w) / 2
+    _y = _uh / 4
+    _frame = ((_x, _y), (_w, _w))
+    
+    #_frame = ((0.0, 0.0), (100.0, 100.0))
+    
+    
+    mtkView.initWithFrame_device_(_frame, defaultDevice)
+    #mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     renderer = self.renderer_init(PyRenderer, mtkView)
     mtkView.delegate = renderer
     
