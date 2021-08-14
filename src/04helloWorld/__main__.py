@@ -5,7 +5,6 @@ import ui
 
 #import pdbg
 
-
 shader_path = pathlib.Path('./pyShaders.metal')
 
 # --- load objc classes
@@ -41,12 +40,12 @@ class PyVertex(ctypes.Structure):
 
 
 vertexData = PyVertex(
-  Vertex(Position(-0.8, -0.8,  0.0,  1.0), Color(1.0, 0.0, 0.0, 1.0)),
-  Vertex(Position( 0.8, -0.8,  0.0,  1.0), Color(0.0, 1.0, 0.0, 1.0)),
-  Vertex(Position( 0.0,  0.8,  0.0,  1.0), Color(0.0, 0.0, 1.0, 1.0)))
-
+  Vertex(Position(-0.8, -0.8, 0.0, 1.0), Color(1.0, 0.0, 0.0, 1.0)),
+  Vertex(Position(0.8, -0.8, 0.0, 1.0), Color(0.0, 1.0, 0.0, 1.0)),
+  Vertex(Position(0.0, 0.8, 0.0, 1.0), Color(0.0, 0.0, 1.0, 1.0)))
 
 dataSize = ctypes.sizeof(vertexData)  # 96
+
 
 class View(ui.View):
   def __init__(self, *args, **kwargs):
@@ -58,32 +57,31 @@ class View(ui.View):
     mtkView = MTKView.alloc()
     _device = MTLCreateSystemDefaultDevice()
     defaultDevice = ObjCInstance(_device)
-    
-    
+
     # todo: 端末サイズにて要調整
     _uw, _uh = ui.get_window_size()
     _w = min(_uw, _uh) * 0.96
     _x = (_uw - _w) / 2
     _y = _uh / 4
     _frame = ((_x, _y), (_w, _w))
-    
+
     #_frame = ((0.0, 0.0), (100.0, 100.0))
-    
-    
+
     mtkView.initWithFrame_device_(_frame, defaultDevice)
     #mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     renderer = self.renderer_init(PyRenderer, mtkView)
     mtkView.delegate = renderer
-    
+
     self.objc_instance.addSubview_(mtkView)
 
   def renderer_init(self, delegate, _mtkView):
     renderer = delegate.alloc().init()
     renderer.device = _mtkView.device()
     renderer.commandQueue = renderer.device.newCommandQueue()
-    
+
     source = shader_path.read_text('utf-8')
-    library = renderer.device.newLibraryWithSource_options_error_(source, MTLCompileOptions.new(), err_ptr)
+    library = renderer.device.newLibraryWithSource_options_error_(
+      source, MTLCompileOptions.new(), err_ptr)
 
     vertexProgram = library.newFunctionWithName_('vertex_func')
     fragmentProgram = library.newFunctionWithName_('fragment_func')
@@ -91,11 +89,14 @@ class View(ui.View):
     pipelineDescriptor = MTLRenderPipelineDescriptor.alloc().init()
     pipelineDescriptor.vertexFunction = vertexProgram
     pipelineDescriptor.fragmentFunction = fragmentProgram
-    pipelineDescriptor.colorAttachments().objectAtIndexedSubscript(0).pixelFormat = 80  # .bgra8Unorm
-    
-    renderer.pipelineState = renderer.device.newRenderPipelineStateWithDescriptor_error_(pipelineDescriptor, err_ptr)
-    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(ctypes.byref(vertexData), dataSize, 0)
-    
+    pipelineDescriptor.colorAttachments().objectAtIndexedSubscript(
+      0).pixelFormat = 80  # .bgra8Unorm
+
+    renderer.pipelineState = renderer.device.newRenderPipelineStateWithDescriptor_error_(
+      pipelineDescriptor, err_ptr)
+    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(
+      ctypes.byref(vertexData), dataSize, 0)
+
     return renderer
 
 
@@ -106,10 +107,12 @@ def drawInMTKView_(_self, _cmd, _view):
   drawable = view.currentDrawable()
   renderPassDescriptor = view.currentRenderPassDescriptor()
   commandBuffer = self.commandQueue.commandBuffer()
-  renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(renderPassDescriptor)
+  renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
+    renderPassDescriptor)
   renderEncoder.setRenderPipelineState_(self.pipelineState)
   renderEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
-  renderEncoder.drawPrimitives_vertexStart_vertexCount_instanceCount_(3, 0, 3, 1)
+  renderEncoder.drawPrimitives_vertexStart_vertexCount_instanceCount_(
+    3, 0, 3, 1)
   renderEncoder.endEncoding()
   commandBuffer.presentDrawable_(drawable)
   commandBuffer.commit()
@@ -125,7 +128,7 @@ PyRenderer = create_objc_class(
   methods=[drawInMTKView_, mtkView_drawableSizeWillChange_],
   protocols=['MTKViewDelegate'])
 
-
 if __name__ == '__main__':
   view = View()
   view.present(style='fullscreen', orientations=['portrait'])
+
