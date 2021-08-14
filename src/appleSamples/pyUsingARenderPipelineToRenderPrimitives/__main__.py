@@ -21,12 +21,26 @@ MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
 err_ptr = ctypes.c_void_p()
 
+positions = (ctypes.c_int32 * 2)
+colors = (ctypes.c_uint32 * 4)
 
+
+class Vertex(ctypes.Structure):
+  _fields_ = [('position', positions), ('color', colors)]
+
+AAPLVertex = (Vertex * 3)
+triangleVertices = AAPLVertex(
+  ((250, -250), (1, 0, 0, 1)),
+  ((-250, -250), (0, 1, 0, 1)),
+  ((0,  250), (0, 0, 1, 1))
+)
+'''
 triangleVertices = ((ctypes.c_float * 6) * 3)(
-  ( 250, -250, 1.0, 0.0, 0.0, 1.0),
-  (-250, -250, 0.0, 1.0, 0.0, 1.0),
-  (   0,  250, 0.0, 0.0, 1.0, 1.0))
-viewportSize = (ctypes.c_float * 2)()
+  ( 250, -250, 1, 0, 0, 1),
+  (-250, -250, 0, 1, 0, 1),
+  (   0,  250, 0, 0, 1, 1))
+'''
+viewportSize = (ctypes.c_uint32 * 2)()
 
 
 
@@ -129,14 +143,15 @@ def drawInMTKView_(_self, _cmd, _view):
   # --- mac log 8
   commandEncoder.setVertexBytes_length_atIndex_(
     #ctypes.byref(viewportSize, 8),
-    ctypes.addressof(viewportSize),
+    ctypes.byref(viewportSize),
     ctypes.sizeof(viewportSize),
     AAPLVertexInputIndexViewportSize)
   
-  #print(dir(commandEncoder))
-  print(commandEncoder.getRenderPipelineState())
   
-  commandEncoder.drawPrimitives_vertexStart_vertexCount_(2, 0, 3)
+  #print(dir(commandEncoder))
+  #print(commandEncoder.getRenderPipelineState())
+  
+  commandEncoder.drawPrimitives_vertexStart_vertexCount_(3, 0, 3)
   
   commandEncoder.endEncoding()
   commandBuffer.presentDrawable_(view.currentDrawable())
@@ -148,9 +163,8 @@ def drawInMTKView_(_self, _cmd, _view):
 def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
   self = ObjCInstance(_self)
   view = ObjCInstance(_view)
-  
-  viewportSize[0] = ctypes.c_float(_size.width)
-  viewportSize[1] = ctypes.c_float(_size.height)
+  viewportSize[0] = ctypes.c_uint32(int(_size.width))
+  viewportSize[1] = ctypes.c_uint32(int(_size.height))
   
 
 
