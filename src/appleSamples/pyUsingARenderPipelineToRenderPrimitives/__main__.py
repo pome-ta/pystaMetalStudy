@@ -23,10 +23,10 @@ err_ptr = ctypes.c_void_p()
 
 
 triangleVertices = ((ctypes.c_float * 6) * 3)(
-  ( 250.0, -250.0, 1.0, 0.0, 0.0, 1.0),
-  (-250.0, -250.0, 0.0, 1.0, 0.0, 1.0),
-  (   0.0,  250.0, 0.0, 0.0, 1.0, 1.0))
-viewportSize = (ctypes.c_float * 2)(0.0, 0.0)
+  ( 250, -250, 1.0, 0.0, 0.0, 1.0),
+  (-250, -250, 0.0, 1.0, 0.0, 1.0),
+  (   0,  250, 0.0, 0.0, 1.0, 1.0))
+viewportSize = (ctypes.c_float * 2)()
 
 
 
@@ -113,6 +113,7 @@ def drawInMTKView_(_self, _cmd, _view):
   commandEncoder.setRenderPipelineState_(self.rps)
   
   
+  
   # --- mac log 96
   commandEncoder.setVertexBytes_length_atIndex_(
     #ctypes.addressof(triangleVertices),
@@ -132,9 +133,10 @@ def drawInMTKView_(_self, _cmd, _view):
     ctypes.sizeof(viewportSize),
     AAPLVertexInputIndexViewportSize)
   
+  #print(dir(commandEncoder))
+  print(commandEncoder.getRenderPipelineState())
   
-  
-  commandEncoder.drawPrimitives_vertexStart_vertexCount_(3, 0, 3)
+  commandEncoder.drawPrimitives_vertexStart_vertexCount_(2, 0, 3)
   
   commandEncoder.endEncoding()
   commandBuffer.presentDrawable_(view.currentDrawable())
@@ -146,15 +148,9 @@ def drawInMTKView_(_self, _cmd, _view):
 def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
   self = ObjCInstance(_self)
   view = ObjCInstance(_view)
+  
   viewportSize[0] = ctypes.c_float(_size.width)
   viewportSize[1] = ctypes.c_float(_size.height)
-  #viewportSize[0] = ctypes.c_float(_size.width)
-  #viewportSize[1] = ctypes.c_float(_size.height)
-  #print(viewportSize[0], viewportSize[1])
-  
-  #print('mtkView_drawableSizeWillChange')
-  
-  
   
 
 
