@@ -28,6 +28,7 @@ colors = (ctypes.c_uint32 * 4)
 class Vertex(ctypes.Structure):
   _fields_ = [('position', positions), ('color', colors)]
 
+'''
 AAPLVertex = (Vertex * 3)
 triangleVertices = AAPLVertex(
   ((250, -250), (1, 0, 0, 1)),
@@ -39,7 +40,7 @@ triangleVertices = ((ctypes.c_float * 6) * 3)(
   ( 250, -250, 1, 0, 0, 1),
   (-250, -250, 0, 1, 0, 1),
   (   0,  250, 0, 0, 1, 1))
-'''
+
 viewportSize = (ctypes.c_uint32 * 2)()
 
 
