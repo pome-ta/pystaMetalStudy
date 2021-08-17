@@ -8,6 +8,32 @@
 以下列記は、実装日誌的なメモ
 
 
+## 📝 2021/08/18
+
+### ディレクトリ整理
+
+ディレクトリが散漫しすぎて、ひどいけど`_old` を作ってぶち込んだ
+
+
+
+### beginning metal シリーズ！
+
+
+`setVertexBytes_` 問題がどうにもならず
+
+適当にYoutube 見てたら、御用達サイトの一つ[raywenderlich.com](https://www.raywenderlich.com/) のチャンネルを見つけた
+
+
+[Beginning Metal](https://www.raywenderlich.com/3537-beginning-metal) の[YouTube 動画](https://youtu.be/Gqj2lP7qlAM) (Part が散らかってるので探すのがめんどう) は見れた & iOS8 swift3 のプロジェクトであったらダウンロードができたので
+
+
+再度一から入門としてやってみる
+
+
+
+
+
+
 ## 📝 2021/08/14
 
 
