@@ -68,7 +68,7 @@ vertex RasterizerData vertexShader(uint vertexID [[vertex_id]],
     //out.position = vector_float4(0.0, 0.0, 0.0, 1.0);
     
     // 拾えているかのテスト
-    out.position = vector_float4(viewportSize, 0.0, 1.0);
+    out.position = vector_float4(pixelSpacePosition, 0.0, 1.0);
     
     
     //out.position.xy = pixelSpacePosition / (viewportSize / 2.0);
