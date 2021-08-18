@@ -7,7 +7,7 @@ import ui
 import pdbg
 
 # --- get Shader path
-shader_path = Path('./final_Shader.metal')
+shader_path = Path('./challenge_Shader.metal')
 
 # --- load objc classes
 MTKView = ObjCClass('MTKView')
@@ -23,20 +23,39 @@ err_ptr = ctypes.c_void_p()
 
 wenderlichGreen = (0.0, 0.4, 0.21, 1.0)
 
-vertices = (ctypes.c_float * 9)(
-   0.0,  1.0, 0.0,    # 1
-  -1.0, -1.0, 0.0,    # 2
-   1.0, -1.0, 0.0, )  # 3
+vertices = (ctypes.c_float * (3 * 6))(
+  -1.0,  1.0, 0.0,    # v0
+  -1.0, -1.0, 0.0,    # v1
+   1.0, -1.0, 0.0,    # v2
+   1.0, -1.0, 0.0,    # v2
+   1.0,  1.0, 0.0,    # v3
+  -1.0,  1.0, 0.0,    # v0
+   )
 '''
-             1
-(-1, 1)  ( 0, 1)  ( 1, 1)
-           / \
-          /   \
+vertices = (ctypes.c_float * (3 * 6))(
+  -0.8,  0.8, 0.0,    # v0
+  -0.8, -0.8, 0.0,    # v1
+   0.8, -0.8, 0.0,    # v2
+   0.8, -0.8, 0.0,    # v2
+   0.8,  0.8, 0.0,    # v3
+  -0.8,  0.8, 0.0,    # v0
+   )
+'''
+
+'''
+   v0                v3
+(-1, 1)--( 0, 1)--( 1, 1)
+   |  \               |
+   |    \             |
+   |      \           |
+   |        \         |
 (-1, 0)  ( 0, 0)  ( 1, 0)
-        /       \
-       /         \
+   |          \       |
+   |            \     |
+   |              \   |
+   |                \ |
 (-1,-1)--( 0,-1)--( 1,-1)
-    2                 3
+   v1                v2
 '''
 
 
