@@ -5,7 +5,7 @@ import ctypes
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
 
-import pdbg
+#import pdbg
 
 # --- get Shader path
 #shader_path = Path('./final_Shader.metal')
