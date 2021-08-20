@@ -12,6 +12,18 @@ wenderlichGreen = (0.0, 0.4, 0.21, 1.0)
 err_ptr = ctypes.c_void_p()
 
 
+'''
+             1
+(-1, 1)  ( 0, 1)  ( 1, 1)
+           / \
+          /   \
+(-1, 0)  ( 0, 0)  ( 1, 0)
+        /       \
+       /         \
+(-1,-1)--( 0,-1)--( 1,-1)
+    2                 3
+'''
+
 class Renderer:
   def __init__(self, device):
     self.device = device
