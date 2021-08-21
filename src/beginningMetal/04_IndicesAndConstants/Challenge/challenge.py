@@ -5,12 +5,68 @@ import ctypes
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
 
+import pdbg
+
 # --- get Shader path
 shader_path = Path('./Shader.metal')
 
 wenderlichGreen = (0.0, 0.4, 0.21, 1.0)
 err_ptr = ctypes.c_void_p()
 
+
+
+class Node:
+  def __init__(self):
+    self.name = 'Untitled'
+    self.children = []
+    
+  def add_childNode_(childNode):
+    self.children.append(childNode)
+    
+  def render_commandEncoder_deltaTime_(commandEncoder, deltaTime):
+    for child in self.children:
+      child.render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
+
+
+class Plane(Node):
+  def __init__(self, device):
+    self.vertices = (ctypes.c_float * 12)(
+      -1.0,  1.0, 0.0,    # v0
+      -1.0, -1.0, 0.0,    # v1
+       1.0, -1.0, 0.0,    # v2
+       1.0,  1.0, 0.0,)   # v3
+    self.indices = (ctypes.c_int16 * 6)(0, 1, 2, 2, 3, 0)
+    self.constants = Constants()
+    self.time = 0.0
+    self.buildBuffers(device)
+    
+  def buildBuffers(self, device):
+    self.vertexBuffer = device.newBufferWithBytes_length_options_(
+      self.vertices, self.vertices.__len__() * ctypes.sizeof(self.vertices), 0)
+    self.indexBuffer = device.newBufferWithBytes_length_options_(
+      self.indices, self.indices.__len__() * ctypes.sizeof(self.indices), 0)
+
+  def render_commandEncoder_deltaTime_(commandEncoder, deltaTime):
+    self.time += deltaTime
+    animateBy = abs(sin(self.time) / 2 + 0.5)
+    self.constants.animateBy = animateBy
+    commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
+    commandEncoder.setVertexBytes_length_atIndex_(
+      ctypes.byref(self.constants), ctypes.sizeof(self.constants), 1)
+    commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
+      3, self.indices.__len__(), 0, self.indexBuffer, 0)  # .triangle
+  
+
+class Scene(Node):
+  def __init__(self, device, size):
+    self.device = device
+    self.size = size
+    
+class GameScene(Scene):
+  def __init__(self, device, size):
+    self.quad = Plane(device)
+    self.add_childNode_(self.quad)
+    
 
 class Constants(ctypes.Structure):
   _fields_ = [('animateBy', ctypes.c_float)]
@@ -91,10 +147,10 @@ class Renderer:
 
 
 class PyMetalView:
-  def __init__(self):
+  def __init__(self, bounds):
     self.devices = self.createSystemDefaultDevice()
     self.mtkView = ObjCClass('MTKView').alloc()
-    self.view_did_load()
+    self.view_did_load(bounds)
 
   def createSystemDefaultDevice(self):
     MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
@@ -102,11 +158,13 @@ class PyMetalView:
     MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
     return ObjCInstance(MTLCreateSystemDefaultDevice())
 
-  def view_did_load(self):
-    _frame = ((0.0, 0.0), (100.0, 100.0))
+  def view_did_load(self, bounds):
+    #_frame = ((0.0, 0.0), (100.0, 100.0))
+    _frame = ((0.00, 0.00), (bounds[2], bounds[3]))
     self.mtkView.initWithFrame_device_(_frame, self.devices)
-    self.mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
+    #self.mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     self.mtkView.clearColor = wenderlichGreen
+    pdbg.state(self.mtkView.bounds().size.height)
     renderer = Renderer(self.devices).renderer_init()
     self.mtkView.delegate = renderer
 
@@ -115,12 +173,15 @@ class ViewController(ui.View):
   def __init__(self, *args, **kwargs):
     ui.View.__init__(self, *args, **kwargs)
     self.bg_color = 'slategray'
-    self.metal = PyMetalView()
+    self.present(style='fullscreen', orientations=['portrait'])
+    
+    _bounds = self.bounds
+    self.metal = PyMetalView(_bounds)
     self.objc_instance.addSubview_(self.metal.mtkView)
 
 
 if __name__ == '__main__':
   view = ViewController()
-  view.present(style='fullscreen', orientations=['portrait'])
+  #view.present(style='fullscreen', orientations=['portrait'])
 
 
