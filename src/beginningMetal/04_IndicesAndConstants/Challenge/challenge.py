@@ -20,16 +20,17 @@ class Node:
     self.name = 'Untitled'
     self.children = []
     
-  def add_childNode_(childNode):
+  def add_childNode_(self, childNode):
     self.children.append(childNode)
     
-  def render_commandEncoder_deltaTime_(commandEncoder, deltaTime):
+  def render_commandEncoder_deltaTime_(self, commandEncoder, deltaTime):
     for child in self.children:
       child.render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
 
 
 class Plane(Node):
   def __init__(self, device):
+    #super().__init__()
     self.vertices = (ctypes.c_float * 12)(
       -1.0,  1.0, 0.0,    # v0
       -1.0, -1.0, 0.0,    # v1
@@ -59,13 +60,17 @@ class Plane(Node):
 
 class Scene(Node):
   def __init__(self, device, size):
+    #super().__init__()
     self.device = device
     self.size = size
     
 class GameScene(Scene):
   def __init__(self, device, size):
-    self.quad = Plane(device)
-    self.add_childNode_(self.quad)
+    #super().__init__(device, size)
+    quad = Plane(device)
+    #super().__init__(device, size)
+    print(dir(self))
+    self.add_childNode_(quad)
     
 
 class Constants(ctypes.Structure):
@@ -76,24 +81,7 @@ class Renderer:
   def __init__(self, device):
     self.device = device
     self.commandQueue = self.device.newCommandQueue()
-    
-    self.vertices = (ctypes.c_float * 12)(
-      -1.0,  1.0, 0.0,    # v0
-      -1.0, -1.0, 0.0,    # v1
-       1.0, -1.0, 0.0,    # v2
-       1.0,  1.0, 0.0,)   # v3
-    self.indices = (ctypes.c_int16 * 6)(0, 1, 2, 2, 3, 0)
-    self.constants = Constants()
-    self.time = 0.0
-
-    self.buildModel()
     self.buildPipelineState()
-
-  def buildModel(self):
-    self.vertexBuffer = self.device.newBufferWithBytes_length_options_(
-      self.vertices, self.vertices.__len__() * ctypes.sizeof(self.vertices), 0)
-    self.indexBuffer = self.device.newBufferWithBytes_length_options_(
-      self.indices, self.indices.__len__() * ctypes.sizeof(self.indices), 0)
 
   def buildPipelineState(self):
     source = shader_path.read_text('utf-8')
@@ -111,7 +99,8 @@ class Renderer:
     self.rps = self.device.newRenderPipelineStateWithDescriptor_error_(
       rpld, err_ptr)
 
-  def renderer_init(self):
+  def renderer_init(self, bounds):
+    self.scene = GameScene(self.device, bounds)
 
     # todo: MTKViewDelegate func
     def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
@@ -122,18 +111,14 @@ class Renderer:
       drawable = view.currentDrawable()
       rpd = view.currentRenderPassDescriptor()
 
-      self.time += 1 / view.preferredFramesPerSecond()
-      animateBy = abs(sin(self.time) / 2 + 0.5)
-      self.constants.animateBy = animateBy
+      deltaTime = 1 / view.preferredFramesPerSecond()
+      
 
       commandBuffer = self.commandQueue.commandBuffer()
       commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
       commandEncoder.setRenderPipelineState_(self.rps)
-      commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
-      commandEncoder.setVertexBytes_length_atIndex_(
-        ctypes.byref(self.constants), ctypes.sizeof(self.constants), 1)
-      commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
-        3, self.indices.__len__(), 0, self.indexBuffer, 0)  # .triangle
+      
+      self.scene(commandEncoder, deltaTime)
 
       commandEncoder.endEncoding()
       commandBuffer.presentDrawable_(drawable)
@@ -159,13 +144,12 @@ class PyMetalView:
     return ObjCInstance(MTLCreateSystemDefaultDevice())
 
   def view_did_load(self, bounds):
-    #_frame = ((0.0, 0.0), (100.0, 100.0))
     _frame = ((0.00, 0.00), (bounds[2], bounds[3]))
     self.mtkView.initWithFrame_device_(_frame, self.devices)
     #self.mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     self.mtkView.clearColor = wenderlichGreen
-    pdbg.state(self.mtkView.bounds().size.height)
-    renderer = Renderer(self.devices).renderer_init()
+    renderer = Renderer(self.devices)
+    renderer.renderer_init(bounds)
     self.mtkView.delegate = renderer
 
 
