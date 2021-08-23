@@ -8,6 +8,59 @@
 以下列記は、実装日誌的なメモ
 
 
+## 📝 2021/08/23
+
+サンプルコードに寄せ、コードの構造を変えている
+
+`objc_util` が、エラー = 即落ちなので
+
+
+なかなか、ログが取れずかなり時間を溶かした
+
+
+落ちる瞬間に、エラーのウィンドウが出れば、携帯で動画キャプチャをして、一時停止しながらエラーメッセージを読む（ウィンドウが出ればの話）
+
+
+Python 側のエラーでもマルっと落ちてしまうのがネック
+
+
+### 今回の凡ミス
+
+``` .py
+class Plane(Node):
+  def __init__(self, device):
+    super().__init__()
+    self.vertices = (ctypes.c_float * 12)(
+      -1.0,  1.0, 0.0,    # v0
+      -1.0, -1.0, 0.0,    # v1
+       1.0, -1.0, 0.0,    # v2
+       1.0,  1.0, 0.0,)   # v3
+    # 色々処理
+    self.buildBuffers(device)
+
+  def buildBuffers(self, device):
+    self.vertexBuffer = device.newBufferWithBytes_length_options_(
+      self.vertices, self.vertices.__len__() * ctypes.sizeof(self.vertices), 0)
+    # 色々処理
+
+  def render_commandEncoder_deltaTime_(commandEncoder, deltaTime):
+  # ↑ `self` 抜けてる
+    super().render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
+    
+    self.time += deltaTime
+    animateBy = abs(sin(self.time) / 2 + 0.5)
+    self.constants.animateBy = animateBy
+    
+```
+
+
+継承(`Node`) したクラスのオーバーライド時に、`Plane` クラスの関数引数に`self` を入れ忘れてた
+
+
+
+
+
+
 ## 📝 2021/08/18
 
 ### ディレクトリ整理
@@ -55,52 +108,6 @@
 
 うまいログだし方法を考えないといけない
 
-
-## 📝 2021/08/23
-
-サンプルコードに寄せ、コードの構造を変えている
-
-`objc_util` が、エラー = 即落ちなので
-
-
-なかなか、ログが取れずかなり時間を溶かした
-
-
-落ちる瞬間に、エラーのウィンドウが出れば、携帯で動画キャプチャをして、一時停止しながらエラーメッセージを読む（ウィンドウが出ればの話）
-
-
-Python 側のエラーでもマルっと落ちてしまうのがネック
-
-
-### 今回の凡ミス
-
-``` .py
-class Plane(Node):
-  def __init__(self, device):
-    super().__init__()
-    self.vertices = (ctypes.c_float * 12)(
-      -1.0,  1.0, 0.0,    # v0
-      -1.0, -1.0, 0.0,    # v1
-       1.0, -1.0, 0.0,    # v2
-       1.0,  1.0, 0.0,)   # v3
-    # 色々処理
-    self.buildBuffers(device)
-
-  def buildBuffers(self, device):
-    self.vertexBuffer = device.newBufferWithBytes_length_options_(
-      self.vertices, self.vertices.__len__() * ctypes.sizeof(self.vertices), 0)
-    # 色々処理
-
-  def render_commandEncoder_deltaTime_(commandEncoder, deltaTime):
-  super().render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
-    self.time += deltaTime
-    animateBy = abs(sin(self.time) / 2 + 0.5)
-    self.constants.animateBy = animateBy
-    
-```
-
-
-継承(`Node`) したクラスのオーバーライド時に、`Plane` クラスの関数引数に`self` を入れ忘れてた
 
 
 
