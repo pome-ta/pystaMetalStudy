@@ -8,7 +8,38 @@
 以下列記は、実装日誌的なメモ
 
 
-## 📝 2021/08/23
+## 📝 2021/08/22
+
+`swift` サンプルコードの数値確認
+
+
+``` .swift
+// 16
+print(MemoryLayout<float3>.stride)
+
+// float2 = 8
+// float3 = 16
+// float4 = 16
+
+dump(MemoryLayout<float2>.size) //  8
+dump(MemoryLayout<float3>.size) //  16
+dump(MemoryLayout<float4>.size) //  16
+
+// 32
+print(MemoryLayout<Vertex>.stride)
+// .size => 32
+
+
+
+
+print(vertices.count)   // 4
+    print(MemoryLayout<Vertex>.stride)  //32
+    print(vertices.count *
+            MemoryLayout<Vertex>.stride)  // 128
+```
+
+
+## 📝 2021/08/21
 
 サンプルコードに寄せ、コードの構造を変えている
 
