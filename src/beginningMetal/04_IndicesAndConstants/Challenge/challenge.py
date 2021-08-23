@@ -30,7 +30,7 @@ class Node:
 
 class Plane(Node):
   def __init__(self, device):
-    #super().__init__()
+    super().__init__()
     self.vertices = (ctypes.c_float * 12)(
       -1.0,  1.0, 0.0,    # v0
       -1.0, -1.0, 0.0,    # v1
@@ -60,17 +60,15 @@ class Plane(Node):
 
 class Scene(Node):
   def __init__(self, device, size):
-    #super().__init__()
+    super().__init__()
     self.device = device
     self.size = size
     
 class GameScene(Scene):
   def __init__(self, device, size):
-    #super().__init__(device, size)
-    quad = Plane(device)
-    #super().__init__(device, size)
-    print(dir(self))
-    self.add_childNode_(quad)
+    super().__init__(device, size)
+    self.quad = Plane(device)
+    self.add_childNode_(self.quad)
     
 
 class Constants(ctypes.Structure):
@@ -107,6 +105,7 @@ class Renderer:
       pass
 
     def drawInMTKView_(_self, _cmd, _view):
+      print('hoge')
       view = ObjCInstance(_view)
       drawable = view.currentDrawable()
       rpd = view.currentRenderPassDescriptor()
@@ -118,14 +117,14 @@ class Renderer:
       commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
       commandEncoder.setRenderPipelineState_(self.rps)
       
-      self.scene(commandEncoder, deltaTime)
+      self.scene.render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
 
       commandEncoder.endEncoding()
       commandBuffer.presentDrawable_(drawable)
       commandBuffer.commit()
 
     PyRenderer = create_objc_class(
-      name='PyRenderer',
+  qq    name='PyRenderer',
       methods=[drawInMTKView_, mtkView_drawableSizeWillChange_],
       protocols=['MTKViewDelegate'])
     return PyRenderer.new()
