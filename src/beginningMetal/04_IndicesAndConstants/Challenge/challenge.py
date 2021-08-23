@@ -5,8 +5,6 @@ import ctypes
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
 
-import pdbg
-
 # --- get Shader path
 shader_path = Path('./Shader.metal')
 
@@ -14,15 +12,14 @@ wenderlichGreen = (0.0, 0.4, 0.21, 1.0)
 err_ptr = ctypes.c_void_p()
 
 
-
 class Node:
   def __init__(self):
     self.name = 'Untitled'
     self.children = []
-    
+
   def add_childNode_(self, childNode):
     self.children.append(childNode)
-    
+
   def render_commandEncoder_deltaTime_(self, commandEncoder, deltaTime):
     for child in self.children:
       child.render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
@@ -40,14 +37,15 @@ class Plane(Node):
     self.constants = Constants()
     self.time = 0.0
     self.buildBuffers(device)
-    
+
   def buildBuffers(self, device):
     self.vertexBuffer = device.newBufferWithBytes_length_options_(
       self.vertices, self.vertices.__len__() * ctypes.sizeof(self.vertices), 0)
     self.indexBuffer = device.newBufferWithBytes_length_options_(
       self.indices, self.indices.__len__() * ctypes.sizeof(self.indices), 0)
 
-  def render_commandEncoder_deltaTime_(commandEncoder, deltaTime):
+  def render_commandEncoder_deltaTime_(self, commandEncoder, deltaTime):
+    super().render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
     self.time += deltaTime
     animateBy = abs(sin(self.time) / 2 + 0.5)
     self.constants.animateBy = animateBy
@@ -56,20 +54,21 @@ class Plane(Node):
       ctypes.byref(self.constants), ctypes.sizeof(self.constants), 1)
     commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
       3, self.indices.__len__(), 0, self.indexBuffer, 0)  # .triangle
-  
+
 
 class Scene(Node):
   def __init__(self, device, size):
     super().__init__()
     self.device = device
     self.size = size
-    
+
+
 class GameScene(Scene):
   def __init__(self, device, size):
     super().__init__(device, size)
     self.quad = Plane(device)
     self.add_childNode_(self.quad)
-    
+
 
 class Constants(ctypes.Structure):
   _fields_ = [('animateBy', ctypes.c_float)]
@@ -97,26 +96,23 @@ class Renderer:
     self.rps = self.device.newRenderPipelineStateWithDescriptor_error_(
       rpld, err_ptr)
 
-  def renderer_init(self, bounds):
-    self.scene = GameScene(self.device, bounds)
+  def renderer_init(self, scene):
+    self.scene = scene
 
     # todo: MTKViewDelegate func
     def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
       pass
 
     def drawInMTKView_(_self, _cmd, _view):
-      print('hoge')
       view = ObjCInstance(_view)
       drawable = view.currentDrawable()
       rpd = view.currentRenderPassDescriptor()
 
       deltaTime = 1 / view.preferredFramesPerSecond()
-      
 
       commandBuffer = self.commandQueue.commandBuffer()
       commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
       commandEncoder.setRenderPipelineState_(self.rps)
-      
       self.scene.render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
 
       commandEncoder.endEncoding()
@@ -124,7 +120,7 @@ class Renderer:
       commandBuffer.commit()
 
     PyRenderer = create_objc_class(
-  qq    name='PyRenderer',
+      name='PyRenderer',
       methods=[drawInMTKView_, mtkView_drawableSizeWillChange_],
       protocols=['MTKViewDelegate'])
     return PyRenderer.new()
@@ -147,8 +143,8 @@ class PyMetalView:
     self.mtkView.initWithFrame_device_(_frame, self.devices)
     #self.mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     self.mtkView.clearColor = wenderlichGreen
-    renderer = Renderer(self.devices)
-    renderer.renderer_init(bounds)
+    scene = GameScene(self.devices, bounds)
+    renderer = Renderer(self.devices).renderer_init(scene)
     self.mtkView.delegate = renderer
 
 
@@ -157,7 +153,7 @@ class ViewController(ui.View):
     ui.View.__init__(self, *args, **kwargs)
     self.bg_color = 'slategray'
     self.present(style='fullscreen', orientations=['portrait'])
-    
+
     _bounds = self.bounds
     self.metal = PyMetalView(_bounds)
     self.objc_instance.addSubview_(self.metal.mtkView)
@@ -165,6 +161,4 @@ class ViewController(ui.View):
 
 if __name__ == '__main__':
   view = ViewController()
-  #view.present(style='fullscreen', orientations=['portrait'])
-
 
