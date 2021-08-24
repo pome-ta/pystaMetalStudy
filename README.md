@@ -8,6 +8,24 @@
 以下列記は、実装日誌的なメモ
 
 
+
+## 📝 2021/08/24
+
+[mtlvertexformat](https://developer.apple.com/documentation/metal/mtlvertexformat)
+
+
+`.float3` って`ctypes` のでいいのかな、、、
+
+
+まぁ動いてるからヨシ
+
+
+
+
+
+問題なく描画した後に、ちょっと書き換えて実行すると落ちるなぁ
+
+
 ## 📝 2021/08/23
 
 恒例ログ取り

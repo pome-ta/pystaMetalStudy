@@ -2,14 +2,28 @@ from pathlib import Path
 from math import sin
 import ctypes
 
+import numpy as np
+
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
+
 
 # --- get Shader path
 shader_path = Path('./Shader.metal')
 
 wenderlichGreen = (0.0, 0.4, 0.21, 1.0)
 err_ptr = ctypes.c_void_p()
+
+Position = (ctypes.c_float * 3)
+Color = (ctypes.c_float * 4)
+
+
+class Vertex(ctypes.Structure):
+  _fields_ = [('position', Position), ('color', Color)]
+
+
+class Vertices(ctypes.Structure):
+  _fields_ = [('vertex', Vertex * 4)]
 
 
 class Node:
@@ -28,11 +42,12 @@ class Node:
 class Plane(Node):
   def __init__(self, device):
     super().__init__()
-    self.vertices = (ctypes.c_float * 12)(
-      -1.0,  1.0, 0.0,    # v0
-      -1.0, -1.0, 0.0,    # v1
-       1.0, -1.0, 0.0,    # v2
-       1.0,  1.0, 0.0,)   # v3
+
+    self.vertices = Vertices((Vertex(
+      position=(-1.0, 1.0, 0.0), color=(1.0, 0.0, 0.0, 1.0)), Vertex(
+        position=(-1.0, -1.0, 0.0), color=(0.0, 1.0, 0.0, 1.0)), Vertex(
+          position=(1.0, -1.0, 0.0), color=(0.0, 0.0, 1.0, 1.0)), Vertex(
+            position=(1.0, 1.0, 0.0), color=(1.0, 0.0, 1.0, 1.0)), ))
     self.indices = (ctypes.c_int16 * 6)(0, 1, 2, 2, 3, 0)
     self.constants = Constants()
     self.time = 0.0
@@ -40,7 +55,8 @@ class Plane(Node):
 
   def buildBuffers(self, device):
     self.vertexBuffer = device.newBufferWithBytes_length_options_(
-      self.vertices, self.vertices.__len__() * ctypes.sizeof(self.vertices), 0)
+      ctypes.byref(self.vertices), ctypes.sizeof(self.vertices), 0)
+
     self.indexBuffer = device.newBufferWithBytes_length_options_(
       self.indices, self.indices.__len__() * ctypes.sizeof(self.indices), 0)
 
@@ -93,7 +109,23 @@ class Renderer:
     rpld.fragmentFunction = fragmentFunction
     rpld.colorAttachments().objectAtIndexedSubscript(
       0).pixelFormat = 80  # .bgra8Unorm
-    
+
+    vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).format = 30
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).offset = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).bufferIndex = 0
+
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(1).format = 31
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      1).offset = ctypes.sizeof(Position)
+
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(1).bufferIndex = 0
+
+    vertexDescriptor.layouts().objectAtIndexedSubscript(
+      0).stride = ctypes.sizeof(Vertex)
+
+    rpld.vertexDescriptor = vertexDescriptor
+
     self.rps = self.device.newRenderPipelineStateWithDescriptor_error_(
       rpld, err_ptr)
 
