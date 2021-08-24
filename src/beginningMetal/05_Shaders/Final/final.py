@@ -2,8 +2,6 @@ from pathlib import Path
 from math import sin
 import ctypes
 
-import numpy as np
-
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
 
@@ -16,7 +14,6 @@ err_ptr = ctypes.c_void_p()
 
 Position = (ctypes.c_float * 3)
 Color = (ctypes.c_float * 4)
-
 
 class Vertex(ctypes.Structure):
   _fields_ = [('position', Position), ('color', Color)]
@@ -42,12 +39,11 @@ class Node:
 class Plane(Node):
   def __init__(self, device):
     super().__init__()
-
-    self.vertices = Vertices((Vertex(
-      position=(-1.0, 1.0, 0.0), color=(1.0, 0.0, 0.0, 1.0)), Vertex(
-        position=(-1.0, -1.0, 0.0), color=(0.0, 1.0, 0.0, 1.0)), Vertex(
-          position=(1.0, -1.0, 0.0), color=(0.0, 0.0, 1.0, 1.0)), Vertex(
-            position=(1.0, 1.0, 0.0), color=(1.0, 0.0, 1.0, 1.0)), ))
+    self.vertices = Vertices((
+      Vertex(position=(-1.0,  1.0, 0.0), color=(1.0, 0.0, 0.0, 1.0)),
+      Vertex(position=(-1.0, -1.0, 0.0), color=(0.0, 1.0, 0.0, 1.0)),
+      Vertex(position=( 1.0, -1.0, 0.0), color=(0.0, 0.0, 1.0, 1.0)),
+      Vertex(position=( 1.0,  1.0, 0.0), color=(1.0, 0.0, 1.0, 1.0)), ))
     self.indices = (ctypes.c_int16 * 6)(0, 1, 2, 2, 3, 0)
     self.constants = Constants()
     self.time = 0.0
@@ -65,7 +61,8 @@ class Plane(Node):
     self.time += deltaTime
     animateBy = abs(sin(self.time) / 2 + 0.5)
     self.constants.animateBy = animateBy
-    commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
+    commandEncoder.setVertexBuffer_offset_atIndex_(
+      self.vertexBuffer, 0, 0)
     commandEncoder.setVertexBytes_length_atIndex_(
       ctypes.byref(self.constants), ctypes.sizeof(self.constants), 1)
     commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
@@ -111,21 +108,25 @@ class Renderer:
       0).pixelFormat = 80  # .bgra8Unorm
 
     vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).format = 30
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).offset = 0
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).bufferIndex = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      0).format = 30
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      0).offset = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      0).bufferIndex = 0
 
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(1).format = 31
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      1).format = 31
     vertexDescriptor.attributes().objectAtIndexedSubscript_(
       1).offset = ctypes.sizeof(Position)
 
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(1).bufferIndex = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      1).bufferIndex = 0
 
     vertexDescriptor.layouts().objectAtIndexedSubscript(
       0).stride = ctypes.sizeof(Vertex)
 
     rpld.vertexDescriptor = vertexDescriptor
-
     self.rps = self.device.newRenderPipelineStateWithDescriptor_error_(
       rpld, err_ptr)
 
@@ -146,6 +147,7 @@ class Renderer:
       commandBuffer = self.commandQueue.commandBuffer()
       commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
       commandEncoder.setRenderPipelineState_(self.rps)
+
       self.scene.render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
 
       commandEncoder.endEncoding()
@@ -194,4 +196,3 @@ class ViewController(ui.View):
 
 if __name__ == '__main__':
   view = ViewController()
-
