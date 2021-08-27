@@ -47,12 +47,9 @@ class Renderable:
   
 
 
-class Plane(Node, Renderable):
+class Plane(Node):
   def __init__(self, device):
-    print(dir(super()))
     super().__init__()
-    
-    
     self.vertices = Vertices((
       Vertex(position=(-1.0,  1.0, 0.0), color=(1.0, 0.0, 0.0, 1.0)),
       Vertex(position=(-1.0, -1.0, 0.0), color=(0.0, 1.0, 0.0, 1.0)),
