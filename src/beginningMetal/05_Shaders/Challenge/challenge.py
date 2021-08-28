@@ -5,7 +5,6 @@ import ctypes
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
 
-
 # --- get Shader path
 shader_path = Path('./Shader.metal')
 
@@ -15,13 +14,13 @@ err_ptr = ctypes.c_void_p()
 Position = (ctypes.c_float * 3)
 Color = (ctypes.c_float * 4)
 
+
 class Vertex(ctypes.Structure):
   _fields_ = [('position', Position), ('color', Color)]
 
 
 class Vertices(ctypes.Structure):
   _fields_ = [('vertex', Vertex * 4)]
-
 
 
 class Node:
@@ -37,12 +36,7 @@ class Node:
       child.render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
 
 
-
 class Renderable:
-  '''
-  def __init__(self, device):
-    self.device = device
-  '''
   def buildPipelineState(self, device):
     source = shader_path.read_text('utf-8')
     library = device.newLibraryWithSource_options_error_(
@@ -57,19 +51,16 @@ class Renderable:
     rpld.colorAttachments().objectAtIndexedSubscript(
       0).pixelFormat = 80  # .bgra8Unorm
 
-    
     rpld.vertexDescriptor = self.vertexDescriptor
-    rps = device.newRenderPipelineStateWithDescriptor_error_(
-      rpld, err_ptr)
-    #print(rps)
+    rps = device.newRenderPipelineStateWithDescriptor_error_(rpld, err_ptr)
     return rps
-  
 
 
 class Plane(Node, Renderable):
   def __init__(self, device):
     Node.__init__(self)
     Renderable.__init__(self)
+    
     self.vertices = Vertices((
       Vertex(position=(-1.0,  1.0, 0.0), color=(1.0, 0.0, 0.0, 1.0)),
       Vertex(position=(-1.0, -1.0, 0.0), color=(0.0, 1.0, 0.0, 1.0)),
@@ -84,25 +75,20 @@ class Plane(Node, Renderable):
 
   def set_vertexDescriptor(self):
     vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      0).format = 30
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      0).offset = 0
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      0).bufferIndex = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).format = 30
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).offset = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).bufferIndex = 0
 
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      1).format = 31
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(1).format = 31
     vertexDescriptor.attributes().objectAtIndexedSubscript_(
       1).offset = ctypes.sizeof(Position)
 
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      1).bufferIndex = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(1).bufferIndex = 0
 
     vertexDescriptor.layouts().objectAtIndexedSubscript(
       0).stride = ctypes.sizeof(Vertex)
     return vertexDescriptor
-  
+
   def buildBuffers(self, device):
     self.vertexBuffer = device.newBufferWithBytes_length_options_(
       ctypes.byref(self.vertices), ctypes.sizeof(self.vertices), 0)
@@ -115,9 +101,9 @@ class Plane(Node, Renderable):
     self.time += deltaTime
     animateBy = abs(sin(self.time) / 2 + 0.5)
     self.constants.animateBy = animateBy
+
     commandEncoder.setRenderPipelineState_(self.rps)
-    commandEncoder.setVertexBuffer_offset_atIndex_(
-      self.vertexBuffer, 0, 0)
+    commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
     commandEncoder.setVertexBytes_length_atIndex_(
       ctypes.byref(self.constants), ctypes.sizeof(self.constants), 1)
     commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
@@ -180,7 +166,6 @@ class Renderer:
 
       commandBuffer = self.commandQueue.commandBuffer()
       commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
-      #commandEncoder.setRenderPipelineState_(self.rps)
 
       self.scene.render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
 
