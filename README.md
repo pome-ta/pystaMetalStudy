@@ -8,6 +8,23 @@
 以下列記は、実装日誌的なメモ
 
 
+## 📝 2021/08/29
+
+beginningMetal もTexture の章となり、いつもの実装とは違う難しさがでてきた
+
+
+通常(?) のiOS 開発であると、`Assets` に必要なものをガバっと入れて、ゴリッと呼び出すのであろうが(実際そうであるかは知らん)
+
+Pythonista では、`path` 定義をしたり、データなのか`URL` なのか？みたいなことなど、自動的に処理してくれそうな部分のケアまで必要であったり(実際がそうであるかは知らん)
+
+
+サンプルコードを丸写しで実行完了ができないので、面倒な部分ではある
+
+
+Pythonista でやっている以上、それが必要な作業であると理解をしているが
+どうも、画像処理となると自分の興味のフィールドから少し離れてしまうので
+重い腰となってしまうことがある
+
 
 ## 📝 2021/08/24
 
@@ -98,11 +115,11 @@ class Plane(Node):
   def render_commandEncoder_deltaTime_(commandEncoder, deltaTime):
   # ↑ `self` 抜けてる
     super().render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
-    
+
     self.time += deltaTime
     animateBy = abs(sin(self.time) / 2 + 0.5)
     self.constants.animateBy = animateBy
-    
+
 ```
 
 
@@ -142,7 +159,7 @@ class Plane(Node):
 ## 📝 2021/08/14
 
 
-`setVertexBytes_length_atIndex_` と`setVertexBuffer_offset_atIndex_` 
+`setVertexBytes_length_atIndex_` と`setVertexBuffer_offset_atIndex_`
 
 
 `setVertexBytes_` がうまく渡せていない？

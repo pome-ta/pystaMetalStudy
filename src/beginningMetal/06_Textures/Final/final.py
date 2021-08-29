@@ -60,13 +60,13 @@ class Renderable:
 
 class Texturable:
   def setTexture_device_imageName_(self, device, imageName):
-    
+   pass
 
 class Plane(Node, Renderable):
   def __init__(self, device):
     Node.__init__(self)
     Renderable.__init__(self)
-    
+
     self.vertices = Vertices((
       Vertex(position=(-1.0,  1.0, 0.0), color=(1.0, 0.0, 0.0, 1.0)),
       Vertex(position=(-1.0, -1.0, 0.0), color=(0.0, 1.0, 0.0, 1.0)),
