@@ -98,6 +98,7 @@ class Plane(Node, Renderable, Texturable):
         color=(1.0, 0.0, 1.0, 1.0),
         texture=(1.0, 1.0))
     ))
+    
     self.indices = (ctypes.c_int16 * 6)(0, 1, 2, 2, 3, 0)
     self.time = 0.0
     self.constants = Constants()
@@ -185,20 +186,12 @@ class Renderer:
     self.buildPipelineState()
 
   def buildPipelineState(self):
-    source = shader_path.read_text('utf-8')
-    library = self.device.newLibraryWithSource_options_error_(
-      source, err_ptr, err_ptr)
-
-    vertexFunction = library.newFunctionWithName_('vertex_shader')
-    fragmentFunction = library.newFunctionWithName_('fragment_shader')
-
-    rpld = ObjCClass('MTLRenderPipelineDescriptor').new()
-    rpld.vertexFunction = vertexFunction
-    rpld.fragmentFunction = fragmentFunction
-    rpld.colorAttachments().objectAtIndexedSubscript(
-      0).pixelFormat = 80  # .bgra8Unorm
-    self.rps = self.device.newRenderPipelineStateWithDescriptor_error_(
-      rpld, err_ptr)
+    descriptor = ObjCClass('MTLSamplerDescriptor').new()
+    # nearest = 0
+    # linear = 1
+    descriptor.minFilter = 1
+    descriptor.magFilter = 1
+    self.samplerState = self.device.newSamplerStateWithDescriptor_(descriptor)
 
   def renderer_init(self, scene):
     self.scene = scene
@@ -216,6 +209,7 @@ class Renderer:
 
       commandBuffer = self.commandQueue.commandBuffer()
       commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
+      commandEncoder.setFragmentSamplerState_atIndex_(self.samplerState, 0)
 
       self.scene.render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
 
