@@ -2,7 +2,7 @@ from pathlib import Path
 from math import sin
 import ctypes
 
-from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
+from objc_util import c, create_objc_class, ObjCClass, ObjCInstance, ns, nsurl
 import ui
 
 # --- get Shader path
@@ -13,10 +13,11 @@ err_ptr = ctypes.c_void_p()
 
 Position = (ctypes.c_float * 3)
 Color = (ctypes.c_float * 4)
+Texture = (ctypes.c_float * 2)
 
 
 class Vertex(ctypes.Structure):
-  _fields_ = [('position', Position), ('color', Color)]
+  _fields_ = [('position', Position), ('color', Color), ('texture', Texture)]
 
 
 class Vertices(ctypes.Structure):
@@ -42,8 +43,8 @@ class Renderable:
     library = device.newLibraryWithSource_options_error_(
       source, err_ptr, err_ptr)
 
-    vertexFunction = library.newFunctionWithName_('vertex_shader')
-    fragmentFunction = library.newFunctionWithName_('fragment_shader')
+    vertexFunction = library.newFunctionWithName_(self.vertexFunctionName)
+    fragmentFunction = library.newFunctionWithName_(self.fragmentFunctionName)
 
     rpld = ObjCClass('MTLRenderPipelineDescriptor').new()
     rpld.vertexFunction = vertexFunction
@@ -56,27 +57,62 @@ class Renderable:
     return rps
 
 
-
-
 class Texturable:
   def setTexture_device_imageName_(self, device, imageName):
-   pass
+    def get_image_path(_imageName):
+      root = Path('./Images')
+      for file in root.iterdir():
+        if file.name == _imageName:
+          return file.absolute()
 
-class Plane(Node, Renderable):
-  def __init__(self, device):
+    textureLoader = ObjCClass('MTKTextureLoader').new()
+    textureLoader.initWithDevice_(device)
+    origin = 'MTKTextureLoaderOriginBottomLeft'
+    textureLoaderOptions = ns({'MTKTextureLoaderOptionOrigin': origin})
+
+    textureURL = nsurl(str(get_image_path(imageName)))
+    texture = textureLoader.newTextureWithContentsOfURL_options_error_(
+      textureURL, textureLoaderOptions, err_ptr)
+    return texture
+
+
+class Plane(Node, Renderable, Texturable):
+  def __init__(self, device, imageName):
     Node.__init__(self)
-    Renderable.__init__(self)
-
+    
     self.vertices = Vertices((
-      Vertex(position=(-1.0,  1.0, 0.0), color=(1.0, 0.0, 0.0, 1.0)),
-      Vertex(position=(-1.0, -1.0, 0.0), color=(0.0, 1.0, 0.0, 1.0)),
-      Vertex(position=( 1.0, -1.0, 0.0), color=(0.0, 0.0, 1.0, 1.0)),
-      Vertex(position=( 1.0,  1.0, 0.0), color=(1.0, 0.0, 1.0, 1.0)), ))
+      Vertex(
+        position=(-1.0,  1.0, 0.0),
+        color=(1.0, 0.0, 0.0, 1.0),
+        texture=(0.0, 1.0)),
+      Vertex(
+        position=(-1.0, -1.0, 0.0),
+        color=(0.0, 1.0, 0.0, 1.0),
+        texture=(0.0, 0.0)),
+      Vertex(
+        position=( 1.0, -1.0, 0.0),
+        color=(0.0, 0.0, 1.0, 1.0),
+        texture=(1.0, 0.0)),
+      Vertex(
+        position=( 1.0,  1.0, 0.0),
+        color=(1.0, 0.0, 1.0, 1.0),
+        texture=(1.0, 1.0))
+    ))
     self.indices = (ctypes.c_int16 * 6)(0, 1, 2, 2, 3, 0)
-    self.constants = Constants()
     self.time = 0.0
+    self.constants = Constants()
+
+    Renderable.__init__(self)
+    self.fragmentFunctionName = 'fragment_shader'
+    self.vertexFunctionName = 'vertex_shader'
     self.buildBuffers(device)
     self.vertexDescriptor = self.set_vertexDescriptor()
+    self.rps = self.buildPipelineState(device)
+
+    Texturable.__init__(self)
+    self.texture = self.setTexture_device_imageName_(device, imageName)
+    self.fragmentFunctionName = 'textured_fragment'
+    self.buildBuffers(device)
     self.rps = self.buildPipelineState(device)
 
   def set_vertexDescriptor(self):
@@ -90,6 +126,12 @@ class Plane(Node, Renderable):
       1).offset = ctypes.sizeof(Position)
 
     vertexDescriptor.attributes().objectAtIndexedSubscript_(1).bufferIndex = 0
+
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      2).format = 29  # .float2
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      2).offset = ctypes.sizeof(Position) + ctypes.sizeof(Color)
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(2).bufferIndex = 0
 
     vertexDescriptor.layouts().objectAtIndexedSubscript(
       0).stride = ctypes.sizeof(Vertex)
@@ -112,6 +154,8 @@ class Plane(Node, Renderable):
     commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
     commandEncoder.setVertexBytes_length_atIndex_(
       ctypes.byref(self.constants), ctypes.sizeof(self.constants), 1)
+
+    commandEncoder.setFragmentTexture_atIndex_(self.texture, 0)
     commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
       3, self.indices.__len__(), 0, self.indexBuffer, 0)  # .triangle
 
@@ -126,7 +170,7 @@ class Scene(Node):
 class GameScene(Scene):
   def __init__(self, device, size):
     super().__init__(device, size)
-    self.quad = Plane(device)
+    self.quad = Plane(device, 'picture.png')
     self.add_childNode_(self.quad)
 
 
@@ -221,5 +265,4 @@ class ViewController(ui.View):
 
 if __name__ == '__main__':
   view = ViewController()
-
 
