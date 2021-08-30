@@ -42,8 +42,8 @@ class Renderable:
     library = device.newLibraryWithSource_options_error_(
       source, err_ptr, err_ptr)
 
-    vertexFunction = library.newFunctionWithName_('vertex_shader')
-    fragmentFunction = library.newFunctionWithName_('fragment_shader')
+    vertexFunction = library.newFunctionWithName_(self.vertexFunctionName)
+    fragmentFunction = library.newFunctionWithName_(self.fragmentFunctionName)
 
     rpld = ObjCClass('MTLRenderPipelineDescriptor').new()
     rpld.vertexFunction = vertexFunction
@@ -67,19 +67,23 @@ class Plane(Node, Renderable):
       Vertex(position=( 1.0, -1.0, 0.0), color=(0.0, 0.0, 1.0, 1.0)),
       Vertex(position=( 1.0,  1.0, 0.0), color=(1.0, 0.0, 1.0, 1.0)), ))
     self.indices = (ctypes.c_int16 * 6)(0, 1, 2, 2, 3, 0)
-    self.constants = Constants()
     self.time = 0.0
+    self.constants = Constants()
+    
+    self.fragmentFunctionName = 'fragment_shader'
+    self.vertexFunctionName = 'vertex_shader'
+    
     self.buildBuffers(device)
     self.vertexDescriptor = self.set_vertexDescriptor()
     self.rps = self.buildPipelineState(device)
 
   def set_vertexDescriptor(self):
     vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).format = 30
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).format = 30  # .float3
     vertexDescriptor.attributes().objectAtIndexedSubscript_(0).offset = 0
     vertexDescriptor.attributes().objectAtIndexedSubscript_(0).bufferIndex = 0
 
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(1).format = 31
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(1).format = 31  # .float4
     vertexDescriptor.attributes().objectAtIndexedSubscript_(
       1).offset = ctypes.sizeof(Position)
 
