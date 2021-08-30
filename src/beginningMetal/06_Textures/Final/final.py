@@ -59,6 +59,7 @@ class Renderable:
 
 class Texturable:
   def setTexture_device_imageName_(self, device, imageName):
+    # xxx: Shader path もやる？
     def get_image_path(_imageName):
       root = Path('./Images')
       for file in root.iterdir():
