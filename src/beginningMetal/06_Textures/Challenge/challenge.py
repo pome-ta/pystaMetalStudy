@@ -111,30 +111,31 @@ class Plane(Node, Renderable, Texturable):
     self.vertexDescriptor = self.set_vertexDescriptor()
     self.rps = self.buildPipelineState(device)
 
+    self.texture = None
+    self.maskTexture = None
     Texturable.__init__(self)
     # todo: ちょっと気持ち悪いけど、sample に近づける
     if imageName:
       self.init_device_imageName_(device, imageName)
-      
+
     if maskImageName:
       self.init_device_imageName_maskImageName_(device, imageName, maskImageName)
-    
 
   def init_device_imageName_(self, device, imageName):
     self.texture = self.setTexture_device_imageName_(device, imageName)
     self.fragmentFunctionName = 'textured_fragment'
     self.buildBuffers(device)
     self.rps = self.buildPipelineState(device)
-    
+
   def init_device_imageName_maskImageName_(self, device, imageName, maskImageName):
     self.texture = self.setTexture_device_imageName_(device, imageName)
     self.fragmentFunctionName = 'textured_fragment'
-    
+
     self.maskTexture = self.setTexture_device_imageName_(device, maskImageName)
     self.fragmentFunctionName = 'textured_mask_fragment'
     self.buildBuffers(device)
     self.rps = self.buildPipelineState(device)
-  
+
   def set_vertexDescriptor(self):
     vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
     vertexDescriptor.attributes().objectAtIndexedSubscript_(0).format = 30
@@ -176,10 +177,7 @@ class Plane(Node, Renderable, Texturable):
       ctypes.byref(self.constants), ctypes.sizeof(self.constants), 1)
 
     commandEncoder.setFragmentTexture_atIndex_(self.texture, 0)
-    
-    
-    if self.maskTexture:
-      commandEncoder.setFragmentTexture_atIndex_(self.maskTexture, 1)
+    commandEncoder.setFragmentTexture_atIndex_(self.maskTexture, 1)
     commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
       3, self.indices.__len__(), 0, self.indexBuffer, 0)  # .triangle
 
@@ -196,10 +194,9 @@ class GameScene(Scene):
     super().__init__(device, size)
     self.quad = Plane(device, 'picture.png', 'picture-frame-mask.png')
     self.add_childNode_(self.quad)
-    '''
+
     self.pictureFrame = Plane(device, 'picture-frame.png')
     self.add_childNode_(self.pictureFrame)
-    '''
 
 
 class Constants(ctypes.Structure):
@@ -286,5 +283,4 @@ class ViewController(ui.View):
 
 if __name__ == '__main__':
   view = ViewController()
-
 
