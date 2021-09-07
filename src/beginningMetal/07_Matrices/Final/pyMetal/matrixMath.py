@@ -1,6 +1,103 @@
 from math import pi, sin, cos, tan
 import ctypes
 
+
+
+class f4(ctypes.Structure):
+  _fields_ = [
+    ('ffff', ctypes.c_float * 4),
+  ]
+
+
+class floatX_Y_Z_W(ctypes.Structure):
+  _fields_ = [
+    ('x', ctypes.c_float),
+    ('y', ctypes.c_float),
+    ('z', ctypes.c_float),
+    ('w', ctypes.c_float),
+  ]
+
+
+class float4(ctypes.Union):
+  _anonymous_ = [
+    ('xyzw'),
+    ('ffff'),
+  ]
+  _fields_ = [('xyzw', floatX_Y_Z_W), ('ffff', f4)]
+
+  def __init__(self, x, y, z, w):
+    self.x = x
+    self.y = y
+    self.z = z
+    self.w = w
+
+
+class columns(ctypes.Structure):
+  _fields_ = [
+    ('c0', float4),
+    ('c1', float4),
+    ('c2', float4),
+    ('c3', float4),
+  ]
+
+
+class float16(ctypes.Structure):
+  _fields_ = [
+    ('m', (ctypes.c_float * 16)),
+  ]
+
+
+class m16(ctypes.Structure):
+  _fields_ = [
+    ('m00', ctypes.c_float),
+    ('m01', ctypes.c_float),
+    ('m02', ctypes.c_float),
+    ('m03', ctypes.c_float),
+    ('m10', ctypes.c_float),
+    ('m11', ctypes.c_float),
+    ('m12', ctypes.c_float),
+    ('m13', ctypes.c_float),
+    ('m20', ctypes.c_float),
+    ('m21', ctypes.c_float),
+    ('m22', ctypes.c_float),
+    ('m23', ctypes.c_float),
+    ('m30', ctypes.c_float),
+    ('m31', ctypes.c_float),
+    ('m32', ctypes.c_float),
+    ('m33', ctypes.c_float),
+  ]
+
+
+class matrix_float4x4(ctypes.Union):
+  _anonymous_ = [
+    ('columns'),
+    ('s1'),
+    ('s2'),
+  ]
+  _fields_ = [
+    ('columns', columns),
+    ('s1', float16),
+    ('s2', m16),
+  ]
+
+  def __init__(self, c0, c1, c2, c3):
+    self.c0 = c0
+    self.c1 = c1
+    self.c2 = c2
+    self.c3 = c3
+
+
+if __name__ == '__main__':
+  f0 = float4(0.0, 0.1, 0.2, 0.3)
+  f1 = float4(1.0, 1.1, 1.2, 1.3)
+  f2 = float4(2.0, 2.1, 2.2, 2.3)
+  f3 = float4(3.0, 3.1, 3.2, 3.3)
+  mm = matrix_float4x4(f0, f1, f2, f3)
+  #mm.c1 = (1.0, 1.0,1.0,1.0)
+  print(mm.m[0])
+
+
+
 class float3(ctypes.Structure):
   _fields_ = [
     ('x', ctypes.c_float),
