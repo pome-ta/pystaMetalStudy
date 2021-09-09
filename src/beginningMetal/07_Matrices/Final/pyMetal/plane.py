@@ -1,4 +1,4 @@
-from math import sin
+from math import sin, radians
 import ctypes
 
 from objc_util import ObjCClass
@@ -6,6 +6,7 @@ from objc_util import ObjCClass
 from .metalNode import Node
 from .renderable import Renderable
 from .texturable import Texturable
+from .matrixMath import matrix_float4x4, matrix_multiply
 from .structures import *
 
 class Plane(Node, Renderable, Texturable):
@@ -34,6 +35,8 @@ class Plane(Node, Renderable, Texturable):
     self.indices = (ctypes.c_int16 * 6)(0, 1, 2, 2, 3, 0)
     self.time = 0.0
     self.constants = Constants()
+    
+    self.modelConstants = ModelConstants()
 
     Renderable.__init__(self)
     self.fragmentFunctionName = 'fragment_shader'
@@ -100,12 +103,27 @@ class Plane(Node, Renderable, Texturable):
     super().render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
     self.time += deltaTime
     animateBy = abs(sin(self.time) / 2 + 0.5)
-    self.constants.animateBy = animateBy
+    
+    rotationMatrix = matrix_float4x4.rotation_angle_x_y_z_(animateBy, 0.0, 0.0, 1.0)
+    
+    viewMatrix = matrix_float4x4.translation_x_y_z_(0.0, 0.0, -4.0)
+    
+    modelViewMatrix = matrix_multiply(rotationMatrix, viewMatrix)
+    
+    self.modelConstants.modelViewMatrix = modelViewMatrix
+    
+    # xxx: view size?
+    aspect = 750.0/1334.0
+    
+    #self.constants.animateBy = animateBy
+    projectionMatrix = matrix_float4x4.projection_fov_aspect_nearZ_farZ_(radians(65), aspect, 0.1, 100.0)
+    
+    self.modelConstants.modelViewMatrix = matrix_multiply(projectionMatrix, modelViewMatrix)
 
     commandEncoder.setRenderPipelineState_(self.rps)
     commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
     commandEncoder.setVertexBytes_length_atIndex_(
-      ctypes.byref(self.constants), ctypes.sizeof(self.constants), 1)
+      ctypes.byref(self.modelConstants), ctypes.sizeof(self.modelConstants), 1)
 
     commandEncoder.setFragmentTexture_atIndex_(self.texture, 0)
     commandEncoder.setFragmentTexture_atIndex_(self.maskTexture, 1)
