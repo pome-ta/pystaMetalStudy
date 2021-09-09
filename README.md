@@ -7,6 +7,16 @@
 
 以下列記は、実装日誌的なメモ
 
+
+
+## 📝 2021/09/10
+
+[OpenGLES-Pythonista](https://github.com/Cethric/OpenGLES-Pythonista) は偉大😭
+
+
+まるっと、行列計算お借りした
+
+
 ## 📝 2021/09/09
 
 ### gl で作ったやつ
@@ -19,6 +29,8 @@ GLKMatrix4 {
 {0.000, 0.000, 3.904, 4.000}
 }
 ```
+勝った🎉
+
 
 ### numpy
 
