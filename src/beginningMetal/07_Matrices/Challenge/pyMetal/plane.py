@@ -70,6 +70,7 @@ class Plane(Node, Renderable, Texturable):
     self.buildBuffers(device)
     self.rps = self.buildPipelineState(device)
 
+  # xxx: node と揃える？
   def set_vertexDescriptor(self):
     vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
     vertexDescriptor.attributes().objectAtIndexedSubscript_(0).format = 30
@@ -99,6 +100,11 @@ class Plane(Node, Renderable, Texturable):
     self.indexBuffer = device.newBufferWithBytes_length_options_(
       self.indices, self.indices.__len__() * ctypes.sizeof(self.indices), 0)
 
+  def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
+    
+  
+  
+  
   def render_commandEncoder_deltaTime_(self, commandEncoder, deltaTime):
     super().render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
     self.time += deltaTime

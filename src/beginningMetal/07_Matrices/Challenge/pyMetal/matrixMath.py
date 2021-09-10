@@ -22,10 +22,7 @@ class float4(ctypes.Union):
     ('xyzw'),
     ('ffff'),
   ]
-  _fields_ = [
-    ('xyzw', float_xyzw),
-    ('ffff', f4)
-  ]
+  _fields_ = [('xyzw', float_xyzw), ('ffff', f4)]
 
   def __init__(self, x, y, z, w):
     self.x = x
@@ -90,7 +87,6 @@ class matrix_float4x4(ctypes.Union):
       [{valus[4]:.4f}, {valus[5]:.4f}, {valus[6]:.4f}, {valus[7]:.4f}]
       [{valus[8]:.4f}, {valus[9]:.4f}, {valus[10]:.4f}, {valus[11]:.4f}]
       [{valus[12]:.4f}, {valus[13]:.4f}, {valus[14]:.4f}, {valus[15]:.4f}]'''
-
     return mstr
 
   def __init__(self):
@@ -113,6 +109,10 @@ class matrix_float4x4(ctypes.Union):
     matrix.columns = columns
     return matrix
 
+  def translatedBy_x_y_z_(self, x, y, z):
+    translateMatrix = self.translation_x_y_z_(x, y, z)
+    return matrix_multiply(self, translateMatrix)
+
   @staticmethod
   def scale_x_y_z_(x, y, z):
     columns = (
@@ -123,6 +123,10 @@ class matrix_float4x4(ctypes.Union):
     matrix = matrix_float4x4()
     matrix.columns = columns
     return matrix
+
+  def scaledBy_x_y_z_(self, x, y, z):
+    scaledMatrix = self.scale_x_y_z_(x, y, z)
+    return matrix_multiply(self, scaledMatrix)
 
   @staticmethod
   def rotation_angle_x_y_z_(angle, x, y, z):
@@ -153,6 +157,10 @@ class matrix_float4x4(ctypes.Union):
     columns = (column0, column1, column2, column3)
     matrix.columns = columns
     return matrix
+
+  def rotatedBy_angle_x_y_z_(self, angle, x, y, z):
+    rotationMatrix = self.rotation_angle_x_y_z_(angle, x, y, z)
+    return matrix_multiply(self, rotationMatrix)
 
   @staticmethod
   def projection_fov_aspect_nearZ_farZ_(fov, aspect, nearZ, farZ):
@@ -211,5 +219,4 @@ def matrix_multiply(matrixLeft, matrixRight):
     15] = matrixLeft.m[3] * matrixRight.m[12] + matrixLeft.m[7] * matrixRight.m[13] + matrixLeft.m[11] * matrixRight.m[14] + matrixLeft.m[15] * matrixRight.m[15]
 
   return matrix
-
 

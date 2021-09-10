@@ -9,6 +9,9 @@ from .utils import err_ptr
 shader_path = Path('./Shader.metal')
 
 class Renderable:
+  def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
+    pass
+    
   def buildPipelineState(self, device):
     source = shader_path.read_text('utf-8')
     library = device.newLibraryWithSource_options_error_(
