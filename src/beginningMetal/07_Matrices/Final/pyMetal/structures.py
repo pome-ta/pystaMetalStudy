@@ -1,6 +1,6 @@
 import ctypes
 
-from .matrixMath import matrix_float4x4
+from .matrixMath import matrix_float4x4 as matrix_identity_float4x4
 
 Position = (ctypes.c_float * 3)
 Color = (ctypes.c_float * 4)
@@ -18,9 +18,9 @@ class Vertices(ctypes.Structure):
 class Constants(ctypes.Structure):
   _fields_ = [('animateBy', ctypes.c_float)]
 
-
+# matrix_identity_float4x4 <= 雰囲気
 class ModelConstants(ctypes.Structure):
-  _fields_ = [('modelViewMatrix', matrix_float4x4),]
+  _fields_ = [('modelViewMatrix', matrix_identity_float4x4),]
 
 
 
