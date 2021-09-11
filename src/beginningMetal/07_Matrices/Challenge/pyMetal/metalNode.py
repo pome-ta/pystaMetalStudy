@@ -33,5 +33,6 @@ class Node:
     
     for child in self.children:
       child.render_commandEncoder_parentModelViewMatrix_(commandEncoder, parentModelViewMatrix)
+      
 
 

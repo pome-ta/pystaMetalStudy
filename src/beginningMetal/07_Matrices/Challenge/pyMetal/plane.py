@@ -101,8 +101,27 @@ class Plane(Node, Renderable, Texturable):
       self.indices, self.indices.__len__() * ctypes.sizeof(self.indices), 0)
 
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
+    # xxx: view size?
+    aspect = 750.0/1334.0
+    projectionMatrix = matrix_float4x4.projection_fov_aspect_nearZ_farZ_(radians(65), aspect, 0.1, 100.0)
     
-  
+    self.modelConstants.modelViewMatrix = matrix_multiply(projectionMatrix, modelViewMatrix)
+    
+    commandEncoder.setRenderPipelineState_(self.rps)
+    commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
+    commandEncoder.setVertexBytes_length_atIndex_(
+      ctypes.byref(self.modelConstants), ctypes.sizeof(self.modelConstants), 1)
+
+    commandEncoder.setFragmentTexture_atIndex_(self.texture, 0)
+    commandEncoder.setFragmentTexture_atIndex_(self.maskTexture, 1)
+    
+    commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
+      3, self.indices.__len__(), 0, self.indexBuffer, 0)  # .triangle
+
+    
+    
+    
+'''
   
   
   def render_commandEncoder_deltaTime_(self, commandEncoder, deltaTime):
@@ -135,4 +154,4 @@ class Plane(Node, Renderable, Texturable):
     commandEncoder.setFragmentTexture_atIndex_(self.maskTexture, 1)
     commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
       3, self.indices.__len__(), 0, self.indexBuffer, 0)  # .triangle
-
+'''
