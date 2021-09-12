@@ -34,5 +34,6 @@ class Node:
     for child in self.children:
       child.render_commandEncoder_parentModelViewMatrix_(commandEncoder, parentModelViewMatrix)
       
-    if self.doRender_commandEncoder_modelViewMatrix_:
-      self.doRender_commandEncoder_modelViewMatrix_(commandEncoder, self.modelMatrix)
+    self.doRender_commandEncoder_modelViewMatrix_(commandEncoder, self.modelMatrix)
+    #if self.doRender_commandEncoder_modelViewMatrix_:
+      #self.doRender_commandEncoder_modelViewMatrix_(commandEncoder, self.modelMatrix)
