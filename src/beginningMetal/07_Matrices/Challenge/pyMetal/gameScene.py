@@ -26,6 +26,7 @@ class GameScene(Scene):
     '''
     
   def update_deltaTime_(self, deltaTime):
+    super().update_deltaTime_(deltaTime)
     self.quad.rotation.y += deltaTime
     
     

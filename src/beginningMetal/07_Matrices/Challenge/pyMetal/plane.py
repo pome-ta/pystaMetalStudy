@@ -101,6 +101,7 @@ class Plane(Node, Renderable, Texturable):
       self.indices, self.indices.__len__() * ctypes.sizeof(self.indices), 0)
 
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
+    super().doRender_commandEncoder_modelViewMatrix_(commandEncoder, modelViewMatrix)
     # xxx: view size?
     aspect = 750.0/1334.0
     projectionMatrix = matrix_float4x4.projection_fov_aspect_nearZ_farZ_(radians(65), aspect, 0.1, 100.0)

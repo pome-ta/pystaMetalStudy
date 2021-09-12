@@ -30,10 +30,13 @@ class Node:
 
   def render_commandEncoder_parentModelViewMatrix_(self, commandEncoder, parentModelViewMatrix):
     modelViewMatrix = matrix_multiply(parentModelViewMatrix, self.modelMatrix)
+    print(modelViewMatrix)
     
     for child in self.children:
+      super().render_commandEncoder_parentModelViewMatrix_(commandEncoder, parentModelViewMatrix)
       child.render_commandEncoder_parentModelViewMatrix_(commandEncoder, parentModelViewMatrix)
       
     self.doRender_commandEncoder_modelViewMatrix_(commandEncoder, self.modelMatrix)
+    
     #if self.doRender_commandEncoder_modelViewMatrix_:
       #self.doRender_commandEncoder_modelViewMatrix_(commandEncoder, self.modelMatrix)
