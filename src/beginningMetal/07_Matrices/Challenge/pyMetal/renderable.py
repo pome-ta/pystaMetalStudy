@@ -11,7 +11,7 @@ shader_path = Path('./Shader.metal')
 class Renderable:
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
     pass
-    
+
   def buildPipelineState(self, device):
     source = shader_path.read_text('utf-8')
     library = device.newLibraryWithSource_options_error_(
@@ -29,4 +29,3 @@ class Renderable:
     rpld.vertexDescriptor = self.vertexDescriptor
     rps = device.newRenderPipelineStateWithDescriptor_error_(rpld, err_ptr)
     return rps
-
