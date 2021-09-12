@@ -8,6 +8,95 @@
 以下列記は、実装日誌的なメモ
 
 
+## 📝 2021/09/12
+
+差分という卑怯な手を使う
+
+### gameScene
+
+``` .swift
+let quad2 = Plane(device: device,
+imageName: "picture.png")
+quad2.scale = float3(0.5)
+quad2.position.y = 1.5
+quad.add(childNode: quad2)
+  }
+override func update(deltaTime: Float) {
+quad.rotation.y += deltaTime
+}
+
+```
+
+### Node
+
+``` .swift
+var position = float3(0)
+var rotation = float3(0)
+var scale = float3(1)
+var modelMatrix: matrix_float4x4 {
+var matrix = matrix_float4x4(translationX: position.x,
+y: position.y, z: position.z)
+matrix = matrix.rotatedBy(rotationAngle: rotation.x,
+x: 1, y: 0, z: 0)
+matrix = matrix.rotatedBy(rotationAngle: rotation.y,
+x: 0, y: 1, z: 0)
+matrix = matrix.rotatedBy(rotationAngle: rotation.z,
+x: 0, y: 0, z: 1)
+matrix = matrix.scaledBy(x: scale.x, y: scale.y, z: scale.z)
+return matrix
+}
+
+```
+
+``` .swift
+parentModelViewMatrix: matrix_float4x4) {
+for child in children {	let modelViewMatrix = matrix_multiply(parentModelViewMatrix,
+modelMatrix)
+
+
+parentModelViewMatrix: modelViewMatrix)
+}
+if let renderable = self as? Renderable {
+commandEncoder.pushDebugGroup(name)
+renderable.doRender(commandEncoder: commandEncoder,
+modelViewMatrix: modelViewMatrix)
+commandEncoder.popDebugGroup()
+
+
+```
+### Plane
+
+``` .swift
+extension Plane: Renderable {
+func doRender(commandEncoder: MTLRenderCommandEncoder, modelViewMatrix: matrix_float4x4) {
+```
+
+
+### Renderable
+
+``` .swift
+var modelConstants: ModelConstants { get set }
+func doRender(commandEncoder: MTLRenderCommandEncoder,
+modelViewMatrix: matrix_float4x4)
+}	}
+```
+
+### Scene
+
+``` .swift
+func update(deltaTime: Float) {}
+func render(commandEncoder: MTLRenderCommandEncoder,
+deltaTime: Float) {
+update(deltaTime: deltaTime)
+let viewMatrix = matrix_float4x4(translationX: 0, y: 0, z: -4)
+for child in children {
+child.render(commandEncoder: commandEncoder,
+parentModelViewMatrix: viewMatrix)
+}
+}
+```
+
+
 
 ## 📝 2021/09/10
 
