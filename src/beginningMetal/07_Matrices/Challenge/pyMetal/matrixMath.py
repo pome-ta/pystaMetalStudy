@@ -1,4 +1,4 @@
-from math import sin, cos, tan, pi
+from math import sin, cos, tan
 import ctypes
 
 
@@ -49,22 +49,10 @@ class float16(ctypes.Structure):
 # https://github.com/Cethric/OpenGLES-Pythonista/blob/master/GLKit/glkmath/matrix4.py
 class m16(ctypes.Structure):
   _fields_ = [
-    ('m00', ctypes.c_float),
-    ('m01', ctypes.c_float),
-    ('m02', ctypes.c_float),
-    ('m03', ctypes.c_float),
-    ('m10', ctypes.c_float),
-    ('m11', ctypes.c_float),
-    ('m12', ctypes.c_float),
-    ('m13', ctypes.c_float),
-    ('m20', ctypes.c_float),
-    ('m21', ctypes.c_float),
-    ('m22', ctypes.c_float),
-    ('m23', ctypes.c_float),
-    ('m30', ctypes.c_float),
-    ('m31', ctypes.c_float),
-    ('m32', ctypes.c_float),
-    ('m33', ctypes.c_float),
+    ('m00', ctypes.c_float), ('m01', ctypes.c_float), ('m02', ctypes.c_float), ('m03', ctypes.c_float),
+    ('m10', ctypes.c_float), ('m11', ctypes.c_float), ('m12', ctypes.c_float), ('m13', ctypes.c_float),
+    ('m20', ctypes.c_float), ('m21', ctypes.c_float), ('m22', ctypes.c_float), ('m23', ctypes.c_float),
+    ('m30', ctypes.c_float), ('m31', ctypes.c_float), ('m32', ctypes.c_float), ('m33', ctypes.c_float),
   ]
 
 

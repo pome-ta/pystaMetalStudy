@@ -17,7 +17,7 @@ class Node:
     self.position = float3(0.0, 0.0, 0.0)
     self.rotation = float3(0.0, 0.0, 0.0)
     self.scale = float3(1.0, 1.0, 1.0)
-    
+
     matrix = matrix_float4x4.translation_x_y_z_(
       self.position.x, self.position.y, self.position.z)
     matrix = matrix.rotatedBy_angle_x_y_z_(
@@ -35,13 +35,11 @@ class Node:
 
   def render_commandEncoder_parentModelViewMatrix_(self, commandEncoder, parentModelViewMatrix):
     modelViewMatrix = matrix_multiply(parentModelViewMatrix, self.modelMatrix)
-    
+
     for child in self.children:
       child.render_commandEncoder_parentModelViewMatrix_(
         commandEncoder, modelViewMatrix)
     # xxx: `if let renderable = self as? Renderable` ?
-    
-    
+
     self.doRender_commandEncoder_modelViewMatrix_(
       commandEncoder, modelViewMatrix)
-    

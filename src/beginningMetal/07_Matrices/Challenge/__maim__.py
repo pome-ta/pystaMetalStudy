@@ -16,5 +16,3 @@ class ViewController(ui.View):
 
 if __name__ == '__main__':
   view = ViewController()
-
-

@@ -12,7 +12,7 @@ from .structures import *
 class Plane(Node, Renderable, Texturable):
   def __init__(self, device, imageName=None, maskImageName=None):
     Node.__init__(self)
-    
+
     self.vertices = Vertices((
       Vertex(
         position=(-1.0,  1.0, 0.0),
@@ -31,11 +31,11 @@ class Plane(Node, Renderable, Texturable):
         color=(1.0, 0.0, 1.0, 1.0),
         texture=(1.0, 1.0))
     ))
-    
+
     self.indices = (ctypes.c_int16 * 6)(0, 1, 2, 2, 3, 0)
     self.time = 0.0
     self.constants = Constants()
-    
+
     self.modelConstants = ModelConstants()
 
     Renderable.__init__(self)
@@ -109,18 +109,18 @@ class Plane(Node, Renderable, Texturable):
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
     super().doRender_commandEncoder_modelViewMatrix_(
       commandEncoder, modelViewMatrix)
-    
+
     if self.indexBuffer:
       indexBuffer = self.indexBuffer
     else:
-      return 
-    
+      return
+
     # xxx: view size?
     aspect = 750.0/1334.0
     projectionMatrix = matrix_float4x4.projection_fov_aspect_nearZ_farZ_(radians(65), aspect, 0.1, 100.0)
-    
+
     self.modelConstants.modelViewMatrix = matrix_multiply(projectionMatrix, modelViewMatrix)
-    
+
     commandEncoder.setRenderPipelineState_(self.rps)
     commandEncoder.setVertexBuffer_offset_atIndex_(
       self.vertexBuffer, 0, 0)
@@ -131,44 +131,7 @@ class Plane(Node, Renderable, Texturable):
       self.texture, 0)
     commandEncoder.setFragmentTexture_atIndex_(
       self.maskTexture, 1)
-    
+
     commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
       3, self.indices.__len__(), 0, indexBuffer, 0)  # .triangle
 
-    
-    
-    
-'''
-  
-  
-  def render_commandEncoder_deltaTime_(self, commandEncoder, deltaTime):
-    super().render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
-    self.time += deltaTime
-    animateBy = abs(sin(self.time) / 2 + 0.5)
-    
-    rotationMatrix = matrix_float4x4.rotation_angle_x_y_z_(animateBy, 0.0, 0.0, 1.0)
-    
-    viewMatrix = matrix_float4x4.translation_x_y_z_(0.0, 0.0, -4.0)
-    
-    modelViewMatrix = matrix_multiply(rotationMatrix, viewMatrix)
-    
-    self.modelConstants.modelViewMatrix = modelViewMatrix
-    
-    # xxx: view size?
-    aspect = 750.0/1334.0
-    
-    #self.constants.animateBy = animateBy
-    projectionMatrix = matrix_float4x4.projection_fov_aspect_nearZ_farZ_(radians(65), aspect, 0.1, 100.0)
-    
-    self.modelConstants.modelViewMatrix = matrix_multiply(projectionMatrix, modelViewMatrix)
-
-    commandEncoder.setRenderPipelineState_(self.rps)
-    commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
-    commandEncoder.setVertexBytes_length_atIndex_(
-      ctypes.byref(self.modelConstants), ctypes.sizeof(self.modelConstants), 1)
-
-    commandEncoder.setFragmentTexture_atIndex_(self.texture, 0)
-    commandEncoder.setFragmentTexture_atIndex_(self.maskTexture, 1)
-    commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
-      3, self.indices.__len__(), 0, self.indexBuffer, 0)  # .triangle
-'''
