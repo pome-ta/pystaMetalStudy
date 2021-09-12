@@ -107,12 +107,9 @@ class Plane(Node, Renderable, Texturable):
       self.indices, self.indices.__len__() * ctypes.sizeof(self.indices), 0)
 
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
-    
     super().doRender_commandEncoder_modelViewMatrix_(
       commandEncoder, modelViewMatrix)
     
-    
-    #print(super())
     if self.indexBuffer:
       indexBuffer = self.indexBuffer
     else:

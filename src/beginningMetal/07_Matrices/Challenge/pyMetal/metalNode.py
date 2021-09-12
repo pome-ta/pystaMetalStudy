@@ -40,6 +40,8 @@ class Node:
       child.render_commandEncoder_parentModelViewMatrix_(
         commandEncoder, modelViewMatrix)
     # xxx: `if let renderable = self as? Renderable` ?
+    
+    
     self.doRender_commandEncoder_modelViewMatrix_(
       commandEncoder, modelViewMatrix)
     
