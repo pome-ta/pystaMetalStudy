@@ -10,7 +10,7 @@ class Scene(Node):
     self.deltaTime = None
     
   def update_deltaTime_(self, deltaTime):
-    self.deltaTime = deltaTime
+    pass
     
     
   def render_commandEncoder_deltaTime_(self, commandEncoder, deltaTime):

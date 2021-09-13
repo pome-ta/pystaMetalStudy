@@ -121,7 +121,7 @@ class Plane(Node, Renderable, Texturable):
     aspect = 750.0/1334.0
     projectionMatrix = matrix_float4x4.projection_fov_aspect_nearZ_farZ_(radians(65), aspect, 0.1, 100.0)
 
-    self.modelConstants.modelViewMatrix = matrix_multiply(projectionMatrix, self.modelViewMatrix)
+    self.modelConstants.modelViewMatrix = matrix_multiply(projectionMatrix, modelViewMatrix)
     
 
     commandEncoder.setRenderPipelineState_(self.rps)
