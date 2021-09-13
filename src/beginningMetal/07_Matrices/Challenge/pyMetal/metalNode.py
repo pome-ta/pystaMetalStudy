@@ -9,6 +9,14 @@ class float3(ctypes.Structure):
     ('y', ctypes.c_float),
     ('z', ctypes.c_float)
   ]
+  
+  def __str__(self):
+    fstr = f'''float3:
+      [x:{self.x: .4f}
+       y:{self.y: .4f}
+       z:{self.z: .4f}]
+    '''
+    return fstr
 
 class Node:
   def __init__(self):
