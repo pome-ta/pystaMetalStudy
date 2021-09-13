@@ -15,7 +15,7 @@ class GameScene(Scene):
     self.quad2.name = '2'
     self.quad2.scale = float3(0.5, 0.5, 0.5)
     self.quad2.position.y = 1.5
-    self.add_childNode_(self.quad2)
+    self.quad.add_childNode_(self.quad2)
     
 
   def update_deltaTime_(self, deltaTime):
