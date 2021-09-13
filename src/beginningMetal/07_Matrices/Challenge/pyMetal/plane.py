@@ -38,7 +38,6 @@ class Plane(Node, Renderable, Texturable):
 
     self.modelConstants = ModelConstants()
     
-
     Renderable.__init__(self)
     self.fragmentFunctionName = 'fragment_shader'
     self.vertexFunctionName = 'vertex_shader'
