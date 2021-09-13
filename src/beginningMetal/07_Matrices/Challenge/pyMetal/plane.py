@@ -36,7 +36,6 @@ class Plane(Node, Renderable, Texturable):
     self.time = 0.0
     self.constants = Constants()
 
-    self.modelViewMatrix = None
     self.modelConstants = ModelConstants()
     
 

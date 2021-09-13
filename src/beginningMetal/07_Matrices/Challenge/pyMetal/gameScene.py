@@ -25,8 +25,7 @@ class GameScene(Scene):
     self.add_childNode_(self.quad2)
     '''
 
-
   def update_deltaTime_(self, deltaTime):
     super().update_deltaTime_(deltaTime)
-    self.quad.rotation.y += self.deltaTime
+    self.quad.rotation.y += deltaTime
     
