@@ -1,22 +1,9 @@
 import ctypes
 
 from .matrixMath import matrix_float4x4, matrix_multiply
+from .structures import float3
 
 
-class float3(ctypes.Structure):
-  _fields_ = [
-    ('x', ctypes.c_float),
-    ('y', ctypes.c_float),
-    ('z', ctypes.c_float)
-  ]
-  
-  def __str__(self):
-    fstr = f'''float3:
-      [x:{self.x: .4f}
-       y:{self.y: .4f}
-       z:{self.z: .4f}]
-    '''
-    return fstr
 
 class Node:
   def __init__(self):
@@ -26,6 +13,9 @@ class Node:
     self.rotation = float3(0.0, 0.0, 0.0)
     self.scale = float3(1.0, 1.0, 1.0)
 
+    self.modelMatrix = self.get_modelMatrix()
+
+  def get_modelMatrix(self):
     matrix = matrix_float4x4.translation_x_y_z_(
       self.position.x, self.position.y, self.position.z)
     matrix = matrix.rotatedBy_angle_x_y_z_(
@@ -36,13 +26,16 @@ class Node:
       self.rotation.z, 0.0, 0.0, 1.0)
     matrix = matrix.scaledBy_x_y_z_(
       self.scale.x, self.scale.y, self.scale.z)
-    self.modelMatrix = matrix
-
+    return matrix
+  
   def add_childNode_(self, childNode):
     self.children.append(childNode)
 
   def render_commandEncoder_parentModelViewMatrix_(self, commandEncoder, parentModelViewMatrix):
+    self.modelMatrix = self.get_modelMatrix()
     modelViewMatrix = matrix_multiply(parentModelViewMatrix, self.modelMatrix)
+    print(self.position)
+    
     
 
     for child in self.children:

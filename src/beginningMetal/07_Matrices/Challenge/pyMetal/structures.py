@@ -2,6 +2,23 @@ import ctypes
 
 from .matrixMath import matrix_float4x4 as matrix_identity_float4x4
 
+
+class float3(ctypes.Structure):
+  _fields_ = [
+    ('x', ctypes.c_float),
+    ('y', ctypes.c_float),
+    ('z', ctypes.c_float)
+  ]
+  
+  def __str__(self):
+    fstr = f'''float3:
+      [x:{self.x: .4f}
+       y:{self.y: .4f}
+       z:{self.z: .4f}]
+    '''
+    return fstr
+
+
 Position = (ctypes.c_float * 3)
 Color = (ctypes.c_float * 4)
 Texture = (ctypes.c_float * 2)
