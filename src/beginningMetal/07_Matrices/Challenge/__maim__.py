@@ -12,8 +12,8 @@ class ViewController(ui.View):
     _bounds = self.bounds
     self.metal = MetalView(_bounds)
     self.objc_instance.addSubview_(self.metal.mtkView)
-    
 
 
 if __name__ == '__main__':
   view = ViewController()
+

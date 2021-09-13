@@ -12,7 +12,6 @@ class Node:
     self.position = float3(0.0, 0.0, 0.0)
     self.rotation = float3(0.0, 0.0, 0.0)
     self.scale = float3(1.0, 1.0, 1.0)
-
     self.modelMatrix = self.get_modelMatrix()
 
   def get_modelMatrix(self):
@@ -40,6 +39,5 @@ class Node:
       child.render_commandEncoder_parentModelViewMatrix_(
         commandEncoder, modelViewMatrix)
     # xxx: `if let renderable = self as? Renderable` ?
-
     self.doRender_commandEncoder_modelViewMatrix_(
       commandEncoder, modelViewMatrix)
