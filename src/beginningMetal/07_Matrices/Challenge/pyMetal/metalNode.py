@@ -43,6 +43,7 @@ class Node:
 
   def render_commandEncoder_parentModelViewMatrix_(self, commandEncoder, parentModelViewMatrix):
     modelViewMatrix = matrix_multiply(parentModelViewMatrix, self.modelMatrix)
+    
 
     for child in self.children:
       child.render_commandEncoder_parentModelViewMatrix_(

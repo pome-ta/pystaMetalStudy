@@ -10,7 +10,7 @@ shader_path = Path('./Shader.metal')
 
 class Renderable:
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
-    pass
+    self.modelViewMatrix = modelViewMatrix
 
   def buildPipelineState(self, device):
     source = shader_path.read_text('utf-8')

@@ -7,19 +7,14 @@ class Scene(Node):
     super().__init__()
     self.device = device
     self.size = size
+    self.deltaTime = None
     
   def update_deltaTime_(self, deltaTime):
-    print('scene')
-    #print(dir(self))
-    print(self.name)
+    self.deltaTime = deltaTime
     
     
   def render_commandEncoder_deltaTime_(self, commandEncoder, deltaTime):
     self.update_deltaTime_(deltaTime)
-    #super().update_deltaTime_(deltaTime)
-    #print(dir(self))
-    #print(self.position)
-    #print(self.name)
     viewMatrix = matrix_float4x4.translation_x_y_z_(
       0.0, 0.0, -14.0)
     for child in self.children:
