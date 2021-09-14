@@ -8,8 +8,6 @@ class Renderer:
 
   def buildPipelineState(self):
     descriptor = ObjCClass('MTLSamplerDescriptor').new()
-    # nearest = 0
-    # linear = 1
     descriptor.minFilter = 1
     descriptor.magFilter = 1
     self.samplerState = self.device.newSamplerStateWithDescriptor_(descriptor)
@@ -30,9 +28,11 @@ class Renderer:
 
       commandBuffer = self.commandQueue.commandBuffer()
       commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
-      commandEncoder.setFragmentSamplerState_atIndex_(self.samplerState, 0)
+      commandEncoder.setFragmentSamplerState_atIndex_(
+        self.samplerState, 0)
 
-      self.scene.render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
+      self.scene.render_commandEncoder_deltaTime_(
+        commandEncoder, deltaTime)
 
       commandEncoder.endEncoding()
       commandBuffer.presentDrawable_(drawable)
@@ -43,5 +43,3 @@ class Renderer:
       methods=[drawInMTKView_, mtkView_drawableSizeWillChange_],
       protocols=['MTKViewDelegate'])
     return PyRenderer.new()
-
-

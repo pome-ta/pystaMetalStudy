@@ -28,5 +28,3 @@ class MetalView:
     scene = GameScene(self.devices, bounds)
     renderer = Renderer(self.devices).renderer_init(scene)
     self.mtkView.delegate = renderer
-
-
