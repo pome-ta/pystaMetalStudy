@@ -28,9 +28,11 @@ class Renderer:
 
       commandBuffer = self.commandQueue.commandBuffer()
       commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
-      commandEncoder.setFragmentSamplerState_atIndex_(self.samplerState, 0)
+      commandEncoder.setFragmentSamplerState_atIndex_(
+        self.samplerState, 0)
 
-      self.scene.render_commandEncoder_deltaTime_(commandEncoder, deltaTime)
+      self.scene.render_commandEncoder_deltaTime_(
+        commandEncoder, deltaTime)
 
       commandEncoder.endEncoding()
       commandBuffer.presentDrawable_(drawable)

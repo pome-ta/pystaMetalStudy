@@ -13,12 +13,12 @@ class GameScene(Scene):
     self.add_childNode_(self.quad)
 
     self.quad2 = Plane(device, 'picture.png')
-    self.quad2.name = '2'
     self.quad2.scale = float3(0.5, 0.5, 0.5)
     self.quad2.position.y = 1.5
     self.quad.add_childNode_(self.quad2)
 
   def update_deltaTime_(self, deltaTime):
+    # todo: 親の`Scene` が`pass` だけどとりあえず呼んでる
     super().update_deltaTime_(deltaTime)
     self.quad.rotation.y += deltaTime
 

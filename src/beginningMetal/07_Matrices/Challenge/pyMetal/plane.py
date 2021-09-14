@@ -9,10 +9,10 @@ from .texturable import Texturable
 from .matrixMath import matrix_float4x4, matrix_multiply
 from .structures import *
 
+
 class Plane(Node, Renderable, Texturable):
   def __init__(self, device, imageName=None, maskImageName=None):
     Node.__init__(self)
-
     self.vertices = Vertices((
       Vertex(
         position=(-1.0,  1.0, 0.0),
@@ -37,7 +37,7 @@ class Plane(Node, Renderable, Texturable):
     self.constants = Constants()
 
     self.modelConstants = ModelConstants()
-    
+
     Renderable.__init__(self)
     self.fragmentFunctionName = 'fragment_shader'
     self.vertexFunctionName = 'vertex_shader'
@@ -53,9 +53,9 @@ class Plane(Node, Renderable, Texturable):
       self.init_device_imageName_(device, imageName)
 
     if maskImageName:
-      self.init_device_imageName_maskImageName_(device, imageName, maskImageName)
+      self.init_device_imageName_maskImageName_(
+        device, imageName, maskImageName)
 
-  # xxx: node と揃える？
   def set_vertexDescriptor(self):
     vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
     vertexDescriptor.attributes().objectAtIndexedSubscript_(
@@ -91,10 +91,12 @@ class Plane(Node, Renderable, Texturable):
     self.rps = self.buildPipelineState(device)
 
   def init_device_imageName_maskImageName_(self, device, imageName, maskImageName):
-    self.texture = self.setTexture_device_imageName_(device, imageName)
+    self.texture = self.setTexture_device_imageName_(
+      device, imageName)
     self.fragmentFunctionName = 'textured_fragment'
 
-    self.maskTexture = self.setTexture_device_imageName_(device, maskImageName)
+    self.maskTexture = self.setTexture_device_imageName_(
+      device, maskImageName)
     self.fragmentFunctionName = 'textured_mask_fragment'
     self.buildBuffers(device)
     self.rps = self.buildPipelineState(device)
@@ -107,7 +109,7 @@ class Plane(Node, Renderable, Texturable):
       self.indices, self.indices.__len__() * ctypes.sizeof(self.indices), 0)
 
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
-    
+    # todo: 親の`Renderable` が`pass` だけどとりあえず呼んでる
     super().doRender_commandEncoder_modelViewMatrix_(
       commandEncoder, modelViewMatrix)
 
@@ -118,10 +120,11 @@ class Plane(Node, Renderable, Texturable):
 
     # xxx: view size?
     aspect = 414.0 / 804.0
-    projectionMatrix = matrix_float4x4.projection_fov_aspect_nearZ_farZ_(radians(65), aspect, 0.1, 100.0)
+    projectionMatrix = matrix_float4x4.projection_fov_aspect_nearZ_farZ_(
+      radians(65), aspect, 0.1, 100.0)
 
-    self.modelConstants.modelViewMatrix = matrix_multiply(projectionMatrix, modelViewMatrix)
-    
+    self.modelConstants.modelViewMatrix = matrix_multiply(
+      projectionMatrix, modelViewMatrix)
 
     commandEncoder.setRenderPipelineState_(self.rps)
     commandEncoder.setVertexBuffer_offset_atIndex_(

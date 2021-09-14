@@ -4,7 +4,6 @@ from .matrixMath import matrix_float4x4, matrix_multiply
 from .structures import float3
 
 
-
 class Node:
   def __init__(self):
     self.name = 'Untitled'
@@ -26,14 +25,13 @@ class Node:
     matrix = matrix.scaledBy_x_y_z_(
       self.scale.x, self.scale.y, self.scale.z)
     return matrix
-  
+
   def add_childNode_(self, childNode):
     self.children.append(childNode)
 
   def render_commandEncoder_parentModelViewMatrix_(self, commandEncoder, parentModelViewMatrix):
     self.modelMatrix = self.get_modelMatrix()
     modelViewMatrix = matrix_multiply(parentModelViewMatrix, self.modelMatrix)
-    
 
     for child in self.children:
       child.render_commandEncoder_parentModelViewMatrix_(
@@ -41,3 +39,4 @@ class Node:
     # xxx: `if let renderable = self as? Renderable` ?
     self.doRender_commandEncoder_modelViewMatrix_(
       commandEncoder, modelViewMatrix)
+
