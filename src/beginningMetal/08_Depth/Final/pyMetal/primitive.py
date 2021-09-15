@@ -13,12 +13,8 @@ from .structures import *
 class Primitive(Node, Renderable, Texturable):
   def __init__(self, device, imageName=None, maskImageName=None):
     Node.__init__(self)
-    #self.vertices = None
-    #self.indices = None
     self.buildVertices()
     self.time = 0.0
-    #self.constants = Constants()
-
     self.modelConstants = ModelConstants()
 
     Renderable.__init__(self)
@@ -33,11 +29,9 @@ class Primitive(Node, Renderable, Texturable):
     Texturable.__init__(self)
     # todo: ちょっと気持ち悪いけど、sample に近づける
     if imageName:
-      #self.buildVertices()
       self.init_device_imageName_(device, imageName)
 
     if maskImageName:
-      #self.buildVertices()
       self.init_device_imageName_maskImageName_(
         device, imageName, maskImageName)
     
@@ -109,6 +103,7 @@ class Primitive(Node, Renderable, Texturable):
 
     # xxx: view size?
     aspect = 414.0 / 804.0
+    #aspect = 750.0/1334.0
     projectionMatrix = matrix_float4x4.projection_fov_aspect_nearZ_farZ_(
       radians(65), aspect, 0.1, 100.0)
 
@@ -126,7 +121,7 @@ class Primitive(Node, Renderable, Texturable):
     commandEncoder.setFragmentTexture_atIndex_(
       self.maskTexture, 1)
 
-    commandEncoder.setFrontFacingWinding_(0)  # .clockwise
+    commandEncoder.setFrontFacingWinding_(1)  # .counterClockwise
     commandEncoder.setCullMode_(2)  # .back
     
     commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(

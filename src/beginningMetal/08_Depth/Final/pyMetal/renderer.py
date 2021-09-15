@@ -16,13 +16,8 @@ class Renderer:
     
   def buildDepthStencilState(self):
     depthStencilDescriptor = ObjCClass('MTLDepthStencilDescriptor').new()
-    depthStencilDescriptor.setDepthCompareFunction_(1)
-    #depthStencilDescriptor.depthCompareFunction = 1  # .less
-    
-    #depthStencilDescriptor.isDepthWriteEnabled = ns(bool(1))  # true
-    depthStencilDescriptor.setDepthWriteEnabled_(1)
-    
-    
+    depthStencilDescriptor.setDepthCompareFunction_(1)  # .less
+    depthStencilDescriptor.setDepthWriteEnabled_(1)  # true
     self.depthStencilState = self.device.newDepthStencilStateWithDescriptor_(depthStencilDescriptor)
 
   def renderer_init(self, scene):
