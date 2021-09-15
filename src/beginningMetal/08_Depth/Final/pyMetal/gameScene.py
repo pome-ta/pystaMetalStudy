@@ -8,11 +8,12 @@ from .structures import float3
 
 class GameScene(Scene):
   def __init__(self, device, size):
-    super().__init__(device, size)
+    
     self.cube = Cube(device)
     self.quad = Plane(device, 'picture.png')
+    super().__init__(device, size)
     self.add_childNode_(self.cube)
-    self.add_childNode_(self.quad)
+    #self.add_childNode_(self.quad)
 
     self.quad.position.z = -3.0
     self.quad.scale = float3(3.0, 3.0, 3.0)

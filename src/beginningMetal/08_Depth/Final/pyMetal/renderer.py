@@ -1,4 +1,5 @@
-from objc_util import create_objc_class, ObjCClass, ObjCInstance
+from objc_util import create_objc_class, ObjCClass, ObjCInstance, ns
+import pdbg
 
 class Renderer:
   def __init__(self, device):
@@ -15,8 +16,13 @@ class Renderer:
     
   def buildDepthStencilState(self):
     depthStencilDescriptor = ObjCClass('MTLDepthStencilDescriptor').new()
-    depthStencilDescriptor.depthCompareFunction = 1  # .less
-    depthStencilDescriptor.isDepthWriteEnabled = 1  # true
+    depthStencilDescriptor.setDepthCompareFunction_(1)
+    #depthStencilDescriptor.depthCompareFunction = 1  # .less
+    
+    #depthStencilDescriptor.isDepthWriteEnabled = ns(bool(1))  # true
+    depthStencilDescriptor.setDepthWriteEnabled_(1)
+    
+    
     self.depthStencilState = self.device.newDepthStencilStateWithDescriptor_(depthStencilDescriptor)
 
   def renderer_init(self, scene):

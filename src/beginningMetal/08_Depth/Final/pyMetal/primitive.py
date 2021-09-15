@@ -13,8 +13,8 @@ from .structures import *
 class Primitive(Node, Renderable, Texturable):
   def __init__(self, device, imageName=None, maskImageName=None):
     Node.__init__(self)
-    self.vertices = None
-    self.indices = None
+    #self.vertices = None
+    #self.indices = None
     self.buildVertices()
     self.time = 0.0
     self.constants = Constants()
@@ -33,11 +33,14 @@ class Primitive(Node, Renderable, Texturable):
     Texturable.__init__(self)
     # todo: ちょっと気持ち悪いけど、sample に近づける
     if imageName:
+      #self.buildVertices()
       self.init_device_imageName_(device, imageName)
 
     if maskImageName:
+      #self.buildVertices()
       self.init_device_imageName_maskImageName_(
         device, imageName, maskImageName)
+    
 
   def set_vertexDescriptor(self):
     vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
