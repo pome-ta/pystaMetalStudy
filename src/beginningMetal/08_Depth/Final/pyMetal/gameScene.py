@@ -11,7 +11,7 @@ class GameScene(Scene):
     super().__init__(device, size)
     self.cube = Cube(device)
     self.quad = Plane(device, 'picture.png')
-    
+
     self.add_childNode_(self.cube)
     self.add_childNode_(self.quad)
 
@@ -22,6 +22,4 @@ class GameScene(Scene):
     # todo: 親の`Scene` が`pass` だけどとりあえず呼んでる
     super().update_deltaTime_(deltaTime)
     self.cube.rotation.y += deltaTime
-    
-    
 

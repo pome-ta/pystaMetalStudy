@@ -1,7 +1,7 @@
 import ctypes
 
 from .primitive import Primitive
-from .structures import *
+from .pyTypes import Vertex
 
 
 class Cube(Primitive):

@@ -1,7 +1,7 @@
 import ctypes
 
 from .primitive import Primitive
-from .structures import *
+from .pyTypes import Vertex
 
 class Plane(Primitive):
   def buildVertices(self):

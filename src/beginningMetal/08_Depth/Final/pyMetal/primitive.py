@@ -7,7 +7,7 @@ from .metalNode import Node
 from .renderable import Renderable
 from .texturable import Texturable
 from .matrixMath import matrix_float4x4, matrix_multiply
-from .structures import *
+from .pyTypes import ModelConstants, Vertex, Position, Color, Texture
 
 
 class Primitive(Node, Renderable, Texturable):
@@ -38,30 +38,30 @@ class Primitive(Node, Renderable, Texturable):
 
   def set_vertexDescriptor(self):
     vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      0).format = 30
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      0).offset = 0
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      0).bufferIndex = 0
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(0).format = 30
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(0).offset = 0
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(0).bufferIndex = 0
 
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      1).format = 31
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      1).offset = ctypes.sizeof(Position)
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(1).format = 31
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(1).offset = ctypes.sizeof(Position)
 
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      1).bufferIndex = 0
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(1).bufferIndex = 0
 
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      2).format = 29  # .float2
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      2).offset = ctypes.sizeof(Position) + ctypes.sizeof(Color)
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      2).bufferIndex = 0
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(2).format = 29  # .float2
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(2).offset = ctypes.sizeof(Position) + ctypes.sizeof(Color)
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(2).bufferIndex = 0
 
-    vertexDescriptor.layouts().objectAtIndexedSubscript(
-      0).stride = ctypes.sizeof(Vertex)
+    vertexDescriptor.layouts(
+      ).objectAtIndexedSubscript(0).stride = ctypes.sizeof(Vertex)
     return vertexDescriptor
 
   def init_device_imageName_(self, device, imageName):
@@ -125,5 +125,9 @@ class Primitive(Node, Renderable, Texturable):
     commandEncoder.setCullMode_(2)  # .back
     
     commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
-      3, self.indices.__len__(), 0, indexBuffer, 0)  # .triangle
+      3,  # .triangle
+      self.indices.__len__(),
+      0,
+      indexBuffer,
+      0)
 

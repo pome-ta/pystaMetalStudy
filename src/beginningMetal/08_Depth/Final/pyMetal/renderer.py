@@ -1,6 +1,7 @@
 from objc_util import create_objc_class, ObjCClass, ObjCInstance, ns
 import pdbg
 
+
 class Renderer:
   def __init__(self, device):
     self.device = device
@@ -13,12 +14,13 @@ class Renderer:
     descriptor.minFilter = 1
     descriptor.magFilter = 1
     self.samplerState = self.device.newSamplerStateWithDescriptor_(descriptor)
-    
+
   def buildDepthStencilState(self):
     depthStencilDescriptor = ObjCClass('MTLDepthStencilDescriptor').new()
     depthStencilDescriptor.setDepthCompareFunction_(1)  # .less
     depthStencilDescriptor.setDepthWriteEnabled_(1)  # true
-    self.depthStencilState = self.device.newDepthStencilStateWithDescriptor_(depthStencilDescriptor)
+    self.depthStencilState = self.device.newDepthStencilStateWithDescriptor_(
+      depthStencilDescriptor)
 
   def renderer_init(self, scene):
     self.scene = scene
@@ -35,11 +37,13 @@ class Renderer:
       deltaTime = 1 / view.preferredFramesPerSecond()
 
       commandBuffer = self.commandQueue.commandBuffer()
-      commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
+      commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
+        rpd)
       commandEncoder.setFragmentSamplerState_atIndex_(
         self.samplerState, 0)
 
-      commandEncoder.setDepthStencilState_(self.depthStencilState)
+      commandEncoder.setDepthStencilState_(
+        self.depthStencilState)
       self.scene.render_commandEncoder_deltaTime_(
         commandEncoder, deltaTime)
 
@@ -52,3 +56,4 @@ class Renderer:
       methods=[drawInMTKView_, mtkView_drawableSizeWillChange_],
       protocols=['MTKViewDelegate'])
     return PyRenderer.new()
+
