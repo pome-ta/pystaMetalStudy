@@ -17,6 +17,7 @@ class GameScene(Scene):
 
     self.quad.position.z = -3.0
     self.quad.scale = float3(3.0, 3.0, 3.0)
+    self.cube.scale = float3(0.5, 0.5, 0.5)
 
   def update_deltaTime_(self, deltaTime):
     # todo: 親の`Scene` が`pass` だけどとりあえず呼んでる

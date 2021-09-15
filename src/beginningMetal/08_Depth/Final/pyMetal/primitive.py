@@ -17,7 +17,7 @@ class Primitive(Node, Renderable, Texturable):
     #self.indices = None
     self.buildVertices()
     self.time = 0.0
-    self.constants = Constants()
+    #self.constants = Constants()
 
     self.modelConstants = ModelConstants()
 
