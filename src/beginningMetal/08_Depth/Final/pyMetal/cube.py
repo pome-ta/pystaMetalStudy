@@ -42,12 +42,12 @@ class Cube(Primitive):
         texture=(1.0, 0.0))
       )
     self.indices = (ctypes.c_int16 * 36)(
-      0, 1, 2,   0, 2, 3,  # Front
-      4, 5, 7,   7, 5, 6,  # Back
-      
-      4, 7, 0,   0, 7, 1,  # Left
-      3, 2, 6,   3, 6, 5,  # Right
-      
-      4, 0, 3,   4, 3, 5,  # Top
-      1, 7, 2,   2, 7, 6,  # Bottom
+      0, 1, 2,     0, 2, 3,  # Front
+      4, 6, 5,     4, 7, 6,  # Back
+
+      4, 5, 1,     4, 1, 0,  # Left
+      3, 6, 7,     3, 2, 6,  # Right
+
+      4, 0, 3,     4, 3, 7,  # Top
+      1, 5, 6,     1, 6, 2,   # Bottom
       )

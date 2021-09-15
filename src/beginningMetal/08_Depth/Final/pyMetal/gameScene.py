@@ -23,4 +23,6 @@ class GameScene(Scene):
     # todo: 親の`Scene` が`pass` だけどとりあえず呼んでる
     super().update_deltaTime_(deltaTime)
     self.cube.rotation.y += deltaTime
+    self.cube.rotation.z += deltaTime/2
+    
 
