@@ -3,7 +3,6 @@ import ctypes
 from .metalScene import Scene
 from .plane import Plane
 from .structures import float3
-import pdbg
 
 
 class GameScene(Scene):
