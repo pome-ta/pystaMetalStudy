@@ -5,12 +5,19 @@ class Renderer:
     self.device = device
     self.commandQueue = self.device.newCommandQueue()
     self.buildPipelineState()
+    self.buildDepthStencilState()
 
   def buildPipelineState(self):
     descriptor = ObjCClass('MTLSamplerDescriptor').new()
     descriptor.minFilter = 1
     descriptor.magFilter = 1
     self.samplerState = self.device.newSamplerStateWithDescriptor_(descriptor)
+    
+  def buildDepthStencilState(self):
+    depthStencilDescriptor = ObjCClass('MTLDepthStencilDescriptor').new()
+    depthStencilDescriptor.depthCompareFunction = 1  # .less
+    depthStencilDescriptor.isDepthWriteEnabled = 1  # true
+    self.depthStencilState = self.device.newDepthStencilStateWithDescriptor_(depthStencilDescriptor)
 
   def renderer_init(self, scene):
     self.scene = scene
@@ -31,6 +38,7 @@ class Renderer:
       commandEncoder.setFragmentSamplerState_atIndex_(
         self.samplerState, 0)
 
+      commandEncoder.setDepthStencilState_(self.depthStencilState)
       self.scene.render_commandEncoder_deltaTime_(
         commandEncoder, deltaTime)
 
