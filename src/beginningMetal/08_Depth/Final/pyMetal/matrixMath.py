@@ -1,7 +1,7 @@
 from math import sin, cos, tan
 import ctypes
 
-from .structures import *
+from .structures import float4, columns, float16, m16
 
 class matrix_float4x4(ctypes.Union):
   _anonymous_ = [

@@ -1,5 +1,4 @@
 from objc_util import create_objc_class, ObjCClass, ObjCInstance, ns
-import pdbg
 
 
 class Renderer:
