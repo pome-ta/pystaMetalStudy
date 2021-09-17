@@ -14,3 +14,9 @@ class ModelConstants(ctypes.Structure):
     ('modelViewMatrix', matrix_identity_float4x4),
   ]
 
+class SceneConstants(ctypes.Structure):
+  _fields_ = [
+    ('projectionMatrix', matrix_identity_float4x4),
+  ]
+
+
