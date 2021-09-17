@@ -40,6 +40,6 @@ class Node:
     # xxx: `if let renderable = self as? Renderable` ?
     
     if 'doRender_commandEncoder_modelViewMatrix_' in dir(self):
-      self.doRender_commandEncoder_modelViewMatrix_(
-        commandEncoder, modelViewMatrix)
+      renderable = self
+      renderable.doRender_commandEncoder_modelViewMatrix_(commandEncoder, modelViewMatrix)
 
