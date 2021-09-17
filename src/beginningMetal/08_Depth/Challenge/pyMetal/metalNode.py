@@ -1,5 +1,4 @@
 import ctypes
-import inspect
 
 from .matrixMath import matrix_float4x4, matrix_multiply
 from .structures import float3
@@ -28,7 +27,6 @@ class Node:
     return matrix
 
   def add_childNode_(self, childNode):
-    print(inspect.getmembers(self))
     self.children.append(childNode)
 
   def render_commandEncoder_parentModelViewMatrix_(self, commandEncoder, parentModelViewMatrix):
@@ -40,9 +38,8 @@ class Node:
       child.render_commandEncoder_parentModelViewMatrix_(
         commandEncoder, modelViewMatrix)
     # xxx: `if let renderable = self as? Renderable` ?
-    atrr = inspect.getmembers(self)
     
-      
-    self.doRender_commandEncoder_modelViewMatrix_(
-      commandEncoder, modelViewMatrix)
+    if 'doRender_commandEncoder_modelViewMatrix_' in dir(self):
+      self.doRender_commandEncoder_modelViewMatrix_(
+        commandEncoder, modelViewMatrix)
 

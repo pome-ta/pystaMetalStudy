@@ -1,3 +1,4 @@
+from math import radians
 import ctypes
 
 from .metalScene import Scene
@@ -15,9 +16,15 @@ class GameScene(Scene):
     self.add_childNode_(self.cube)
     self.add_childNode_(self.quad)
     
-    self.cube.scale = float3(0.64, 0.64, 0.64)
+    self.cube.scale = float3(0.64, 5.64, 0.64)
     self.quad.position.z = -3.0
     self.quad.scale = float3(3.0, 3.0, 3.0)
+    
+    self.camera.position.y = -1
+    self.camera.position.x = 1
+    self.camera.position.z = -6
+    self.camera.rotation.x = radians(-45)
+    self.camera.rotation.y = radians(-45)
 
   def update_deltaTime_(self, deltaTime):
     # todo: 親の`Scene` が`pass` だけどとりあえず呼んでる
