@@ -26,6 +26,6 @@ class MetalView:
     self.mtkView.initWithFrame_device_(_frame, self.devices)
     #self.mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     self.mtkView.clearColor = wenderlichGreen
-    scene = GameScene(self.devices, bounds)
-    renderer = Renderer(self.devices).renderer_init(scene)
+    self.scene = GameScene(self.devices, bounds)
+    renderer = Renderer(self.devices).renderer_init(self.scene)
     self.mtkView.delegate = renderer
