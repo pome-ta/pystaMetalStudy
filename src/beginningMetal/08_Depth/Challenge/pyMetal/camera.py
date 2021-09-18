@@ -8,8 +8,8 @@ class Camera(Node):
     super().__init__()
     self.fovDegrees = 65
     self.aspect = 1.0
-    self.nearZ = 0.1
-    self.farZ = 100
+    self.nearZ = 00.1
+    self.farZ = 1000000
     
   def __fovRadians(self):
     return radians(self.fovDegrees)
@@ -19,5 +19,6 @@ class Camera(Node):
     
   def projectionMatrix(self):
     fov = self.__fovRadians()
+    
     projectionMatrix = matrix_float4x4.projection_fov_aspect_nearZ_farZ_(fov, self.aspect, self.nearZ, self.farZ)
     return projectionMatrix

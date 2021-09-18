@@ -42,4 +42,3 @@ class Node:
     if 'doRender_commandEncoder_modelViewMatrix_' in dir(self):
       renderable = self
       renderable.doRender_commandEncoder_modelViewMatrix_(commandEncoder, modelViewMatrix)
-
