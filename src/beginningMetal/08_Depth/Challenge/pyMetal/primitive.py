@@ -13,11 +13,12 @@ from .pyTypes import ModelConstants, Vertex, Position, Color, Texture
 class Primitive(Node, Renderable, Texturable):
   def __init__(self, device, imageName=None, maskImageName=None):
     Node.__init__(self)
-    self.buildVertices()
+    
     self.time = 0.0
     self.modelConstants = ModelConstants()
 
     Renderable.__init__(self)
+    self.buildVertices()
     self.fragmentFunctionName = 'fragment_shader'
     self.vertexFunctionName = 'vertex_shader'
     self.buildBuffers(device)
@@ -93,7 +94,7 @@ class Primitive(Node, Renderable, Texturable):
 
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
     # todo: 親の`Renderable` が`pass` だけどとりあえず呼んでる
-    #super().doRender_commandEncoder_modelViewMatrix_(commandEncoder, modelViewMatrix)
+    super().doRender_commandEncoder_modelViewMatrix_(commandEncoder, modelViewMatrix)
 
     if self.indexBuffer:
       indexBuffer = self.indexBuffer

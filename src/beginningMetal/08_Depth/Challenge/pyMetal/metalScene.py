@@ -26,7 +26,7 @@ class Scene(Node):
   def render_commandEncoder_deltaTime_(self, commandEncoder, deltaTime):
     self.update_deltaTime_(deltaTime)
     self.sceneConstants.projectionMatrix = self.camera.projectionMatrix()
-    print(self.sceneConstants.projectionMatrix)
+    
     commandEncoder.setVertexBytes_length_atIndex_(
       ctypes.byref(self.sceneConstants),
       ctypes.sizeof(self.sceneConstants), 2)

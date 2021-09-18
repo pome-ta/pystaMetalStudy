@@ -21,6 +21,7 @@ class MetalView:
     return ObjCInstance(MTLCreateSystemDefaultDevice())
 
   def view_did_load(self, bounds):
+    # xxx: `bounds` 直？
     _frame = ((0.0, 0.0), (bounds[2], bounds[3]))
     self.mtkView.initWithFrame_device_(_frame, self.devices)
     #self.mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
