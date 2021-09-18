@@ -102,8 +102,8 @@ class Primitive(Node, Renderable, Texturable):
       return
 
     # xxx: view size?
-    aspect = 414.0 / 804.0
-    #aspect = 750.0/1334.0
+    #aspect = 414.0 / 804.0
+    aspect = 750.0/1334.0
     projectionMatrix = matrix_float4x4.projection_fov_aspect_nearZ_farZ_(
       radians(65), aspect, 0.1, 100.0)
 

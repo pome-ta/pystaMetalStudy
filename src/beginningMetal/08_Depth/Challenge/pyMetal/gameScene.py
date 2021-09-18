@@ -11,6 +11,7 @@ class GameScene(Scene):
     super().__init__(device, size)
     self.cube = Cube(device)
     self.cube.name = 'cube'
+    
     self.quad = Plane(device, 'picture.png')
     self.quad.name = 'quad'
     
@@ -18,7 +19,7 @@ class GameScene(Scene):
     self.add_childNode_(self.quad)
     
     self.cube.scale = float3(0.64, 0.64, 0.64)
-    self.quad.position.z = -3.0
+    self.quad.position.z = -6.0
     self.quad.scale = float3(3.0, 3.0, 3.0)
 
   def update_deltaTime_(self, deltaTime):
