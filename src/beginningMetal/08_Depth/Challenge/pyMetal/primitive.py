@@ -27,7 +27,7 @@ class Primitive(Node, Renderable, Texturable):
     self.fragmentFunctionName = 'fragment_shader'
     self.vertexFunctionName = 'vertex_shader'
     self.vertexDescriptor = self.set_vertexDescriptor()
-    self.rps = self.buildPipelineState(device)
+    #self.rps = self.buildPipelineState(device)
     
     # --- Texturable
     Texturable.__init__(self)
@@ -35,7 +35,7 @@ class Primitive(Node, Renderable, Texturable):
     self.maskTexture = None
     
     # todo: ちょっと気持ち悪いけど、sample に近づける
-    # todo: 毎回呼ぶことになるんかな？
+    # todo: 毎回なからず全部呼ぶ？
     if not(imageName and maskImageName):
       self.__init_device_(device)
     
@@ -46,34 +46,6 @@ class Primitive(Node, Renderable, Texturable):
       self.__init_device_imageName_maskImageName_(
         device, imageName, maskImageName)
     
-
-  def set_vertexDescriptor(self):
-    vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(0).format = 30
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(0).offset = 0
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(0).bufferIndex = 0
-
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(1).format = 31
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(1).offset = ctypes.sizeof(Position)
-
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(1).bufferIndex = 0
-
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(2).format = 29  # .float2
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(2).offset = ctypes.sizeof(Position) + ctypes.sizeof(Color)
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(2).bufferIndex = 0
-
-    vertexDescriptor.layouts(
-      ).objectAtIndexedSubscript(0).stride = ctypes.sizeof(Vertex)
-    return vertexDescriptor
 
   def __init_device_(self, device):
     Node.__init__(self)
@@ -105,6 +77,36 @@ class Primitive(Node, Renderable, Texturable):
     self.fragmentFunctionName = 'textured_mask_fragment'
     
     self.rps = self.buildPipelineState(device)
+
+
+  def set_vertexDescriptor(self):
+    vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(0).format = 30
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(0).offset = 0
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(0).bufferIndex = 0
+
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(1).format = 31
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(1).offset = ctypes.sizeof(Position)
+
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(1).bufferIndex = 0
+
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(2).format = 29  # .float2
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(2).offset = ctypes.sizeof(Position) + ctypes.sizeof(Color)
+    vertexDescriptor.attributes(
+      ).objectAtIndexedSubscript_(2).bufferIndex = 0
+
+    vertexDescriptor.layouts(
+      ).objectAtIndexedSubscript(0).stride = ctypes.sizeof(Vertex)
+    return vertexDescriptor
+
 
   def buildVertices(self):
     pass
