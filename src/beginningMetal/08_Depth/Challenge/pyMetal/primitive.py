@@ -80,8 +80,8 @@ class Primitive(Node, Renderable, Texturable):
     self.buildVertices()
     self.buildBuffers(device)
     self.rps = self.buildPipelineState(device)
-    
-  
+
+
   def __init_device_imageName_(self, device, imageName):
     Node.__init__(self)
     self.texture = self.setTexture_device_imageName_(device, imageName)

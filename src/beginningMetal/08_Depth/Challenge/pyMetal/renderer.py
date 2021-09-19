@@ -26,10 +26,12 @@ class Renderer:
 
     # todo: MTKViewDelegate func
     def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
-      pass
+      #print(_size)
+      print('h')
 
     def drawInMTKView_(_self, _cmd, _view):
       view = ObjCInstance(_view)
+      #print(view.size().height)
       drawable = view.currentDrawable()
       rpd = view.currentRenderPassDescriptor()
 
