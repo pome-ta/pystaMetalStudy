@@ -1,4 +1,4 @@
-from objc_util import create_objc_class, ObjCClass, ObjCInstance, ns
+from objc_util import create_objc_class, ObjCClass, ObjCInstance
 
 
 class Renderer:

@@ -10,17 +10,18 @@ wenderlichGreen = (0.0, 0.4, 0.21, 1.0)
 
 class MetalView:
   def __init__(self, bounds):
-    self.devices = self.createSystemDefaultDevice()
+    self.devices = self.__createSystemDefaultDevice()
     self.mtkView = ObjCClass('MTKView').alloc()
     self.view_did_load(bounds)
 
-  def createSystemDefaultDevice(self):
+  def __createSystemDefaultDevice(self):
     MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
     MTLCreateSystemDefaultDevice.argtypes = []
     MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
     return ObjCInstance(MTLCreateSystemDefaultDevice())
 
   def view_did_load(self, bounds):
+    # xxx: `bounds` 全部入れる？
     _frame = ((0.0, 0.0), (bounds[2], bounds[3]))
     self.mtkView.initWithFrame_device_(_frame, self.devices)
     #self.mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))

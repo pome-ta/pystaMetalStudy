@@ -12,27 +12,38 @@ from .pyTypes import ModelConstants, Vertex, Position, Color, Texture
 
 class Primitive(Node, Renderable, Texturable):
   def __init__(self, device, imageName=None, maskImageName=None):
-    Node.__init__(self)
-    self.buildVertices()
+    self.vertices = None
+    self.indices = None
+    
+    self.vertexBuffer = None
+    self.indexBuffer = None
+    
     self.time = 0.0
     self.modelConstants = ModelConstants()
-
+    
+    # --- Renderable
     Renderable.__init__(self)
+    self.rps = None
     self.fragmentFunctionName = 'fragment_shader'
     self.vertexFunctionName = 'vertex_shader'
-    self.buildBuffers(device)
     self.vertexDescriptor = self.set_vertexDescriptor()
     self.rps = self.buildPipelineState(device)
-
+    
+    # --- Texturable
+    Texturable.__init__(self)
     self.texture = None
     self.maskTexture = None
-    Texturable.__init__(self)
+    
     # todo: ちょっと気持ち悪いけど、sample に近づける
+    # todo: 毎回呼ぶことになるんかな？
+    if not(imageName and maskImageName):
+      self.__init_device_(device)
+    
     if imageName:
-      self.init_device_imageName_(device, imageName)
+      self.__init_device_imageName_(device, imageName)
 
     if maskImageName:
-      self.init_device_imageName_maskImageName_(
+      self.__init_device_imageName_maskImageName_(
         device, imageName, maskImageName)
     
 
@@ -64,13 +75,27 @@ class Primitive(Node, Renderable, Texturable):
       ).objectAtIndexedSubscript(0).stride = ctypes.sizeof(Vertex)
     return vertexDescriptor
 
-  def init_device_imageName_(self, device, imageName):
+  def __init_device_(self, device):
+    Node.__init__(self)
+    self.buildVertices()
+    self.buildBuffers(device)
+    self.rps = self.buildPipelineState(device)
+    
+  
+  def __init_device_imageName_(self, device, imageName):
+    Node.__init__(self)
     self.texture = self.setTexture_device_imageName_(device, imageName)
     self.fragmentFunctionName = 'textured_fragment'
+    
+    self.buildVertices()
     self.buildBuffers(device)
     self.rps = self.buildPipelineState(device)
 
-  def init_device_imageName_maskImageName_(self, device, imageName, maskImageName):
+  def __init_device_imageName_maskImageName_(self, device, imageName, maskImageName):
+    Node.__init__(self)
+    self.buildVertices()
+    self.buildBuffers(device)
+    
     self.texture = self.setTexture_device_imageName_(
       device, imageName)
     self.fragmentFunctionName = 'textured_fragment'
@@ -78,7 +103,7 @@ class Primitive(Node, Renderable, Texturable):
     self.maskTexture = self.setTexture_device_imageName_(
       device, maskImageName)
     self.fragmentFunctionName = 'textured_mask_fragment'
-    self.buildBuffers(device)
+    
     self.rps = self.buildPipelineState(device)
 
   def buildVertices(self):
@@ -102,8 +127,8 @@ class Primitive(Node, Renderable, Texturable):
       return
 
     # xxx: view size?
-    #aspect = 414.0 / 804.0
-    aspect = 750.0/1334.0
+    aspect = 414.0 / 804.0
+    #aspect = 750.0/1334.0
     projectionMatrix = matrix_float4x4.projection_fov_aspect_nearZ_farZ_(
       radians(65), aspect, 0.1, 100.0)
 
