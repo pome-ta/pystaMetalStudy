@@ -38,7 +38,7 @@ class Node:
       child.render_commandEncoder_parentModelViewMatrix_(
         commandEncoder, modelViewMatrix)
     # xxx: `if let renderable = self as? Renderable` ?
-    if dir(self) in 'doRender_commandEncoder_modelViewMatrix_':
+    if 'doRender_commandEncoder_modelViewMatrix_' in dir(self):
       renderable = self
       renderable.doRender_commandEncoder_modelViewMatrix_(
         commandEncoder, modelViewMatrix)

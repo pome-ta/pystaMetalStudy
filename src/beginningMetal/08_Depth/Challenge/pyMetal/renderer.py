@@ -26,9 +26,8 @@ class Renderer:
 
     # todo: MTKViewDelegate func
     def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
-      #print(_size)
-      print('h')
-
+      pass
+      
     def drawInMTKView_(_self, _cmd, _view):
       view = ObjCInstance(_view)
       #print(view.size().height)

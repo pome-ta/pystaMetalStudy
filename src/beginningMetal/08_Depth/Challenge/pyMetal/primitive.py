@@ -14,38 +14,35 @@ class Primitive(Node, Renderable, Texturable):
   def __init__(self, device, imageName=None, maskImageName=None):
     self.vertices = None
     self.indices = None
-    
+
     self.vertexBuffer = None
     self.indexBuffer = None
-    
+
     self.time = 0.0
     self.modelConstants = ModelConstants()
-    
+
     # --- Renderable
     Renderable.__init__(self)
     self.rps = None
     self.fragmentFunctionName = 'fragment_shader'
     self.vertexFunctionName = 'vertex_shader'
     self.vertexDescriptor = self.set_vertexDescriptor()
-    #self.rps = self.buildPipelineState(device)
-    
+
     # --- Texturable
     Texturable.__init__(self)
     self.texture = None
     self.maskTexture = None
-    
+
     # todo: ちょっと気持ち悪いけど、sample に近づける
     # todo: 毎回なからず全部呼ぶ？
-    if not(imageName and maskImageName):
+    if not (imageName and maskImageName):
       self.__init_device_(device)
-    
+
     if imageName:
       self.__init_device_imageName_(device, imageName)
 
     if maskImageName:
-      self.__init_device_imageName_maskImageName_(
-        device, imageName, maskImageName)
-    
+      self.__init_device_imageName_maskImageName_(device, imageName, maskImageName)
 
   def __init_device_(self, device):
     Node.__init__(self)
@@ -53,12 +50,10 @@ class Primitive(Node, Renderable, Texturable):
     self.buildBuffers(device)
     self.rps = self.buildPipelineState(device)
 
-
   def __init_device_imageName_(self, device, imageName):
     Node.__init__(self)
     self.texture = self.setTexture_device_imageName_(device, imageName)
     self.fragmentFunctionName = 'textured_fragment'
-    
     self.buildVertices()
     self.buildBuffers(device)
     self.rps = self.buildPipelineState(device)
@@ -67,50 +62,43 @@ class Primitive(Node, Renderable, Texturable):
     Node.__init__(self)
     self.buildVertices()
     self.buildBuffers(device)
-    
-    self.texture = self.setTexture_device_imageName_(
-      device, imageName)
+    self.texture = self.setTexture_device_imageName_(device, imageName)
     self.fragmentFunctionName = 'textured_fragment'
-
-    self.maskTexture = self.setTexture_device_imageName_(
-      device, maskImageName)
+    self.maskTexture = self.setTexture_device_imageName_(device, maskImageName)
     self.fragmentFunctionName = 'textured_mask_fragment'
-    
     self.rps = self.buildPipelineState(device)
-
 
   def set_vertexDescriptor(self):
     vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(0).format = 30
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(0).offset = 0
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(0).bufferIndex = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      0).format = 30
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      0).offset = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      0).bufferIndex = 0
 
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(1).format = 31
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(1).offset = ctypes.sizeof(Position)
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      1).format = 31
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      1).offset = ctypes.sizeof(Position)
 
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(1).bufferIndex = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      1).bufferIndex = 0
 
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(2).format = 29  # .float2
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(2).offset = ctypes.sizeof(Position) + ctypes.sizeof(Color)
-    vertexDescriptor.attributes(
-      ).objectAtIndexedSubscript_(2).bufferIndex = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      2).format = 29  # .float2
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      2).offset = ctypes.sizeof(Position) + ctypes.sizeof(Color)
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      2).bufferIndex = 0
 
-    vertexDescriptor.layouts(
-      ).objectAtIndexedSubscript(0).stride = ctypes.sizeof(Vertex)
+    vertexDescriptor.layouts().objectAtIndexedSubscript(
+      0).stride = ctypes.sizeof(Vertex)
     return vertexDescriptor
-
 
   def buildVertices(self):
     pass
-  
+
   def buildBuffers(self, device):
     self.vertexBuffer = device.newBufferWithBytes_length_options_(
       ctypes.byref(self.vertices), ctypes.sizeof(self.vertices), 0)
@@ -128,14 +116,7 @@ class Primitive(Node, Renderable, Texturable):
     else:
       return
 
-    # xxx: view size?
-    aspect = 414.0 / 804.0
-    #aspect = 750.0/1334.0
-    projectionMatrix = matrix_float4x4.projection_fov_aspect_nearZ_farZ_(
-      radians(65), aspect, 0.1, 100.0)
-
-    self.modelConstants.modelViewMatrix = matrix_multiply(
-      projectionMatrix, modelViewMatrix)
+    self.modelConstants.modelViewMatrix = modelViewMatrix
 
     commandEncoder.setRenderPipelineState_(self.rps)
     commandEncoder.setVertexBuffer_offset_atIndex_(
@@ -143,14 +124,12 @@ class Primitive(Node, Renderable, Texturable):
     commandEncoder.setVertexBytes_length_atIndex_(
       ctypes.byref(self.modelConstants), ctypes.sizeof(self.modelConstants), 1)
 
-    commandEncoder.setFragmentTexture_atIndex_(
-      self.texture, 0)
-    commandEncoder.setFragmentTexture_atIndex_(
-      self.maskTexture, 1)
+    commandEncoder.setFragmentTexture_atIndex_(self.texture, 0)
+    commandEncoder.setFragmentTexture_atIndex_(self.maskTexture, 1)
 
     commandEncoder.setFrontFacingWinding_(1)  # .counterClockwise
     commandEncoder.setCullMode_(2)  # .back
-    
+
     commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
       3,  # .triangle
       self.indices.__len__(),

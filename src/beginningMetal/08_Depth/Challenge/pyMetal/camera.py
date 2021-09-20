@@ -1,6 +1,6 @@
 from math import radians
 
-from .metalNode import Node
+from .mNode import Node
 from .matrixMath import matrix_float4x4
 
 
