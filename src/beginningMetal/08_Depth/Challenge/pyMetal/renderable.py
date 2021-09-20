@@ -28,6 +28,7 @@ class Renderable:
     rpld.colorAttachments().objectAtIndexedSubscript(
       0).pixelFormat = 80  # .bgra8Unorm
 
+    rpld.depthAttachmentPixelFormat = 252  # .depth32Float
     rpld.vertexDescriptor = self.vertexDescriptor
     rps = device.newRenderPipelineStateWithDescriptor_error_(
       rpld, err_ptr)
