@@ -26,7 +26,7 @@ class Primitive(Node, Renderable, Texturable):
     self.rps = None
     self.fragmentFunctionName = 'fragment_shader'
     self.vertexFunctionName = 'vertex_shader'
-    self.vertexDescriptor = self.set_vertexDescriptor()
+    self.vertexDescriptor = self.__set_vertexDescriptor()
 
     # --- Texturable
     Texturable.__init__(self)
@@ -68,7 +68,7 @@ class Primitive(Node, Renderable, Texturable):
     self.fragmentFunctionName = 'textured_mask_fragment'
     self.rps = self.buildPipelineState(device)
 
-  def set_vertexDescriptor(self):
+  def __set_vertexDescriptor(self):
     vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
     vertexDescriptor.attributes().objectAtIndexedSubscript_(
       0).format = 30
