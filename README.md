@@ -8,6 +8,13 @@
 以下列記は、実装日誌的なメモ
 
 
+## 📝 2021/09/21
+
+`MTKModelIOVertexDescriptorFromMetal` らへんの呼び出しな面倒
+
+
+
+
 ## 📝 2021/09/19
 
 camera で試行錯誤をしてきたが
