@@ -31,12 +31,14 @@ class Model(Node, Renderable, Texturable):
     self.name = modelName
     self.loadModel_device_modelName_(device, modelName)
     
+    self.texture = None
     Texturable.__init__(self)
     imageName = modelName + '.png'
+    texture = self.setTexture_device_imageName_(device, imageName)
+    self.texture = texture
+    self.fragmentFunctionName = "textured_fragment"
+    self.rps = self.buildPipelineState(device)
     
-    
-    
-
   def loadModel_device_modelName_(self, device, modelName):
     assetURL = root_path / modelName / (modelName + '.obj')
     MTKModelIOVertexDescriptorFromMetal = c.MTKModelIOVertexDescriptorFromMetal
@@ -63,14 +65,7 @@ class Model(Node, Renderable, Texturable):
     MDLAsset = ObjCClass('MDLAsset').new()
 
     asset = MDLAsset.initWithURL_vertexDescriptor_bufferAllocator_(nsurl(str(assetURL)), descriptor, bufferAllocator)
-    meshes = ObjCClass('MTKMesh').newMeshesFromAsset_device_sourceMeshes_error_(asset, device, err_ptr, err_ptr)
-    
-
-    
-    
-        
-    
-
+    self.meshes = ObjCClass('MTKMesh').newMeshesFromAsset_device_sourceMeshes_error_(asset, device, err_ptr, err_ptr)
 
   def __set_vertexDescriptor(self):
     vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
@@ -105,6 +100,24 @@ class Model(Node, Renderable, Texturable):
     vertexDescriptor.layouts().objectAtIndexedSubscript(
       0).stride = ctypes.sizeof(Float) * 12
     return vertexDescriptor
+
+  def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
+    # todo: 親の`Renderable` が`pass` だけどとりあえず呼んでる
+    super().doRender_commandEncoder_modelViewMatrix_(
+      commandEncoder, modelViewMatrix)
+      
+    self.modelConstants.modelViewMatrix = modelViewMatrix
+    
+    commandEncoder.setVertexBytes_length_atIndex_(
+      ctypes.byref(self.modelConstants), ctypes.sizeof(self.modelConstants), 1)
+
+    if self.texture:
+      commandEncoder.setFragmentTexture_atIndex_(
+        self.texture, 0)
+    commandEncoder.setRenderPipelineState_(self.rps)
+    
+    
+    
 
 
 
