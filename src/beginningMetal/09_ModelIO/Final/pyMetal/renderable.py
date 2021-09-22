@@ -6,7 +6,8 @@ from .utils import err_ptr
 
 
 # xxx: shader path
-shader_path = Path('./Shader.metal')
+root_path = Path(__file__).parent / '../'
+shader_path = root_path / Path('./Shader.metal')
 
 class Renderable:
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
