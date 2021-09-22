@@ -36,6 +36,7 @@ class Model(Node, Renderable, Texturable):
     imageName = modelName + '.png'
     texture = self.setTexture_device_imageName_(device, imageName)
     self.texture = texture
+    
     self.fragmentFunctionName = "textured_fragment"
     self.rps = self.buildPipelineState(device)
     
@@ -116,8 +117,15 @@ class Model(Node, Renderable, Texturable):
         self.texture, 0)
     commandEncoder.setRenderPipelineState_(self.rps)
     
+    if self.meshes:
+      meshes = self.meshes
+      if len(meshes) < 0:
+        return 
     
-    
-
-
+    for mesh in meshes:
+      vertexBuffer = mesh.vertexBuffers().objectAtIndex_(0)
+      commandEncoder.setVertexBuffer_offset_atIndex_(vertexBuffer.buffer(), vertexBuffer.offset(), 0)
+      for submesh in mesh.submeshes():
+        commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(submesh.primitiveType(), submesh.indexCount(), submesh.indexType(), submesh.indexBuffer().buffer(), submesh.indexBuffer().offset())
+      
 
