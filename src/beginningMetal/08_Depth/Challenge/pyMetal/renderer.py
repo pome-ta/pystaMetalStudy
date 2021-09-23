@@ -30,7 +30,6 @@ class Renderer:
       
     def drawInMTKView_(_self, _cmd, _view):
       view = ObjCInstance(_view)
-      #print(view.size().height)
       drawable = view.currentDrawable()
       rpd = view.currentRenderPassDescriptor()
 
