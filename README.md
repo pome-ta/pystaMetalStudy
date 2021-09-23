@@ -8,6 +8,15 @@
 以下列記は、実装日誌的なメモ
 
 
+## 📝 2021/09/23
+
+
+`objectAtIndexedSubscript_` ? `objectAtIndex`
+
+
+
+
+
 ## 📝 2021/09/21
 
 `MTKModelIOVertexDescriptorFromMetal` らへんの呼び出しな面倒
