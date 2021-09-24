@@ -18,6 +18,7 @@ class Texturable:
     textureLoader.initWithDevice_(device)
     origin = 'MTKTextureLoaderOriginBottomLeft'
     textureLoaderOptions = ns({'MTKTextureLoaderOptionOrigin': origin})
+    #textureLoaderOptions = ns({'MTKTextureLoaderOptionOrigin': origin, 'MTKTextureLoaderOptionSRGB': 0})
 
     textureURL = nsurl(str(get_image_path(imageName)))
     texture = textureLoader.newTextureWithContentsOfURL_options_error_(
