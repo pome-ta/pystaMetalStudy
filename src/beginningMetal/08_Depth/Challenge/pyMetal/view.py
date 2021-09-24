@@ -27,6 +27,7 @@ class MetalView:
     self.mtkView.initWithFrame_device_(_frame, self.devices)
     #self.mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     self.mtkView.clearColor = wenderlichGreen
+    self.mtkView.depthStencilPixelFormat = 252  # .depth32Float
     self.scene = GameScene(self.devices, bounds)
     self.scene.name = 'GameScene'
     renderer = Renderer(self.devices).renderer_init(self.scene)
