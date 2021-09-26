@@ -24,11 +24,10 @@ class MetalView:
   def view_did_load(self, bounds):
     # xxx: `bounds` 全部入れる？
     _frame = ((0.0, 0.0), (bounds[2], bounds[3]))
-    self.mtkView.initWithFrame_device_(_frame, self.devices)
+    self.mtkView.initWithFrame_device_(_frame, self.devices).autorelease()
     #self.mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     self.mtkView.clearColor = wenderlichGreen
     self.scene = GameScene(self.devices, bounds)
     self.scene.name = 'GameScene'
     renderer = Renderer(self.devices).renderer_init(self.scene)
     self.mtkView.delegate = renderer
-
