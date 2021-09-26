@@ -15,13 +15,23 @@ class Texturable:
         for file in file_path.iterdir():
           if file.name == _imageName:
             return file.absolute()
+      return None
+
+    _url = get_image_path(imageName)
+
+    if _url == None:
+      return _url
 
     textureLoader = ObjCClass('MTKTextureLoader').new()
     textureLoader.initWithDevice_(device)
-    origin = 'MTKTextureLoaderOriginBottomLeft'
-    textureLoaderOptions = ns({'MTKTextureLoaderOptionOrigin': origin})
 
-    textureURL = nsurl(str(get_image_path(imageName)))
+    origin = 'MTKTextureLoaderOriginBottomLeft'
+    textureLoaderOptions = ns({
+      'MTKTextureLoaderOptionOrigin': origin,
+      'MTKTextureLoaderOptionSRGB': 0
+    })
+
+    textureURL = nsurl(str(_url))
     texture = textureLoader.newTextureWithContentsOfURL_options_error_(
       textureURL, textureLoaderOptions, err_ptr)
     return texture
