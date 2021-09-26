@@ -49,18 +49,19 @@ class Model(Node, Renderable, Texturable):
       MTKModelIOVertexDescriptorFromMetal(
         self.vertexDescriptor))
 
-    attributePosition = descriptor.attributes().objectAtIndex_(0)
-    attributePosition.name = 'MDLVertexAttributePosition'
+    #descriptor.attributes().objectAtIndexedSubscript_(0).setName_('MDLVertexAttributePosition')
+    descriptor.attributes().objectAtIndexedSubscript_(0).setName_('position')
+    
 
-    attributeColor = descriptor.attributes().objectAtIndex_(1)
-    attributeColor.name = 'MDLVertexAttributeColor'
+    #descriptor.attributes().objectAtIndexedSubscript_(1).setName_('MDLVertexAttributeColor')
+    descriptor.attributes().objectAtIndexedSubscript_(1).setName_('color')
 
-    attributeTexture = descriptor.attributes().objectAtIndex_(2)
-    attributeTexture.name = 'MDLVertexAttributeTextureCoordinate'
+    #descriptor.attributes().objectAtIndexedSubscript_(2).setName_('MDLVertexAttributeTextureCoordinate')
+    descriptor.attributes().objectAtIndexedSubscript_(2).setName_('textureCoordinates')
 
-    attributeNormal = descriptor.attributes().objectAtIndex_(3)
-    attributeNormal.name = 'MDLVertexAttributeNormal'
-
+    #descriptor.attributes().objectAtIndexedSubscript_(3).setName_('MDLVertexAttributeNormal')
+    descriptor.attributes().objectAtIndexedSubscript_(3).setName_('normal')
+    
     MTKMeshBufferAllocator = ObjCClass('MTKMeshBufferAllocator').new()
     bufferAllocator = MTKMeshBufferAllocator.initWithDevice_(device)
     MDLAsset = ObjCClass('MDLAsset').new()
