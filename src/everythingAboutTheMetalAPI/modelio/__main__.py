@@ -12,6 +12,11 @@ import pdbg
 #MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
 
+shader_path = Path('./Resources/Shader.metal')
+
+err_ptr = ctypes.c_void_p()
+
+
 Position = (ctypes.c_float * 3)
 Color = (ctypes.c_float * 4)
 Texture = (ctypes.c_float * 2)
@@ -244,7 +249,10 @@ def matrix_multiply(matrixLeft, matrixRight):
 
   return matrix
 
-
+class Uniforms(ctypes.Structure):
+  _fields_ = [
+    ('modelViewProjectionMatrix', matrix_float4x4),
+  ]
 
 
 
@@ -259,7 +267,7 @@ class Renderer:
     self.texture = None
     self.depthStencilState = None
     # xxx: あとで事前に作る
-    self.vertexDescriptor = None
+    self.vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
 
     view.setClearColor_((0.5, 0.5, 0.5, 1))
     view.setColorPixelFormat_(80)
@@ -296,8 +304,40 @@ class Renderer:
     aspect = self.view.drawableSize().width / self.view.drawableSize().height
     projMatrix = projectionMatrix(0.1, 100, aspect, 1)
     modelViewProjectionMatrix = matrix_multiply(projMatrix, matrix_multiply(viewMatrix, modelMatrix))
-    self.uniformsBuffer = self.device.newBufferWithLength_options_(matrix_float4x4.__len__() * ctypes.sizeof(matrix_float4x4), 0)
-    pdbg.state(self.uniformsBuffer)
+    #self.uniformsBuffer = self.device.newBufferWithLength_options_(ctypes.sizeof(matrix_float4x4), 0)
+    
+    self.mvpMatrix = Uniforms()
+    self.mvpMatrix.modelViewProjectionMatrix = modelViewProjectionMatrix
+    
+    
+  def createLibraryAndRenderPipeline(self):
+    source = shader_path.read_text('utf-8')
+    library = device.newLibraryWithSource_options_error_(source, err_ptr, err_ptr)
+    
+    vert_func = library.newFunctionWithName_('vertex_func')
+    frag_func = library.newFunctionWithName_('fragment_func')
+    
+    # --- step 1: set up the render pipeline state
+    self.vertexDescriptor.attributes().objectAtIndexedSubscript_(0).offset = 0
+    self.vertexDescriptor.attributes().objectAtIndexedSubscript_(0).format = 30  # float3
+    self.vertexDescriptor.attributes().objectAtIndexedSubscript_(1).offset = 12
+    self.vertexDescriptor.attributes().objectAtIndexedSubscript_(1).format = 3  # uchar4
+    self.vertexDescriptor.attributes().objectAtIndexedSubscript_(2).offset = 16
+    self.vertexDescriptor.attributes().objectAtIndexedSubscript_(2).format = 25  # half2
+    self.vertexDescriptor.attributes().objectAtIndexedSubscript_(3).offset = 20
+    self.vertexDescriptor.attributes().objectAtIndexedSubscript_(3).format = 28  # float
+    self.vertexDescriptor.layouts().objectAtIndexedSubscript(0).stride = 24
+    
+    renderPipelineDescriptor = ObjCClass('MTLRenderPipelineDescriptor').new()
+    renderPipelineDescriptor.vertexDescriptor = self.vertexDescriptor
+    renderPipelineDescriptor.vertexFunction = vert_func
+    renderPipelineDescriptor.fragmentFunction = frag_func
+    
+    
+    
+    
+    
+    
     
     
     
