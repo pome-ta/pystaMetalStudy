@@ -131,10 +131,6 @@ class matrix_float4x4(ctypes.Union):
     matrix.columns = columns
     return matrix
 
-  def translationMatrix(self, x, y, z):
-    translateMatrix = self.translation_x_y_z_(x, y, z)
-    return matrix_multiply(self, translateMatrix)
-
   @staticmethod
   def scale_x_y_z_(x, y, z):
     columns = (
@@ -145,10 +141,6 @@ class matrix_float4x4(ctypes.Union):
     matrix = matrix_float4x4()
     matrix.columns = columns
     return matrix
-
-  def scalingMatrix(self, x, y, z):
-    scaledMatrix = self.scale_x_y_z_(x, y, z)
-    return matrix_multiply(self, scaledMatrix)
 
   @staticmethod
   def rotation_angle_x_y_z_(angle, x, y, z):
@@ -180,25 +172,35 @@ class matrix_float4x4(ctypes.Union):
     matrix.columns = columns
     return matrix
 
-  def rotationMatrix(self, angle, x, y, z):
-    rotationMatrix = self.rotation_angle_x_y_z_(angle, x, y, z)
-    return matrix_multiply(self, rotationMatrix)
+def translationMatrix(position):
+  x, y, z = position
+  translateMatrix = matrix_float4x4.translation_x_y_z_(x, y, z)
+  return matrix_multiply(matrix_float4x4(), translateMatrix)
 
-  @staticmethod
-  def projection_fov_aspect_nearZ_farZ_(fov, aspect, nearZ, farZ):
-    y = 1 / tan(fov * 0.5)
-    x = y / aspect
-    z = farZ / (nearZ - farZ)
+def scalingMatrix(scale):
+  x, y, z = scale
+  scaledMatrix = matrix_float4x4.scale_x_y_z_(x, y, z)
+  return matrix_multiply(matrix_float4x4(), scaledMatrix)
 
-    columns = (
-      float4(  x, 0.0, 0.0, 0.0),
-      float4(0.0,   y, 0.0, 0.0),
-      float4(0.0, 0.0,   z, -1.0),
-      float4(0.0, 0.0,   z * nearZ, 0.0))
+def rotationMatrix(angle, axis):
+  x, y, z = axis
+  rotationMatrix = matrix_float4x4.rotation_angle_x_y_z_(angle, x, y, z)
+  return matrix_multiply(matrix_float4x4(), rotationMatrix)
 
-    matrix = matrix_float4x4()
-    matrix.columns = columns
-    return matrix
+
+def projectionMatrix(*args):
+  nearZ, farZ, aspect, fov = args
+  y = 1 / tan(fov * 0.5)
+  x = y / aspect
+  z = farZ / (nearZ - farZ)
+  columns = (
+    float4(  x, 0.0, 0.0, 0.0),
+    float4(0.0,   y, 0.0, 0.0),
+    float4(0.0, 0.0,   z, -1.0),
+    float4(0.0, 0.0,   z * nearZ, 0.0))
+  matrix = matrix_float4x4()
+  matrix.columns = columns
+  return matrix
 
 
 # https://github.com/Cethric/OpenGLES-Pythonista/blob/master/GLKit/glkmath/matrix4.py
@@ -261,8 +263,11 @@ class Renderer:
 
     view.setClearColor_((0.5, 0.5, 0.5, 1))
     view.setColorPixelFormat_(80)
-    
     self.view = view
+    self.initializeMetalObjects()
+    self.createMatrixAndBuffers()
+    
+    
 
   def initializeMetalObjects(self):
     MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
@@ -280,6 +285,21 @@ class Renderer:
     self.device = device
     self.commandQueue = commandQueue
     self.depthStencilState = depthStencilState
+    
+  def createMatrixAndBuffers(self):
+    scaled = scalingMatrix((1, 1, 1))
+    rotated = rotationMatrix(90, (0, 1, 0))
+    translated = translationMatrix((0, -10, 0))
+    modelMatrix = matrix_multiply(matrix_multiply(translated, rotated), scaled)
+    cameraPosition = (0, 0, -50)
+    viewMatrix = translationMatrix(cameraPosition)
+    aspect = self.view.drawableSize().width / self.view.drawableSize().height
+    projMatrix = projectionMatrix(0.1, 100, aspect, 1)
+    modelViewProjectionMatrix = matrix_multiply(projMatrix, matrix_multiply(viewMatrix, modelMatrix))
+    self.uniformsBuffer = self.device.newBufferWithLength_options_(matrix_float4x4.__len__() * ctypes.sizeof(matrix_float4x4), 0)
+    pdbg.state(self.uniformsBuffer)
+    
+    
     
     
     
