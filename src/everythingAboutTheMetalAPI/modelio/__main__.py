@@ -12,7 +12,13 @@ import pdbg
 #MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
 
-shader_path = Path('./Resources/Shader.metal')
+MTKModelIOVertexDescriptorFromMetal = c.MTKModelIOVertexDescriptorFromMetal
+MTKModelIOVertexDescriptorFromMetal.argtypes = [ctypes.c_void_p]
+MTKModelIOVertexDescriptorFromMetal.restype = ctypes.c_void_p
+
+   
+
+shader_path = Path('./Resources/Shaders.metal')
 
 err_ptr = ctypes.c_void_p()
 
@@ -258,6 +264,7 @@ class Uniforms(ctypes.Structure):
 
 class Renderer:
   def __init__(self, view):
+    self.view = view
     self.device = None
     self.commandQueue = None
     self.library = None
@@ -269,11 +276,13 @@ class Renderer:
     # xxx: あとで事前に作る
     self.vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
 
-    view.setClearColor_((0.5, 0.5, 0.5, 1))
-    view.setColorPixelFormat_(80)
-    self.view = view
+    self.view.setClearColor_((0.5, 0.5, 0.5, 1))
+    self.view.setColorPixelFormat_(80)
     self.initializeMetalObjects()
     self.createMatrixAndBuffers()
+    self.createLibraryAndRenderPipeline()
+    self.createAsset()
+    #pdbg.state(self.view)
     
     
 
@@ -305,6 +314,7 @@ class Renderer:
     projMatrix = projectionMatrix(0.1, 100, aspect, 1)
     modelViewProjectionMatrix = matrix_multiply(projMatrix, matrix_multiply(viewMatrix, modelMatrix))
     #self.uniformsBuffer = self.device.newBufferWithLength_options_(ctypes.sizeof(matrix_float4x4), 0)
+    # xxx: あとでやる
     
     self.mvpMatrix = Uniforms()
     self.mvpMatrix.modelViewProjectionMatrix = modelViewProjectionMatrix
@@ -312,7 +322,7 @@ class Renderer:
     
   def createLibraryAndRenderPipeline(self):
     source = shader_path.read_text('utf-8')
-    library = device.newLibraryWithSource_options_error_(source, err_ptr, err_ptr)
+    library = self.device.newLibraryWithSource_options_error_(source, err_ptr, err_ptr)
     
     vert_func = library.newFunctionWithName_('vertex_func')
     frag_func = library.newFunctionWithName_('fragment_func')
@@ -332,6 +342,38 @@ class Renderer:
     renderPipelineDescriptor.vertexDescriptor = self.vertexDescriptor
     renderPipelineDescriptor.vertexFunction = vert_func
     renderPipelineDescriptor.fragmentFunction = frag_func
+    
+    renderPipelineDescriptor.colorAttachments().objectAtIndexedSubscript(0).pixelFormat = 80  # .bgra8Unorm
+    renderPipelineDescriptor.stencilAttachmentPixelFormat = self.view.depthStencilPixelFormat()
+    
+    self.renderPipelineState = self.device.newRenderPipelineStateWithDescriptor_error_(renderPipelineDescriptor, err_ptr)
+    
+  def createAsset(self):
+    # --- step 2: set up the asset initialization
+    desc = ObjCInstance(MTKModelIOVertexDescriptorFromMetal(self.vertexDescriptor))
+    
+    attribute = desc.attributes().objectAtIndexedSubscript_(0)
+    attribute.setName_('MDLVertexAttributePosition')
+    attribute = desc.attributes().objectAtIndexedSubscript_(1)
+    attribute.setName_('MDLVertexAttributeColor')
+    attribute = desc.attributes().objectAtIndexedSubscript_(2)
+    attribute.setName_('MDLVertexAttributeTextureCoordinate')
+    attribute = desc.attributes().objectAtIndexedSubscript_(3)
+    attribute.setName_('MDLVertexAttributeOcclusionValue')
+    
+    mtkBufferAllocator = ObjCClass('MTKMeshBufferAllocator').new().initWithDevice_(self.device)
+    
+    url = Path('./Resources/Farmhouse.obj')
+    
+    asset = ObjCClass('MDLAsset').new().initWithURL_vertexDescriptor_bufferAllocator_(nsurl(str(url)), desc, mtkBufferAllocator)
+    
+    
+    loader = ObjCClass('MTKTextureLoader').new().initWithDevice_(self.device)
+    file = Path('./Resources/Farmhouse.png')
+    #texture = loader.newTexturesWithContentsOfURLs_options_error_(nsurl(str(file)), 0, err_ptr)
+    #pdbg.state(loader)
+    print(nsurl(str(file)),)
+    
     
     
     
