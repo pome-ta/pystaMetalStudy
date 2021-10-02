@@ -2,7 +2,7 @@ from math import sin, cos, tan
 from pathlib import Path
 import ctypes
 
-from objc_util import c, ObjCClass, ObjCInstance, nsurl, ns
+from objc_util import c, create_objc_class, ObjCClass, ObjCInstance, nsurl, ns
 import ui
 
 import pdbg
@@ -265,7 +265,9 @@ class Uniforms(ctypes.Structure):
 class Renderer:
   def __init__(self, view):
     self.view = view
-    self.device = None
+    self.device = view.device()
+    
+    #self.device = None
     self.commandQueue = None
     self.library = None
     self.renderPipelineState = None
@@ -291,15 +293,15 @@ class Renderer:
     #MTLCreateSystemDefaultDevice.argtypes = []
     #MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
-    device = ObjCInstance(MTLCreateSystemDefaultDevice())
-    commandQueue = device.newCommandQueue()
+    #device = ObjCInstance(MTLCreateSystemDefaultDevice())
+    commandQueue = self.device.newCommandQueue()
     self.view.setDepthStencilPixelFormat_(260)  # depth32Float_stencil8
     descriptor = ObjCClass('MTLDepthStencilDescriptor').new()
     descriptor.setDepthCompareFunction_(1)  # .less
     descriptor.setDepthWriteEnabled_(1)  # true
-    depthStencilState = device.newDepthStencilStateWithDescriptor_(descriptor)
+    depthStencilState = self.device.newDepthStencilStateWithDescriptor_(descriptor)
     
-    self.device = device
+    #self.device = device
     self.commandQueue = commandQueue
     self.depthStencilState = depthStencilState
     
@@ -318,6 +320,9 @@ class Renderer:
     
     self.mvpMatrix = Uniforms()
     self.mvpMatrix.modelViewProjectionMatrix = modelViewProjectionMatrix
+    
+    
+    self.uniformsBuffer = self.device.newBufferWithBytes_length_options_(ctypes.byref(self.mvpMatrix), ctypes.sizeof(matrix_float4x4), 0)
     
     
   def createLibraryAndRenderPipeline(self):
@@ -372,7 +377,7 @@ class Renderer:
     loader.initWithDevice_(self.device)
     file = Path('./Resources/Farmhouse.png').absolute()
     
-    texture = loader.newTextureWithContentsOfURL_options_error_(nsurl(str(file)), err_ptr, err_ptr)
+    self.texture = loader.newTextureWithContentsOfURL_options_error_(nsurl(str(file)), err_ptr, err_ptr)
     
     # --- step 3: set up MetalKit mesh and submesh objects
     
@@ -382,20 +387,77 @@ class Renderer:
     MTKMesh = ObjCClass('MTKMesh')
     
     self.meshes = MTKMesh.newMeshesFromAsset_device_sourceMeshes_error_(asset, self.device, err_ptr, err_ptr)
-    pdbg.state(self.meshes)
-    #newMeshesFromAsset_device_sourceMeshes_error_
+    
+    #pdbg.state(self.meshes.firstObject())
+    #f = self.meshes.firstObject()
+    
+    #pdbg.state(f.vertexBuffers().objectAtIndexedSubscript_(0))
+    
+    #b = f.vertexBuffers().objectAtIndexedSubscript_(0)
+    #pdbg.state(b.buffer())
+    #mesh = self.meshes.firstObject()
+    
+    #pdbg.state(mesh.submeshes().firstObject())
+    #submesh = mesh.submeshes().firstObject()
+    #pdbg.state(submesh.indexBuffer().buffer())
     
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
+  def renderer_init(self):
+    def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
+      pass
+      
+    def drawInMTKView_(_self, _cmd, _view):
+      #view = ObjCInstance(_view)
+      #drawable = self.view.currentDrawable()
+      #descriptor = self.view.currentRenderPassDescriptor()
+      
+      view = ObjCInstance(_view)
+      drawable = view.currentDrawable()
+      descriptor = view.currentRenderPassDescriptor()
+      pdbg.state(descriptor)
+      
+      
+      #descriptor.colorAttachments().objectAtIndexedSubscript(0).texture = drawable.texture()
+      #descriptor.colorAttachments().objectAtIndexedSubscript(0).setTexture_(view.currentDrawable().texture())
+      descriptor.colorAttachments().objectAtIndexedSubscript(0).loadAction = 2  # .clear
+      descriptor.colorAttachments().objectAtIndexedSubscript(0).clearColor = (0.5, 0.5, 0.5, 1)
+      
+      commandBuffer = self.commandQueue.commandBuffer()
+      
+      commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(descriptor)
+      
+      commandEncoder.setRenderPipelineState_(self.renderPipelineState)
+      commandEncoder.setDepthStencilState_(self.depthStencilState)
+      commandEncoder.setCullMode_(2)  # .back
+      commandEncoder.setFrontFacingWinding_(1)  # .counterClockwise
+      
+      commandEncoder.setVertexBuffer_offset_atIndex_(self.uniformsBuffer, 0, 0)
+      
+      commandEncoder.setFragmentTexture_atIndex_(self.texture)
+      
+      # --- step 4: set up Metal rendering and drawing of meshes
+      
+      mesh = self.meshes.firstObject()
+      vertexBuffer = math.vertexBuffers().objectAtIndexedSubscript_(0)
+      
+      commandEncoder.setVertexBuffer_offset_atIndex_(vertexBuffer.buffer(), vertexBuffer.offset(), 0)
+      
+      submesh = mesh.submeshes().firstObject()
+      
+      commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(submesh.primitiveType(), submesh.indexCount(), submesh.indexType(), submesh.indexBuffer().buffer(), submesh.indexBuffer().offset())
+      
+      commandEncoder.endEncoding()
+      commandBuffer.presentDrawable_(drawable)
+      commandBuffer.commit()
+      
+
+    PyRenderer = create_objc_class(
+      name='PyRenderer',
+      methods=[drawInMTKView_, mtkView_drawableSizeWillChange_],
+      protocols=['MTKViewDelegate'])
+    return PyRenderer.new()
     
 
 
@@ -404,12 +466,19 @@ class MTKView(ui.View):
   def __init__(self, *args, **kwargs):
     ui.View.__init__(self, *args, **kwargs)
     self.bg_color = 'slategra'
+    
+    device = ObjCInstance(MTLCreateSystemDefaultDevice())
 
     _frame = ((0.0, 0.0), (300.0, 600.0))
     self.mtkView = ObjCClass('MTKView').alloc()
-    self.mtkView.initWithFrame_(_frame)
-    renderer = Renderer(self.mtkView)
+    
+    #initWithFrame_device_
+    #self.mtkView.initWithFrame_(_frame)
+    self.mtkView.initWithFrame_device_(_frame, device)
+    renderer = Renderer(self.mtkView).renderer_init()
+    self.mtkView.delegate = renderer
     self.objc_instance.addSubview_(self.mtkView)
+    
 
 
 if __name__ == '__main__':
