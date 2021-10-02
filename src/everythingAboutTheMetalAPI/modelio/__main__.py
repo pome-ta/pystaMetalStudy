@@ -347,13 +347,17 @@ class Renderer:
     desc = ObjCInstance(MTKModelIOVertexDescriptorFromMetal(self.vertexDescriptor))
     
     attribute = desc.attributes().objectAtIndexedSubscript_(0)
-    attribute.setName_('MDLVertexAttributePosition')
+    #attribute.setName_('MDLVertexAttributePosition')
+    attribute.setName_('position')
     attribute = desc.attributes().objectAtIndexedSubscript_(1)
-    attribute.setName_('MDLVertexAttributeColor')
+    #attribute.setName_('MDLVertexAttributeColor')
+    attribute.setName_('color')
     attribute = desc.attributes().objectAtIndexedSubscript_(2)
-    attribute.setName_('MDLVertexAttributeTextureCoordinate')
+    #attribute.setName_('MDLVertexAttributeTextureCoordinate')
+    attribute.setName_('texCoords')
     attribute = desc.attributes().objectAtIndexedSubscript_(3)
-    attribute.setName_('MDLVertexAttributeOcclusionValue')
+    #attribute.setName_('MDLVertexAttributeOcclusionValue')
+    attribute.setName_('occlusion')
     
     mtkBufferAllocator = ObjCClass('MTKMeshBufferAllocator').new().initWithDevice_(self.device)
     
@@ -372,6 +376,7 @@ class Renderer:
     
     mesh = asset.objectAtIndexedSubscript_(0)
     mesh.generateAmbientOcclusionVertexColorsWithQuality_attenuationFactor_objectsToConsider_vertexAttributeNamed_(1.0, 0.98, [mesh], 'MDLVertexAttributeOcclusionValue')
+    #mesh.generateAmbientOcclusionVertexColorsWithQuality_attenuationFactor_objectsToConsider_vertexAttributeNamed_(1.0, 0.98, [mesh], 'occlusion')
     
     MTKMesh = ObjCClass('MTKMesh')
     
@@ -387,6 +392,8 @@ class Renderer:
       view = ObjCInstance(_view)
       drawable = view.currentDrawable()
       descriptor = view.currentRenderPassDescriptor()
+      #drawable = self.view.currentDrawable()
+      #descriptor = self.view.currentRenderPassDescriptor()
       
       descriptor.colorAttachments().objectAtIndexedSubscript(0).texture = drawable.texture()
       descriptor.colorAttachments().objectAtIndexedSubscript(0).loadAction = 2  # .clear
@@ -401,7 +408,7 @@ class Renderer:
       commandEncoder.setCullMode_(2)  # .back
       commandEncoder.setFrontFacingWinding_(1)  # .counterClockwise
       
-      commandEncoder.setVertexBuffer_offset_atIndex_(self.uniformsBuffer, 0, 0)
+      commandEncoder.setVertexBuffer_offset_atIndex_(self.uniformsBuffer, 0, 1)
       commandEncoder.setFragmentTexture_atIndex_(self.texture, 0)
       
       # --- step 4: set up Metal rendering and drawing of meshes
