@@ -2,14 +2,14 @@ from math import sin, cos, tan
 from pathlib import Path
 import ctypes
 
-from objc_util import c, ObjCClass, ObjCInstance, nsurl
+from objc_util import c, ObjCClass, ObjCInstance, nsurl, ns
 import ui
 
 import pdbg
 
-#MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
-#MTLCreateSystemDefaultDevice.argtypes = []
-#MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
+MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
+MTLCreateSystemDefaultDevice.argtypes = []
+MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
 
 MTKModelIOVertexDescriptorFromMetal = c.MTKModelIOVertexDescriptorFromMetal
@@ -287,9 +287,9 @@ class Renderer:
     
 
   def initializeMetalObjects(self):
-    MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
-    MTLCreateSystemDefaultDevice.argtypes = []
-    MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
+    #MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
+    #MTLCreateSystemDefaultDevice.argtypes = []
+    #MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
     device = ObjCInstance(MTLCreateSystemDefaultDevice())
     commandQueue = device.newCommandQueue()
@@ -368,11 +368,23 @@ class Renderer:
     asset = ObjCClass('MDLAsset').new().initWithURL_vertexDescriptor_bufferAllocator_(nsurl(str(url)), desc, mtkBufferAllocator)
     
     
-    loader = ObjCClass('MTKTextureLoader').new().initWithDevice_(self.device)
-    file = Path('./Resources/Farmhouse.png')
-    #texture = loader.newTexturesWithContentsOfURLs_options_error_(nsurl(str(file)), 0, err_ptr)
-    #pdbg.state(loader)
-    print(nsurl(str(file)),)
+    loader = ObjCClass('MTKTextureLoader').new()
+    loader.initWithDevice_(self.device)
+    file = Path('./Resources/Farmhouse.png').absolute()
+    
+    texture = loader.newTextureWithContentsOfURL_options_error_(nsurl(str(file)), err_ptr, err_ptr)
+    
+    # --- step 3: set up MetalKit mesh and submesh objects
+    
+    mesh = asset.objectAtIndexedSubscript_(0)
+    mesh.generateAmbientOcclusionVertexColorsWithQuality_attenuationFactor_objectsToConsider_vertexAttributeNamed_(1.0, 0.98, [mesh], 'MDLVertexAttributeOcclusionValue')
+    
+    MTKMesh = ObjCClass('MTKMesh')
+    
+    self.meshes = MTKMesh.newMeshesFromAsset_device_sourceMeshes_error_(asset, self.device, err_ptr, err_ptr)
+    pdbg.state(self.meshes)
+    #newMeshesFromAsset_device_sourceMeshes_error_
+    
     
     
     
