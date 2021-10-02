@@ -7,6 +7,7 @@ import ui
 
 import pdbg
 
+
 MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
 MTLCreateSystemDefaultDevice.argtypes = []
 MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
@@ -16,7 +17,6 @@ MTKModelIOVertexDescriptorFromMetal = c.MTKModelIOVertexDescriptorFromMetal
 MTKModelIOVertexDescriptorFromMetal.argtypes = [ctypes.c_void_p]
 MTKModelIOVertexDescriptorFromMetal.restype = ctypes.c_void_p
 
-   
 
 shader_path = Path('./Resources/Shaders.metal')
 
@@ -267,7 +267,6 @@ class Renderer:
     self.view = view
     self.device = view.device()
     
-    #self.device = None
     self.commandQueue = None
     self.library = None
     self.renderPipelineState = None
@@ -275,7 +274,6 @@ class Renderer:
     self.meshes = None
     self.texture = None
     self.depthStencilState = None
-    # xxx: あとで事前に作る
     self.vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
 
     self.view.setClearColor_((0.5, 0.5, 0.5, 1))
@@ -284,16 +282,8 @@ class Renderer:
     self.createMatrixAndBuffers()
     self.createLibraryAndRenderPipeline()
     self.createAsset()
-    #pdbg.state(self.view)
-    
-    
 
   def initializeMetalObjects(self):
-    #MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
-    #MTLCreateSystemDefaultDevice.argtypes = []
-    #MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
-
-    #device = ObjCInstance(MTLCreateSystemDefaultDevice())
     commandQueue = self.device.newCommandQueue()
     self.view.setDepthStencilPixelFormat_(260)  # depth32Float_stencil8
     descriptor = ObjCClass('MTLDepthStencilDescriptor').new()
@@ -301,7 +291,6 @@ class Renderer:
     descriptor.setDepthWriteEnabled_(1)  # true
     depthStencilState = self.device.newDepthStencilStateWithDescriptor_(descriptor)
     
-    #self.device = device
     self.commandQueue = commandQueue
     self.depthStencilState = depthStencilState
     
@@ -388,20 +377,6 @@ class Renderer:
     
     self.meshes = MTKMesh.newMeshesFromAsset_device_sourceMeshes_error_(asset, self.device, err_ptr, err_ptr)
     
-    #pdbg.state(self.meshes.firstObject())
-    #f = self.meshes.firstObject()
-    
-    #pdbg.state(f.vertexBuffers().objectAtIndexedSubscript_(0))
-    
-    #b = f.vertexBuffers().objectAtIndexedSubscript_(0)
-    #pdbg.state(b.buffer())
-    #mesh = self.meshes.firstObject()
-    
-    #pdbg.state(mesh.submeshes().firstObject())
-    #submesh = mesh.submeshes().firstObject()
-    #pdbg.state(submesh.indexBuffer().buffer())
-    
-    
     
     
   def renderer_init(self):
@@ -409,18 +384,11 @@ class Renderer:
       pass
       
     def drawInMTKView_(_self, _cmd, _view):
-      #view = ObjCInstance(_view)
-      #drawable = self.view.currentDrawable()
-      #descriptor = self.view.currentRenderPassDescriptor()
-      
       view = ObjCInstance(_view)
       drawable = view.currentDrawable()
       descriptor = view.currentRenderPassDescriptor()
-      pdbg.state(descriptor)
       
-      
-      #descriptor.colorAttachments().objectAtIndexedSubscript(0).texture = drawable.texture()
-      #descriptor.colorAttachments().objectAtIndexedSubscript(0).setTexture_(view.currentDrawable().texture())
+      descriptor.colorAttachments().objectAtIndexedSubscript(0).texture = drawable.texture()
       descriptor.colorAttachments().objectAtIndexedSubscript(0).loadAction = 2  # .clear
       descriptor.colorAttachments().objectAtIndexedSubscript(0).clearColor = (0.5, 0.5, 0.5, 1)
       
@@ -434,17 +402,23 @@ class Renderer:
       commandEncoder.setFrontFacingWinding_(1)  # .counterClockwise
       
       commandEncoder.setVertexBuffer_offset_atIndex_(self.uniformsBuffer, 0, 0)
-      
-      commandEncoder.setFragmentTexture_atIndex_(self.texture)
+      commandEncoder.setFragmentTexture_atIndex_(self.texture, 0)
       
       # --- step 4: set up Metal rendering and drawing of meshes
       
       mesh = self.meshes.firstObject()
-      vertexBuffer = math.vertexBuffers().objectAtIndexedSubscript_(0)
+      
+      #print(mesh)
+      
+      
+      vertexBuffer = mesh.vertexBuffers().objectAtIndexedSubscript_(0)
+      
       
       commandEncoder.setVertexBuffer_offset_atIndex_(vertexBuffer.buffer(), vertexBuffer.offset(), 0)
       
       submesh = mesh.submeshes().firstObject()
+      
+      
       
       commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(submesh.primitiveType(), submesh.indexCount(), submesh.indexType(), submesh.indexBuffer().buffer(), submesh.indexBuffer().offset())
       
