@@ -2,11 +2,14 @@ from math import sin, cos, tan
 from pathlib import Path
 import ctypes
 
-from objc_util import c, create_objc_class, ObjCClass, ObjCInstance, nsurl, ns
+from objc_util import c, create_objc_class, ObjCClass, ObjCInstance, nsurl, ns, load_framework
 import ui
 
 import pdbg
 
+#load_framework('Metal')
+load_framework('MetalKit')
+load_framework('ModelIO')
 
 MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
 MTLCreateSystemDefaultDevice.argtypes = []
@@ -346,18 +349,20 @@ class Renderer:
     # --- step 2: set up the asset initialization
     desc = ObjCInstance(MTKModelIOVertexDescriptorFromMetal(self.vertexDescriptor))
     
+    
     attribute = desc.attributes().objectAtIndexedSubscript_(0)
-    #attribute.setName_('MDLVertexAttributePosition')
-    attribute.setName_('position')
+    attribute.setName_('MDLVertexAttributePosition')
+    #attribute.setName_('position')
     attribute = desc.attributes().objectAtIndexedSubscript_(1)
-    #attribute.setName_('MDLVertexAttributeColor')
-    attribute.setName_('color')
+    attribute.setName_('MDLVertexAttributeColor')
+    #attribute.setName_('color')
     attribute = desc.attributes().objectAtIndexedSubscript_(2)
-    #attribute.setName_('MDLVertexAttributeTextureCoordinate')
-    attribute.setName_('texCoords')
+    attribute.setName_('MDLVertexAttributeTextureCoordinate')
+    #attribute.setName_('texCoords')
     attribute = desc.attributes().objectAtIndexedSubscript_(3)
-    #attribute.setName_('MDLVertexAttributeOcclusionValue')
-    attribute.setName_('occlusion')
+    attribute.setName_('MDLVertexAttributeOcclusionValue')
+    #attribute.setName_('occlusion')
+    pdbg.state(desc.attributes())
     
     mtkBufferAllocator = ObjCClass('MTKMeshBufferAllocator').new().initWithDevice_(self.device)
     
