@@ -1,0 +1,17 @@
+# Apple ModelI/O MTL File: out.mtl
+
+newmtl material_1
+	Kd 1 1 1
+	Ka 0 0 0
+	Ks 0
+	ao 0
+	subsurface 0
+	metallic 0
+	specularTint 0
+	roughness 0.9
+	anisotropicRotation 0
+	sheen 0.05
+	sheenTint 0
+	clearCoat 0
+	clearCoatGloss 0
+
