@@ -351,16 +351,16 @@ class Renderer:
     
     
     attribute = desc.attributes().objectAtIndexedSubscript_(0)
-    attribute.setName_('MDLVertexAttributePosition')
+    attribute.setName_(r'MDLVertexAttributePosition')
     #attribute.setName_('position')
     attribute = desc.attributes().objectAtIndexedSubscript_(1)
-    attribute.setName_('MDLVertexAttributeColor')
+    attribute.setName_(r'MDLVertexAttributeColor')
     #attribute.setName_('color')
     attribute = desc.attributes().objectAtIndexedSubscript_(2)
-    attribute.setName_('MDLVertexAttributeTextureCoordinate')
+    attribute.setName_(r'MDLVertexAttributeTextureCoordinate')
     #attribute.setName_('texCoords')
     attribute = desc.attributes().objectAtIndexedSubscript_(3)
-    attribute.setName_('MDLVertexAttributeOcclusionValue')
+    attribute.setName_(r'MDLVertexAttributeOcclusionValue')
     #attribute.setName_('occlusion')
     pdbg.state(desc.attributes())
     
