@@ -451,7 +451,7 @@ class MTKView(ui.View):
   # xxx: frame size
   def __init__(self, *args, **kwargs):
     ui.View.__init__(self, *args, **kwargs)
-    self.bg_color = 'slategra'
+    self.bg_color = 'slategray'
     
     device = ObjCInstance(MTLCreateSystemDefaultDevice())
 
