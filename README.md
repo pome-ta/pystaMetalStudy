@@ -30,7 +30,7 @@ obj を読んでエクスポートすると、足りない情報ありそう
 `MDLVertexAttributePosition` あたりのを`position` で読む感じになってる
 
 
-ずっと **Metal I/O** だと思ってたら **Modrl I/O** だった😇
+ずっと **Metal I/O** だと思ってたら **Model I/O** だった😇
 
 
 何にせよ呼び出せない、、、
