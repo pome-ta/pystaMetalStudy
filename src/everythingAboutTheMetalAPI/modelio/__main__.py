@@ -9,7 +9,7 @@ import pdbg
 
 #load_framework('Metal')
 load_framework('MetalKit')
-load_framework('ModelIO')
+#load_framework('ModelIO')
 
 MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
 MTLCreateSystemDefaultDevice.argtypes = []
@@ -308,7 +308,7 @@ class Renderer:
     projMatrix = projectionMatrix(0.1, 100, aspect, 1)
     modelViewProjectionMatrix = matrix_multiply(projMatrix, matrix_multiply(viewMatrix, modelMatrix))
     #self.uniformsBuffer = self.device.newBufferWithLength_options_(ctypes.sizeof(matrix_float4x4), 0)
-    # xxx: あとでやる
+    # xxx: あとでやる 追記: 回転だっけ？
     
     self.mvpMatrix = Uniforms()
     self.mvpMatrix.modelViewProjectionMatrix = modelViewProjectionMatrix
@@ -325,6 +325,8 @@ class Renderer:
     frag_func = library.newFunctionWithName_('fragment_func')
     
     # --- step 1: set up the render pipeline state
+    
+    
     self.vertexDescriptor.attributes().objectAtIndexedSubscript_(0).offset = 0
     self.vertexDescriptor.attributes().objectAtIndexedSubscript_(0).format = 30  # float3
     self.vertexDescriptor.attributes().objectAtIndexedSubscript_(1).offset = 12
@@ -334,6 +336,8 @@ class Renderer:
     self.vertexDescriptor.attributes().objectAtIndexedSubscript_(3).offset = 20
     self.vertexDescriptor.attributes().objectAtIndexedSubscript_(3).format = 28  # float
     self.vertexDescriptor.layouts().objectAtIndexedSubscript(0).stride = 24
+    
+    
     
     renderPipelineDescriptor = ObjCClass('MTLRenderPipelineDescriptor').new()
     renderPipelineDescriptor.vertexDescriptor = self.vertexDescriptor
@@ -351,18 +355,18 @@ class Renderer:
     
     
     attribute = desc.attributes().objectAtIndexedSubscript_(0)
-    attribute.setName_(r'MDLVertexAttributePosition')
-    #attribute.setName_('position')
+    #attribute.setName_(r'MDLVertexAttributePosition')
+    attribute.setName_('position')
     attribute = desc.attributes().objectAtIndexedSubscript_(1)
-    attribute.setName_(r'MDLVertexAttributeColor')
-    #attribute.setName_('color')
+    #attribute.setName_(r'MDLVertexAttributeColor')
+    attribute.setName_('color')
     attribute = desc.attributes().objectAtIndexedSubscript_(2)
-    attribute.setName_(r'MDLVertexAttributeTextureCoordinate')
-    #attribute.setName_('texCoords')
+    #attribute.setName_(r'MDLVertexAttributeTextureCoordinate')
+    attribute.setName_('texCoords')
     attribute = desc.attributes().objectAtIndexedSubscript_(3)
-    attribute.setName_(r'MDLVertexAttributeOcclusionValue')
-    #attribute.setName_('occlusion')
-    pdbg.state(desc.attributes())
+    #attribute.setName_(r'MDLVertexAttributeOcclusionValue')
+    attribute.setName_('occlusion')
+    #pdbg.state(desc.attributes())
     
     mtkBufferAllocator = ObjCClass('MTKMeshBufferAllocator').new().initWithDevice_(self.device)
     
@@ -380,8 +384,8 @@ class Renderer:
     # --- step 3: set up MetalKit mesh and submesh objects
     
     mesh = asset.objectAtIndexedSubscript_(0)
-    mesh.generateAmbientOcclusionVertexColorsWithQuality_attenuationFactor_objectsToConsider_vertexAttributeNamed_(1.0, 0.98, [mesh], 'MDLVertexAttributeOcclusionValue')
-    #mesh.generateAmbientOcclusionVertexColorsWithQuality_attenuationFactor_objectsToConsider_vertexAttributeNamed_(1.0, 0.98, [mesh], 'occlusion')
+    #mesh.generateAmbientOcclusionVertexColorsWithQuality_attenuationFactor_objectsToConsider_vertexAttributeNamed_(1.0, 0.98, [mesh], 'MDLVertexAttributeOcclusionValue')
+    mesh.generateAmbientOcclusionVertexColorsWithQuality_attenuationFactor_objectsToConsider_vertexAttributeNamed_(1.0, 0.98, [mesh], 'occlusion')
     
     MTKMesh = ObjCClass('MTKMesh')
     
@@ -426,6 +430,8 @@ class Renderer:
       vertexBuffer = mesh.vertexBuffers().objectAtIndexedSubscript_(0)
       
       
+      #pdbg.state(commandEncoder)
+      print(commandBuffer)
       commandEncoder.setVertexBuffer_offset_atIndex_(vertexBuffer.buffer(), vertexBuffer.offset(), 0)
       
       submesh = mesh.submeshes().firstObject()
