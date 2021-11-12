@@ -2,13 +2,13 @@ from math import sin, cos, tan
 from pathlib import Path
 import ctypes
 
-from objc_util import c, create_objc_class, ObjCClass, ObjCInstance, nsurl, ns, load_framework
+from objc_util import c, create_objc_class, ObjCClass, ObjCInstance, nsurl, ns, load_framework, sel
 import ui
 
 import pdbg
 
 #load_framework('Metal')
-load_framework('MetalKit')
+#load_framework('MetalKit')
 #load_framework('ModelIO')
 
 MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
@@ -327,6 +327,8 @@ class Renderer:
     # --- step 1: set up the render pipeline state
     
     
+    
+    
     self.vertexDescriptor.attributes().objectAtIndexedSubscript_(0).offset = 0
     self.vertexDescriptor.attributes().objectAtIndexedSubscript_(0).format = 30  # float3
     self.vertexDescriptor.attributes().objectAtIndexedSubscript_(1).offset = 12
@@ -355,16 +357,22 @@ class Renderer:
     
     
     attribute = desc.attributes().objectAtIndex_(0)
-    #attribute.setName_(r'MDLVertexAttributePosition')
+    #attribute.setName_('MDLVertexAttributePosition')
     attribute.setName_('position')
+    
+    #pdbg.state(attribute)
+    
     attribute = desc.attributes().objectAtIndex_(1)
-    #attribute.setName_(r'MDLVertexAttributeColor')
+    #attribute.setName_('MDLVertexAttributeColor')
     attribute.setName_('color')
+    
+    
     attribute = desc.attributes().objectAtIndex_(2)
-    #attribute.setName_(r'MDLVertexAttributeTextureCoordinate')
+    #attribute.setName_('MDLVertexAttributeTextureCoordinate')
     attribute.setName_('texCoords')
     attribute = desc.attributes().objectAtIndex_(3)
-    #attribute.setName_(r'MDLVertexAttributeOcclusionValue')
+    #
+    #attribute.setName_('MDLVertexAttributeOcclusionValue')
     attribute.setName_('occlusion')
     #pdbg.state(desc.attributes())
     
@@ -381,18 +389,17 @@ class Renderer:
     
     self.texture = loader.newTextureWithContentsOfURL_options_error_(nsurl(str(file)), err_ptr, err_ptr)
     
+    #pdbg.state(self.texture)
+    
     # --- step 3: set up MetalKit mesh and submesh objects
     
     mesh = asset.objectAtIndex_(0)
     #mesh.generateAmbientOcclusionVertexColorsWithQuality_attenuationFactor_objectsToConsider_vertexAttributeNamed_(1.0, 0.98, [mesh], 'MDLVertexAttributeOcclusionValue')
-    #mesh.generateAmbientOcclusionVertexColorsWithQuality_attenuationFactor_objectsToConsider_vertexAttributeNamed_(1.0, 0.98, [mesh], 'occlusion')
+    mesh.generateAmbientOcclusionVertexColorsWithQuality_attenuationFactor_objectsToConsider_vertexAttributeNamed_(1.0, 0.98, [mesh], 'occlusion')
     
     MTKMesh = ObjCClass('MTKMesh')
     
     self.meshes = MTKMesh.newMeshesFromAsset_device_sourceMeshes_error_(asset, self.device, err_ptr, err_ptr)
-    
-    #pdbg.state(self.meshes.firstObject().vertexBuffers())
-    
     
     
   def renderer_init(self):
@@ -408,7 +415,7 @@ class Renderer:
       
       descriptor.colorAttachments().objectAtIndexedSubscript(0).texture = drawable.texture()
       descriptor.colorAttachments().objectAtIndexedSubscript(0).loadAction = 2  # .clear
-      descriptor.colorAttachments().objectAtIndexedSubscript(0).clearColor = (0.5, 0.5, 0.5, 1)
+      descriptor.colorAttachments().objectAtIndexedSubscript(0).clearColor = (0.5, 0.5, 0.1, 1)
       
       commandBuffer = self.commandQueue.commandBuffer()
       
