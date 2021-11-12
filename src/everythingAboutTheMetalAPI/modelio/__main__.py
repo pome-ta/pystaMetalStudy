@@ -354,16 +354,16 @@ class Renderer:
     desc = ObjCInstance(MTKModelIOVertexDescriptorFromMetal(self.vertexDescriptor))
     
     
-    attribute = desc.attributes().objectAtIndexedSubscript_(0)
+    attribute = desc.attributes().objectAtIndex_(0)
     #attribute.setName_(r'MDLVertexAttributePosition')
     attribute.setName_('position')
-    attribute = desc.attributes().objectAtIndexedSubscript_(1)
+    attribute = desc.attributes().objectAtIndex_(1)
     #attribute.setName_(r'MDLVertexAttributeColor')
     attribute.setName_('color')
-    attribute = desc.attributes().objectAtIndexedSubscript_(2)
+    attribute = desc.attributes().objectAtIndex_(2)
     #attribute.setName_(r'MDLVertexAttributeTextureCoordinate')
     attribute.setName_('texCoords')
-    attribute = desc.attributes().objectAtIndexedSubscript_(3)
+    attribute = desc.attributes().objectAtIndex_(3)
     #attribute.setName_(r'MDLVertexAttributeOcclusionValue')
     attribute.setName_('occlusion')
     #pdbg.state(desc.attributes())
@@ -383,13 +383,15 @@ class Renderer:
     
     # --- step 3: set up MetalKit mesh and submesh objects
     
-    mesh = asset.objectAtIndexedSubscript_(0)
+    mesh = asset.objectAtIndex_(0)
     #mesh.generateAmbientOcclusionVertexColorsWithQuality_attenuationFactor_objectsToConsider_vertexAttributeNamed_(1.0, 0.98, [mesh], 'MDLVertexAttributeOcclusionValue')
-    mesh.generateAmbientOcclusionVertexColorsWithQuality_attenuationFactor_objectsToConsider_vertexAttributeNamed_(1.0, 0.98, [mesh], 'occlusion')
+    #mesh.generateAmbientOcclusionVertexColorsWithQuality_attenuationFactor_objectsToConsider_vertexAttributeNamed_(1.0, 0.98, [mesh], 'occlusion')
     
     MTKMesh = ObjCClass('MTKMesh')
     
     self.meshes = MTKMesh.newMeshesFromAsset_device_sourceMeshes_error_(asset, self.device, err_ptr, err_ptr)
+    
+    #pdbg.state(self.meshes.firstObject().vertexBuffers())
     
     
     
@@ -424,14 +426,13 @@ class Renderer:
       
       mesh = self.meshes.firstObject()
       
-      #print(mesh)
       
       
-      vertexBuffer = mesh.vertexBuffers().objectAtIndexedSubscript_(0)
+      vertexBuffer = mesh.vertexBuffers().objectAtIndex_(0)
       
       
       #pdbg.state(commandEncoder)
-      print(commandBuffer)
+      #print(commandBuffer)
       commandEncoder.setVertexBuffer_offset_atIndex_(vertexBuffer.buffer(), vertexBuffer.offset(), 0)
       
       submesh = mesh.submeshes().firstObject()
