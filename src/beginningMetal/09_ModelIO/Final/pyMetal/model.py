@@ -70,6 +70,8 @@ class Model(Node, Renderable, Texturable):
       nsurl(str(assetURL)),
       descriptor,
       bufferAllocator)
+    
+    
     self.meshes = ObjCClass(
       'MTKMesh').newMeshesFromAsset_device_sourceMeshes_error_(
         asset, device, err_ptr, err_ptr)
