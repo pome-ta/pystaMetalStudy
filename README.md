@@ -18,7 +18,9 @@ texture がうまく反映されんのよな
 
 しれっと、何かしらの巻き添いで、呼べてたが
 
-本来は、`load_framework('ModelIO')` が必要
+~~ 本来は、`load_framework('ModelIO')` が必要 ~~
+
+↑ 違う、巻き添い呼び出しで問題なさそう
 
 
 

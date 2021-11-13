@@ -49,18 +49,14 @@ class Model(Node, Renderable, Texturable):
       MTKModelIOVertexDescriptorFromMetal(
         self.vertexDescriptor))
 
-    #descriptor.attributes().objectAtIndexedSubscript_(0).setName_('MDLVertexAttributePosition')
-    descriptor.attributes().objectAtIndexedSubscript_(0).setName_('position')
-    
-
-    #descriptor.attributes().objectAtIndexedSubscript_(1).setName_('MDLVertexAttributeColor')
-    descriptor.attributes().objectAtIndexedSubscript_(1).setName_('color')
-
-    #descriptor.attributes().objectAtIndexedSubscript_(2).setName_('MDLVertexAttributeTextureCoordinate')
-    descriptor.attributes().objectAtIndexedSubscript_(2).setName_('textureCoordinates')
-
-    #descriptor.attributes().objectAtIndexedSubscript_(3).setName_('MDLVertexAttributeNormal')
-    descriptor.attributes().objectAtIndexedSubscript_(3).setName_('normal')
+    descriptor.attributes().objectAtIndexedSubscript_(
+      0).setName_('position')
+    descriptor.attributes().objectAtIndexedSubscript_(
+      1).setName_('color')
+    descriptor.attributes().objectAtIndexedSubscript_(
+      2).setName_('textureCoordinate')
+    descriptor.attributes().objectAtIndexedSubscript_(
+      3).setName_('normal')
     
     MTKMeshBufferAllocator = ObjCClass('MTKMeshBufferAllocator').new()
     bufferAllocator = MTKMeshBufferAllocator.initWithDevice_(device)
@@ -78,31 +74,22 @@ class Model(Node, Renderable, Texturable):
 
   def __set_vertexDescriptor(self):
     vertexDescriptor = ObjCClass('MTLVertexDescriptor').new()
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      0).format = 30  # .float3
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).format = 30  # .float3
     vertexDescriptor.attributes().objectAtIndexedSubscript_(0).offset = 0
     vertexDescriptor.attributes().objectAtIndexedSubscript_(0).bufferIndex = 0
-
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      1).format = 31  # .float4
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      1).offset = ctypes.sizeof(Float) * 3
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(1).format = 31  # .float4
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(1).offset = ctypes.sizeof(Float) * 3
     vertexDescriptor.attributes().objectAtIndexedSubscript_(1).bufferIndex = 0
 
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      2).format = 29  # .float2
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      2).offset = ctypes.sizeof(Float) * 7
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(2).format = 29  # .float2
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(2).offset = ctypes.sizeof(Float) * 7
     vertexDescriptor.attributes().objectAtIndexedSubscript_(2).bufferIndex = 0
 
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      3).format = 30  # .float3
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      3).offset = ctypes.sizeof(Float) * 9
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(3).format = 30  # .float3
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(3).offset = ctypes.sizeof(Float) * 9
     vertexDescriptor.attributes().objectAtIndexedSubscript_(3).bufferIndex = 0
 
-    vertexDescriptor.layouts().objectAtIndexedSubscript(
-      0).stride = ctypes.sizeof(Float) * 12
+    vertexDescriptor.layouts().objectAtIndexedSubscript(0).stride = ctypes.sizeof(Float) * 12
     return vertexDescriptor
 
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
