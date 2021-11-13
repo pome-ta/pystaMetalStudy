@@ -14,6 +14,13 @@ texture がうまく反映されんのよな
 
 変な形状での描画はできたけど、色々と確認する部分は多い。。。
 
+### `MDLAsset`
+
+しれっと、何かしらの巻き添いで、呼べてたが
+
+本来は、`load_framework('ModelIO')` が必要
+
+
 
 ### Obj ファイル
 
@@ -49,7 +56,11 @@ texture がうまく反映されんのよな
 
 
 `MDLVertexAttributePosition` = `position`
+
+
 `MDLVertexAttributeNormal` = `normal`
+
+
 
 などなど、突っ込んだらそれなりな通常な変数にになるかも
 
