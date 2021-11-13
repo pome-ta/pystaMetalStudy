@@ -12,6 +12,42 @@
 
 texture がうまく反映されんのよな
 
+変な形状での描画はできたけど、色々と確認する部分は多い。。。
+
+
+### Obj ファイル
+
+
+検証用、確認用ファイルの参照先
+
+[9. Model I/O: `mushroom`](https://www.raywenderlich.com/3537-beginning-metal/lessons/9)
+
+
+[29. Textures: `train`](https://www.raywenderlich.com/1258241-3d-graphics-with-metal/lessons/29)
+
+
+参考サイト: [Objファイル基礎](https://yttm-work.jp/model_render/model_render_0001.html)
+
+
+- `.obj`
+  - 頂点
+  - 法線
+
+- `.mtl`
+  - モデル色
+  - テクスチャ
+
+`.mtl` がなくても、`.obj` があればモデル形状を描画が可能
+
+
+
+
+
+
+
+
+
+
 
 ## 📝 2021/10/05
 
