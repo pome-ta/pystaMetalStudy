@@ -40,11 +40,140 @@ texture がうまく反映されんのよな
 `.mtl` がなくても、`.obj` があればモデル形状を描画が可能
 
 
+### 参照Log
+
+とりあえず走るものとして、
 
 
+[29. Textures: `train`](https://www.raywenderlich.com/1258241-3d-graphics-with-metal/lessons/29)
 
 
+`MDLVertexAttributePosition` = `position`
+`MDLVertexAttributeNormal` = `normal`
 
+などなど、突っ込んだらそれなりな通常な変数にになるかも
+
+```
+vertexDescriptor ---
+<MDLVertexDescriptor: 0x60000024b460 attributes:(
+    "<MDLVertexAttribute: 0x60000175d9c0 name=position format=Float3 bufferIndex=0 offset=0>",
+    "<MDLVertexAttribute: 0x60000175da40 name=normal format=Float3 bufferIndex=0 offset=16>",
+    "<MDLVertexAttribute: 0x60000175da80 name=textureCoordinate format=Float2 bufferIndex=0 offset=32>"
+) layouts:{
+    0 = "<MDLVertexBufferLayout: 0x600000011030 stride=40>";
+}>
+vertexDescriptor ---
+<MDLVertexDescriptor: 0x600000254ec0 attributes:(
+    "<MDLVertexAttribute: 0x60000174b840 name=position format=Float3 bufferIndex=0 offset=0>",
+    "<MDLVertexAttribute: 0x60000174b1c0 name=normal format=Float3 bufferIndex=0 offset=16>",
+    "<MDLVertexAttribute: 0x60000174b200 name=textureCoordinate format=Float2 bufferIndex=0 offset=32>"
+) layouts:{
+    0 = "<MDLVertexBufferLayout: 0x600000008dc0 stride=40>";
+}>
+```
+
+```
+MTLVertexDescriptor ---
+- <MTLVertexDescriptorInternal: 0x600000255440>
+    Buffer 0: 
+        stepFunction = MTLVertexStepFunctionPerVertex 
+        stride = 40 
+        Attribute 0: 
+            offset = 0 
+            format = MTLAttributeFormatFloat3 
+        Attribute 1: 
+            offset = 16 
+            format = MTLAttributeFormatFloat3 
+        Attribute 2: 
+            offset = 32 
+            format = MTLAttributeFormatFloat2 #0
+  - super: MTLVertexDescriptor
+    - super: NSObject
+    --- --- ---
+MTLVertexDescriptor ---
+- <MTLVertexDescriptorInternal: 0x6000002584a0>
+    Buffer 0: 
+        stepFunction = MTLVertexStepFunctionPerVertex 
+        stride = 40 
+        Attribute 0: 
+            offset = 0 
+            format = MTLAttributeFormatFloat3 
+        Attribute 1: 
+            offset = 16 
+            format = MTLAttributeFormatFloat3 
+        Attribute 2: 
+            offset = 32 
+            format = MTLAttributeFormatFloat2 #0
+  - super: MTLVertexDescriptor
+    - super: NSObject
+    --- --- ---
+MDLVertexDescriptor ---
+- <MDLVertexDescriptor: 0x600000258560 attributes:(
+    "<MDLVertexAttribute: 0x600001767280 name=position format=Float3 bufferIndex=0 offset=0>",
+    "<MDLVertexAttribute: 0x600001767300 name=normal format=Float3 bufferIndex=0 offset=16>",
+    "<MDLVertexAttribute: 0x600001767340 name=textureCoordinate format=Float2 bufferIndex=0 offset=32>"
+) layouts:{
+    0 = "<MDLVertexBufferLayout: 0x600000004c90 stride=40>";
+}> #0
+  - super: NSObject
+    --- --- ---
+MTLVertexDescriptor ---
+- <MTLVertexDescriptorInternal: 0x600000258560>
+    Buffer 0: 
+        stepFunction = MTLVertexStepFunctionPerVertex 
+        stride = 40 
+        Attribute 0: 
+            offset = 0 
+            format = MTLAttributeFormatFloat3 
+        Attribute 1: 
+            offset = 16 
+            format = MTLAttributeFormatFloat3 
+        Attribute 2: 
+            offset = 32 
+            format = MTLAttributeFormatFloat2 #0
+  - super: MTLVertexDescriptor
+    - super: NSObject
+    --- --- ---
+MDLVertexDescriptor ---
+- <MDLVertexDescriptor: 0x600000258500 attributes:(
+    "<MDLVertexAttribute: 0x60000176c340 name=position format=Float3 bufferIndex=0 offset=0>",
+    "<MDLVertexAttribute: 0x60000176c380 name=normal format=Float3 bufferIndex=0 offset=16>",
+    "<MDLVertexAttribute: 0x60000176c3c0 name=textureCoordinate format=Float2 bufferIndex=0 offset=32>"
+) layouts:{
+    0 = "<MDLVertexBufferLayout: 0x600000004ae0 stride=40>";
+}> #0
+  - super: NSObject
+    --- --- ---
+```
+
+### MTLVertexDescriptor
+
+```
+MTLVertexDescriptor ---
+- <MTLVertexDescriptorInternal: 0x600000255440>
+    Buffer 0: 
+        stepFunction = MTLVertexStepFunctionPerVertex 
+        stride = 40 
+        Attribute 0: 
+            offset = 0 
+            format = MTLAttributeFormatFloat3 
+        Attribute 1: 
+            offset = 16 
+            format = MTLAttributeFormatFloat3 
+        Attribute 2: 
+            offset = 32 
+            format = MTLAttributeFormatFloat2 #0
+  - super: MTLVertexDescriptor
+    - super: NSObject
+    --- --- ---
+```
+
+### MDLVertexDescriptor
+
+
+```
+
+```
 
 
 
