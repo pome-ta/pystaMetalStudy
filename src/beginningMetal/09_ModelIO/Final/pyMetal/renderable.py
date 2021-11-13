@@ -26,7 +26,7 @@ class Renderable:
     rpld = ObjCClass('MTLRenderPipelineDescriptor').new()
     rpld.vertexFunction = vertexFunction
     rpld.fragmentFunction = fragmentFunction
-    rpld.colorAttachments().objectAtIndexedSubscript(
+    rpld.colorAttachments().objectAtIndexedSubscript_(
       0).pixelFormat = 80  # .bgra8Unorm
 
     #rpld.depthAttachmentPixelFormat = 252  # .depth32Float

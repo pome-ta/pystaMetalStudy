@@ -92,7 +92,7 @@ class Primitive(Node, Renderable, Texturable):
     vertexDescriptor.attributes().objectAtIndexedSubscript_(
       2).bufferIndex = 0
 
-    vertexDescriptor.layouts().objectAtIndexedSubscript(
+    vertexDescriptor.layouts().objectAtIndexedSubscript_(
       0).stride = ctypes.sizeof(Vertex)
     return vertexDescriptor
 
