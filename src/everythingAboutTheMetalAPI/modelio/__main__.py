@@ -369,7 +369,7 @@ class Renderer:
     
     attribute = desc.attributes().objectAtIndex_(2)
     #attribute.setName_('MDLVertexAttributeTextureCoordinate')
-    attribute.setName_('texCoords')
+    attribute.setName_('textureCoordinate')
     attribute = desc.attributes().objectAtIndex_(3)
     #
     #attribute.setName_('MDLVertexAttributeOcclusionValue')
@@ -379,8 +379,9 @@ class Renderer:
     mtkBufferAllocator = ObjCClass('MTKMeshBufferAllocator').new().initWithDevice_(self.device)
     
     url = Path('./Resources/Farmhouse.obj')
+    MDLAsset = ObjCClass('MDLAsset')
     
-    asset = ObjCClass('MDLAsset').new().initWithURL_vertexDescriptor_bufferAllocator_(nsurl(str(url)), desc, mtkBufferAllocator)
+    asset = MDLAsset.alloc().initWithURL_vertexDescriptor_bufferAllocator_(nsurl(str(url)), desc, mtkBufferAllocator)
     
     
     loader = ObjCClass('MTKTextureLoader').new()
