@@ -12,7 +12,7 @@
 
 ### Swift 適当理解(間違いあり) まとめ
 
-iOS Deploument Target: iOS 10.2
+iOS Deploument Target: iOS 14.4
 
 Swift Language Version: Swift 4
 
@@ -23,6 +23,11 @@ Swift Language Version: Swift 4
 
 
 とりあえず、`?` をつけて、指摘があった部分を`fix` のやつで、なんとか逃げる
+
+
+
+もしかしたら、ここらへんの雑`fix` が原因的なところがあるかもしれん
+
 
 
 #### `at:` -> `index:`
