@@ -8,6 +8,109 @@
 以下列記は、実装日誌的なメモ
 
 
+## 📝 2021/11/14
+
+### Swift 適当理解(間違いあり) まとめ
+
+iOS Deploument Target: iOS 14.4
+
+Swift Language Version: Swift 4
+
+
+#### `!` と `?`
+
+[Swift初心者向け ?と!の意味](https://qiita.com/Keech/items/2d3824091a83d2c205d3)
+
+
+とりあえず、`?` をつけて、指摘があった部分を`fix` のやつで、なんとか逃げる
+
+
+
+もしかしたら、ここらへんの雑`fix` が原因的なところがあるかもしれん
+
+
+
+#### `at:` -> `index:`
+
+言われるがままに`fix` を連打
+
+
+#### `if #available(iOS 10.0, *)`
+
+`if` での分岐を排除し、
+
+##### 変更前
+
+
+``` before.swift
+    let textureLoader = MTKTextureLoader(device: device)
+    var texture: MTLTexture? = nil
+    let textureLoaderOptions: [String: NSObject]
+    if #available(iOS 10.0, *) {
+      let origin = NSString(string: MTKTextureLoaderOriginBottomLeft)
+      textureLoaderOptions = [MTKTextureLoaderOptionOrigin : origin]
+    } else {
+      textureLoaderOptions = [:]
+    }
+```
+
+##### 変更後
+
+``` after.swift
+    let textureLoader = MTKTextureLoader(device: device)
+    var texture: MTLTexture? = nil
+//    let textureLoaderOptions: [String: NSObject]
+    let origin = NSString(string: MTKTextureLoader.Origin.bottomLeft.rawValue)
+    let textureLoaderOptions = [MTKTextureLoader.Option.origin : origin]
+```
+
+#### `Type of expression is ambiguous without more context` のエラー
+
+
+[Swift MetalKit unknknown return type MTKMesh.newMeshes](https://stackoverflow.com/questions/50224108/swift-metalkit-unknknown-return-type-mtkmesh-newmeshes)
+
+[参照先: Writing a Modern Metal App from Scratch: Part 1](https://metalbyexample.com/modern-metal-1/)
+
+このやつ
+
+``` .swift
+do {
+      meshes = try MTKMesh.newMeshes(from: asset,
+                                     device: device,
+                                     sourceMeshes: nil)
+    } catch {
+      print("mesh error")
+    }
+```
+
+
+事前に用意するものを変更して
+
+``` .swift
+var meshes: [MTKMesh] = []
+```
+
+こんな感じで呼び出す？
+
+``` .swift
+    do {
+      (_, meshes) = try MTKMesh.newMeshes(asset: asset,
+                                     device: device)
+    } catch {
+      print("mesh error")
+    }
+```
+
+#### `Thread 1: signal SIGABRT` のエラー
+
+多分Storyboard が明確に設定されていない？
+
+過去の動くものまで、戻して違いを確認するしかなさそう。。。
+
+
+
+
+
 ## 📝 2021/11/13
 
 texture がうまく反映されんのよな
