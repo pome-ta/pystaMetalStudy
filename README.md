@@ -14,6 +14,13 @@
 swift の`do try` をPythonista(Python) `try` でキャッチできない問題
 
 
+### `texturable` のエラー処理
+
+texture データの`null` を返すオブジェクトを確認して
+
+こちらで手動生成を試みる
+
+
 
 ## 📝 2021/11/14
 
