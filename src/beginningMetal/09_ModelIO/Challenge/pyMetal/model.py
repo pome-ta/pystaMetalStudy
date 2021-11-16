@@ -37,6 +37,7 @@ class Model(Node, Renderable, Texturable):
 
   def loadModel_device_modelName_(self, device, modelName):
     assetURL = get_file_path(modelName + '.obj')
+    
     MTKModelIOVertexDescriptorFromMetal = c.MTKModelIOVertexDescriptorFromMetal
     MTKModelIOVertexDescriptorFromMetal.argtypes = [ctypes.c_void_p]
     MTKModelIOVertexDescriptorFromMetal.restype = ctypes.c_void_p
@@ -107,9 +108,8 @@ class Model(Node, Renderable, Texturable):
         self.texture, 0)
     commandEncoder.setRenderPipelineState_(self.rps)
 
-    if self.meshes:
-      if len(self.meshes) < 0:
-        return
+    if len(self.meshes) <= 0:
+      return
 
     for mesh in self.meshes:
       vertexBuffer = mesh.vertexBuffers().objectAtIndex_(0)

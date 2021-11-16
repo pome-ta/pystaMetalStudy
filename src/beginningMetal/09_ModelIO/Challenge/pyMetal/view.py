@@ -10,6 +10,7 @@ from .landscapeScene import LandscapeScene
 wenderlichGreen = (0.0, 0.4, 0.21, 1.0)
 skyBlue = (0.66, 0.9, 0.96, 1.0)
 
+
 class MetalView:
   def __init__(self, bounds):
     self.devices = self.__createSystemDefaultDevice()
@@ -32,3 +33,4 @@ class MetalView:
     self.scene.name = 'LandscapeScene'
     renderer = Renderer(self.devices).renderer_init(self.scene)
     self.mtkView.delegate = renderer
+
