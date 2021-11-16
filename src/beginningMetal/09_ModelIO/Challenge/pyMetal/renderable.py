@@ -1,13 +1,9 @@
-from pathlib import Path
-
 from objc_util import ObjCClass
 
-from .utils import err_ptr
+from .utils import err_ptr, get_file_path
 
+shader_path = get_file_path('Shader.metal')
 
-# xxx: shader path
-root_path = Path(__file__).parent / '../'
-shader_path = root_path / Path('./Shader.metal')
 
 class Renderable:
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
@@ -15,8 +11,10 @@ class Renderable:
 
   def buildPipelineState(self, device):
     source = shader_path.read_text('utf-8')
+    MTLCompileOptions = ObjCClass('MTLCompileOptions')
+    options = MTLCompileOptions.new()
     library = device.newLibraryWithSource_options_error_(
-      source, err_ptr, err_ptr)
+      source, options, err_ptr)
 
     vertexFunction = library.newFunctionWithName_(
       self.vertexFunctionName)
@@ -29,8 +27,8 @@ class Renderable:
     rpld.colorAttachments().objectAtIndexedSubscript_(
       0).pixelFormat = 80  # .bgra8Unorm
 
-    #rpld.depthAttachmentPixelFormat = 252  # .depth32Float
+    rpld.depthAttachmentPixelFormat = 252  # .depth32Float
     rpld.vertexDescriptor = self.vertexDescriptor
-    rps = device.newRenderPipelineStateWithDescriptor_error_(
-      rpld, err_ptr)
+    rps = device.newRenderPipelineStateWithDescriptor_error_(rpld, err_ptr)
     return rps
+
