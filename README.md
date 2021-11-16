@@ -16,6 +16,20 @@
 画像取得を途中で割り込みすると読めなくなる
 
 
+### `renderable.py`
+
+``` .py
+source = shader_path.read_text('utf-8')
+    
+library = device.newLibraryWithSource_options_error_(
+      source, err_ptr, err_ptr)
+```
+
+
+この読み込みが、同期で読んでるから？
+
+
+
 
 ## 📝 2021/11/15
 
