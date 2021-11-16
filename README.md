@@ -9,6 +9,14 @@
 
 
 
+## 📝 2021/11/16
+
+### `texturable.py`
+
+画像取得を途中で割り込みすると読めなくなる
+
+
+
 ## 📝 2021/11/15
 
 swift の`do try` をPythonista(Python) `try` でキャッチできない問題
