@@ -9,6 +9,38 @@
 
 
 
+
+## 📝 2021/11/17
+
+### 画像取得を途中で割り込みすると読めなくなる
+
+解決した😤
+
+
+`renderable.py` 内で、`.metal`(シェーダーコード) を読み込む時に
+
+
+``` .py
+source = shader_path.read_text('utf-8')
+MTLCompileOptions = ObjCClass('MTLCompileOptions')
+options = MTLCompileOptions.new()
+library = device.newLibraryWithSource_options_error_(
+      source, options, err_ptr)
+```
+
+と、`MTLCompileOptions.new()` option を入れることで解決
+
+
+以前は、`err_ptr` (`= ctypes.c_void_p()`) をニュルッと差し込んでた。
+
+
+エラーで、library の配列がどうたら（エラーログが見つからない）と怒られてたから
+
+それをうまいように処理してくれてるのだと思う
+
+
+
+
 ## 📝 2021/11/16
 
 ### `texturable.py`
