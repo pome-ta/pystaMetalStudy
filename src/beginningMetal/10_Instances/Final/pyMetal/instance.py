@@ -1,7 +1,10 @@
+import ctypes
+
 from .mNode import Node
 from .model import Model
 from .renderable import Renderable
 from .pyTypes import ModelConstants
+from .utils import err_ptr
 
 
 class Instance(Node, Renderable):
@@ -40,5 +43,18 @@ class Instance(Node, Renderable):
       self.instanceConstants.append(ModelConstants())
 
   def makeBuffer(self, device):
-    self.instanceBuffer
+    self.instanceBuffer = device.newBufferWithLength_options_(
+      ctypes.sizeof(self.modelConstants), 0)
+    # xxx: どちらか
+    #self.instanceBuffer = device.newBufferWithLength_options_(self.modelConstants.__len__()*ctypes.sizeof(self.modelConstants), 0)
+    self.instanceBuffer.label = 'Instance Buffer'
+    
+  def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
+    # todo: 親の`Renderable` が`pass` だけどとりあえず呼んでる
+    super().doRender_commandEncoder_modelViewMatrix_(commandEncoder, modelViewMatrix)
+    
+    if len(self.nodes) <= 0:
+      return
+    instanceBuffer = self.instanceBuffer
+    
 
