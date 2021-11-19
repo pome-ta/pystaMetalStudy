@@ -48,13 +48,30 @@ class Instance(Node, Renderable):
     # xxx: どちらか
     #self.instanceBuffer = device.newBufferWithLength_options_(self.modelConstants.__len__()*ctypes.sizeof(self.modelConstants), 0)
     self.instanceBuffer.label = 'Instance Buffer'
-    
+
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
     # todo: 親の`Renderable` が`pass` だけどとりあえず呼んでる
     super().doRender_commandEncoder_modelViewMatrix_(commandEncoder, modelViewMatrix)
-    
+
     if len(self.nodes) <= 0:
       return
     instanceBuffer = self.instanceBuffer
-    
+
+    # xxx: pointer 設定はあとで
+
+    commandEncoder.setFragmentTexture_atIndex_(self.model.texture, 0)
+    commandEncoder.setRenderPipelineState_(self.rps)
+    commandEncoder.setVertexBuffer_offset_atIndex_(instanceBuffer, 0, 1)
+    if len(self.model.meshes) <= 0:
+      return
+    for mesh in self.model.meshes:
+      vertexBuffer = mesh.vertexBuffers().objectAtIndex_(0)
+      commandEncoder.setVertexBuffer_offset_atIndex_(vertexBuffer.buffer(), vertexBuffer.offset(), 0)
+      for submesh in mesh.submeshes():
+        commandEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_instanceCount_(
+          submesh.primitiveType(),
+          submesh.indexCount(),
+          submesh.indexType(),
+          submesh.indexBuffer().buffer(),
+          submesh.indexBuffer().offset(), len(self.nodes))
 
