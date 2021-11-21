@@ -1,10 +1,15 @@
 import ctypes
 
+from objc_util import ObjCInstance
+
 from .mNode import Node
 from .model import Model
 from .renderable import Renderable
 from .pyTypes import ModelConstants
+from .matrixMath import matrix_multiply
 from .utils import err_ptr
+
+import pdbg
 
 
 class Instance(Node, Renderable):
@@ -36,18 +41,22 @@ class Instance(Node, Renderable):
     self.rps = self.buildPipelineState(device)
 
   def create(self, instances):
-    if i in range(instances):
+    for i in range(instances):
       node = Node()
       node.name = f'Instance {i}'
       self.nodes.append(node)
       self.instanceConstants.append(ModelConstants())
 
   def makeBuffer(self, device):
-    self.instanceBuffer = device.newBufferWithLength_options_(
-      ctypes.sizeof(self.modelConstants), 0)
-    # xxx: どちらか
-    #self.instanceBuffer = device.newBufferWithLength_options_(self.modelConstants.__len__()*ctypes.sizeof(self.modelConstants), 0)
+    self.instanceBuffer = device.newBufferWithLength_options_(len(self.instanceConstants) * ctypes.sizeof(self.modelConstants), 0)
+    
     self.instanceBuffer.label = 'Instance Buffer'
+    
+    pointer = ctypes.pointer(self.instanceBuffer.contents())
+    #print(pointer)
+    #pdbg.state(pointer)
+    print(pointer.contents)
+    
 
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
     # todo: 親の`Renderable` が`pass` だけどとりあえず呼んでる
@@ -56,8 +65,14 @@ class Instance(Node, Renderable):
     if len(self.nodes) <= 0:
       return
     instanceBuffer = self.instanceBuffer
+    print('p')
+    #print(instanceBuffer)
 
-    # xxx: pointer 設定はあとで
+    # xxx: pointer
+    for ic, node in zip(self.instanceConstants, self.nodes):
+      ic.modelViewMatrix = matrix_multiply(modelViewMatrix, node.modelMatrix)
+      ic.materialColor = node.materialColor
+      
 
     commandEncoder.setFragmentTexture_atIndex_(self.model.texture, 0)
     commandEncoder.setRenderPipelineState_(self.rps)
