@@ -6,6 +6,8 @@ from .model import Model
 from .pyTypes import ModelConstants
 from .renderable import Renderable
 
+import pdbg
+
 
 class Instance(Node, Renderable):
   def __init__(self, device=None, modelName=None, instances=None):
@@ -41,7 +43,9 @@ class Instance(Node, Renderable):
       node.name = f'Instance {i}'
       self.nodes.append(node)
       self.instanceConstants.append(ModelConstants())
-      # pdbg.state(self.instanceConstants[0])
+    #print(type(ctypes.byref(self.instanceConstants[0])))
+    #print(ctypes.byref(self.instanceConstants[0]))
+    #pdbg.state(ctypes.byref(self.instanceConstants[0]))
   
   def makeBuffer(self, device):
     self.instanceBuffer = device.newBufferWithLength_options_(
@@ -57,33 +61,13 @@ class Instance(Node, Renderable):
       return
     instanceBuffer = self.instanceBuffer
     
-    # print('m')
-    # print(modelViewMatrix)
-    # print('p')
-    # print(instanceBuffer)
-    
-    # xxx: pointer
-    '''
-    for ic, node in zip(self.instanceConstants, self.nodes):
+    for n, (ic, node) in enumerate(zip(self.instanceConstants, self.nodes)):
       ic.modelViewMatrix = matrix_multiply(modelViewMatrix, node.modelMatrix)
       ic.materialColor = node.materialColor
-    '''
     
-    # instanceBuffer.modelViewMatrix = matrix_multiply(modelViewMatrix, self.nodes[0].modelMatrix)
-    
-    # self.modelConstants.modelViewMatrix = modelViewMatrix
-    # self.modelConstants.materialColor = self.materialColor
-    
-    # commandEncoder.setVertexBytes_length_atIndex_(ctypes.byref(self.modelConstants), ctypes.sizeof(self.modelConstants), 1)
-    
-    # self.instanceConstants[0].modelViewMatrix = modelViewMatrix
-    
-    self.instanceConstants[0].modelViewMatrix = matrix_multiply(modelViewMatrix, self.nodes[0].modelMatrix)
-    
-    self.instanceConstants[0].materialColor = self.nodes[0].materialColor
-    
-    pointer = instanceBuffer.contents()
-    ctypes.memmove(pointer, ctypes.byref(self.instanceConstants[0]), ctypes.sizeof(self.instanceConstants[0]))
+      pointer = instanceBuffer.contents()
+      #ctypes.memset(pointer + (ctypes.sizeof(ic) * n), ctypes.byref(ic), ctypes.sizeof(ic))
+      ctypes.memset(pointer, ctypes.byref(ic), ctypes.sizeof(ic))
     
     commandEncoder.setFragmentTexture_atIndex_(self.model.texture, 0)
     commandEncoder.setRenderPipelineState_(self.rps)
