@@ -6,15 +6,19 @@ from .structures import float3, float4
 
 class Node:
   def __init__(self):
+    self.modelMatrix: 'matrix'
     self.name = 'Untitled'
     self.materialColor = float4(1.0, 1.0, 1.0, 1.0)
     self.children = []
     self.position = float3(0.0, 0.0, 0.0)
     self.rotation = float3(0.0, 0.0, 0.0)
     self.scale = float3(1.0, 1.0, 1.0)
-    self.modelMatrix = self.get_modelMatrix()
 
-  def get_modelMatrix(self):
+  @property
+  def modelMatrix(self):
+    return self.__get_modelMatrix()
+  
+  def __get_modelMatrix(self):
     matrix = matrix_float4x4.translation_x_y_z_(
       self.position.x, self.position.y, self.position.z)
     matrix = matrix.rotatedBy_angle_x_y_z_(
@@ -31,11 +35,11 @@ class Node:
     self.children.append(childNode)
 
   def render_commandEncoder_parentModelViewMatrix_(self, commandEncoder, parentModelViewMatrix):
-    self.modelMatrix = self.get_modelMatrix()
     modelViewMatrix = matrix_multiply(
       parentModelViewMatrix, self.modelMatrix)
 
     for child in self.children:
+      print(child.name)
       child.render_commandEncoder_parentModelViewMatrix_(
         commandEncoder, modelViewMatrix)
     # xxx: `if let renderable = self as? Renderable` ?
