@@ -17,7 +17,7 @@ class Node:
   @property
   def modelMatrix(self):
     return self.__get_modelMatrix()
-  
+
   def __get_modelMatrix(self):
     matrix = matrix_float4x4.translation_x_y_z_(
       self.position.x, self.position.y, self.position.z)
@@ -47,4 +47,3 @@ class Node:
       renderable = self
       renderable.doRender_commandEncoder_modelViewMatrix_(
         commandEncoder, modelViewMatrix)
-    

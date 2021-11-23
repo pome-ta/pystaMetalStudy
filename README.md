@@ -7,6 +7,97 @@
 
 以下列記は、実装日誌的なメモ
 
+
+## 📝 2021/11/23
+
+### `node` の`modelMatrix`
+
+`self.get_modelMatrix` とインスタンスメソッドで`modelMatrix` を呼び出していたが、要素のインスタンス変数変更後(`self.position` や`self.rotation` など) に、参照をする手立てがなかった
+
+
+``` .py
+class Node:
+  def __init__(self):
+    self.modelMatrix: 'matrix'
+    self.position = float3(0.0, 0.0, 0.0)
+    self.rotation = float3(0.0, 0.0, 0.0)
+    self.scale = float3(1.0, 1.0, 1.0)
+    self.modeMatrix = self.get_modelMatrix()
+
+  def get_modelMatrix(self):
+    matrix = matrix_float4x4.translation_x_y_z_(
+      self.position.x, self.position.y, self.position.z)
+    matrix = matrix.rotatedBy_angle_x_y_z_(
+      self.rotation.x, 1.0, 0.0, 0.0)
+    matrix = matrix.rotatedBy_angle_x_y_z_(
+      self.rotation.y, 0.0, 1.0, 0.0)
+    matrix = matrix.rotatedBy_angle_x_y_z_(
+      self.rotation.z, 0.0, 0.0, 1.0)
+    matrix = matrix.scaledBy_x_y_z_(
+      self.scale.x, self.scale.y, self.scale.z)
+    return matrix
+
+```
+
+`modelMatrix` を`@property` として、要素のインスタンス変数変更後に、`modelMatrix` 参照をすると、要素のインスタンス変数の値を反映した情報を受け渡せるようにした
+
+
+``` .py
+class Node:
+  def __init__(self):
+    self.modelMatrix: 'matrix'
+    self.position = float3(0.0, 0.0, 0.0)
+    self.rotation = float3(0.0, 0.0, 0.0)
+    self.scale = float3(1.0, 1.0, 1.0)
+
+  @property
+  def modelMatrix(self):
+    return self.__get_modelMatrix()
+
+  def __get_modelMatrix(self):
+    matrix = matrix_float4x4.translation_x_y_z_(
+      self.position.x, self.position.y, self.position.z)
+    matrix = matrix.rotatedBy_angle_x_y_z_(
+      self.rotation.x, 1.0, 0.0, 0.0)
+    matrix = matrix.rotatedBy_angle_x_y_z_(
+      self.rotation.y, 0.0, 1.0, 0.0)
+    matrix = matrix.rotatedBy_angle_x_y_z_(
+      self.rotation.z, 0.0, 0.0, 1.0)
+    matrix = matrix.scaledBy_x_y_z_(
+      self.scale.x, self.scale.y, self.scale.z)
+    return matrix
+
+```
+`instanceScene.py` で、要素を変更した際に、`node` の`add_childNode` 内を `render_commandEncoder_parentModelViewMatrix_` しなくても、`modelMatrix` の値更新ができるようになった
+
+
+### このpyMetal のまとめ
+
+現在も、構造として適宜変更が必要。解説として01 から書き始めた場合に、各章で色々なデータを書き直す必要が出てきそう。
+
+
+最終章まで(いくことができれば) 終えることができた時に、再度コードを調整・整形をしつつ、整理として解説の記事を書いていくことですすめてみたいと思う
+
+
+#### テストのドラフトの記事
+
+テストとしてかんたんな記事化については、[pome-ta / draftPythonistaScripts](https://github.com/pome-ta/draftPythonistaScripts/blob/main/articles/metal/draft.md) に記載済み
+
+
+画像や、図式での解説方法などは今後に考えておくことにする
+
+
+### GitHub への`push`
+
+[Working Copy](https://workingcopyapp.com/) では、[GitHub Desktop](https://desktop.github.com/) で`push` すると、アイコンが謎になるので
+
+今回この`push` は、Terminal から実行してみる
+
+
+他のリポジトリでは、気軽にbranch がうまく切れなかったりした。というのもあり
+
+
+
 ## 📝 2021/11/22
 
 `newBufferWithLength` で生成した、Buffer をどうやってがっちゃんこして、格納するかが鍵
@@ -57,7 +148,7 @@ library = device.newLibraryWithSource_options_error_(
 
 ``` .py
 source = shader_path.read_text('utf-8')
-    
+
 library = device.newLibraryWithSource_options_error_(
       source, err_ptr, err_ptr)
 ```
@@ -268,17 +359,17 @@ vertexDescriptor ---
 ```
 MTLVertexDescriptor ---
 - <MTLVertexDescriptorInternal: 0x600000255440>
-    Buffer 0: 
-        stepFunction = MTLVertexStepFunctionPerVertex 
-        stride = 40 
-        Attribute 0: 
-            offset = 0 
-            format = MTLAttributeFormatFloat3 
-        Attribute 1: 
-            offset = 16 
-            format = MTLAttributeFormatFloat3 
-        Attribute 2: 
-            offset = 32 
+    Buffer 0:
+        stepFunction = MTLVertexStepFunctionPerVertex
+        stride = 40
+        Attribute 0:
+            offset = 0
+            format = MTLAttributeFormatFloat3
+        Attribute 1:
+            offset = 16
+            format = MTLAttributeFormatFloat3
+        Attribute 2:
+            offset = 32
             format = MTLAttributeFormatFloat2 #0
   - super: MTLVertexDescriptor
     - super: NSObject
@@ -307,34 +398,34 @@ MDLVertexDescriptor ---
 ```
 MTLVertexDescriptor ---
 - <MTLVertexDescriptorInternal: 0x600000255440>
-    Buffer 0: 
-        stepFunction = MTLVertexStepFunctionPerVertex 
-        stride = 40 
-        Attribute 0: 
-            offset = 0 
-            format = MTLAttributeFormatFloat3 
-        Attribute 1: 
-            offset = 16 
-            format = MTLAttributeFormatFloat3 
-        Attribute 2: 
-            offset = 32 
+    Buffer 0:
+        stepFunction = MTLVertexStepFunctionPerVertex
+        stride = 40
+        Attribute 0:
+            offset = 0
+            format = MTLAttributeFormatFloat3
+        Attribute 1:
+            offset = 16
+            format = MTLAttributeFormatFloat3
+        Attribute 2:
+            offset = 32
             format = MTLAttributeFormatFloat2 #0
   - super: MTLVertexDescriptor
     - super: NSObject
     --- --- ---
 MTLVertexDescriptor ---
 - <MTLVertexDescriptorInternal: 0x6000002584a0>
-    Buffer 0: 
-        stepFunction = MTLVertexStepFunctionPerVertex 
-        stride = 40 
-        Attribute 0: 
-            offset = 0 
-            format = MTLAttributeFormatFloat3 
-        Attribute 1: 
-            offset = 16 
-            format = MTLAttributeFormatFloat3 
-        Attribute 2: 
-            offset = 32 
+    Buffer 0:
+        stepFunction = MTLVertexStepFunctionPerVertex
+        stride = 40
+        Attribute 0:
+            offset = 0
+            format = MTLAttributeFormatFloat3
+        Attribute 1:
+            offset = 16
+            format = MTLAttributeFormatFloat3
+        Attribute 2:
+            offset = 32
             format = MTLAttributeFormatFloat2 #0
   - super: MTLVertexDescriptor
     - super: NSObject
@@ -351,17 +442,17 @@ MDLVertexDescriptor ---
     --- --- ---
 MTLVertexDescriptor ---
 - <MTLVertexDescriptorInternal: 0x600000258560>
-    Buffer 0: 
-        stepFunction = MTLVertexStepFunctionPerVertex 
-        stride = 40 
-        Attribute 0: 
-            offset = 0 
-            format = MTLAttributeFormatFloat3 
-        Attribute 1: 
-            offset = 16 
-            format = MTLAttributeFormatFloat3 
-        Attribute 2: 
-            offset = 32 
+    Buffer 0:
+        stepFunction = MTLVertexStepFunctionPerVertex
+        stride = 40
+        Attribute 0:
+            offset = 0
+            format = MTLAttributeFormatFloat3
+        Attribute 1:
+            offset = 16
+            format = MTLAttributeFormatFloat3
+        Attribute 2:
+            offset = 32
             format = MTLAttributeFormatFloat2 #0
   - super: MTLVertexDescriptor
     - super: NSObject
