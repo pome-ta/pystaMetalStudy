@@ -48,10 +48,6 @@ class Instance(Node, Renderable):
       len(self.instanceConstants) * ctypes.sizeof(ModelConstants), 0)
     
     self.instanceBuffer.label = 'Instance Buffer'
-    # pdbg.state(self.nodes[0])
-    # pdbg.state(self.instanceBuffer)
-    # print(dir(self.instanceBuffer.contents()))
-    # pdbg.state(self.nodes[0])
   
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
     # todo: 親の`Renderable` が`pass` だけどとりあえず呼んでる
