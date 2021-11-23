@@ -1,7 +1,7 @@
 import ctypes
 
-from .matrixMath import MatrixFloat4x4 as MatrixIdentityFloat4x4
-from .structures import Position, Color, Texture, Float4
+from .structures import Position, Color, Texture, float4
+from .matrixMath import matrix_float4x4 as matrix_identity_float4x4
 
 
 class Vertex(ctypes.Structure):
@@ -11,12 +11,13 @@ class Vertex(ctypes.Structure):
 # matrix_identity_float4x4 <= 雰囲気
 class ModelConstants(ctypes.Structure):
   _fields_ = [
-    ('modelViewMatrix', MatrixIdentityFloat4x4),
-    ('materialColor', Float4)
+    ('modelViewMatrix', matrix_identity_float4x4),
+    ('materialColor', float4)
   ]
-
 
 class SceneConstants(ctypes.Structure):
   _fields_ = [
-    ('projectionMatrix', MatrixIdentityFloat4x4),
+    ('projectionMatrix', matrix_identity_float4x4),
   ]
+
+

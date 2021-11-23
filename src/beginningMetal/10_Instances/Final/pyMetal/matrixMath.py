@@ -1,18 +1,20 @@
-import ctypes
 from math import sin, cos, tan
-from typing import Any
+import ctypes
 
-from .structures import Float4, Columns, Float16, M16
+from .structures import float4, columns, float16, m16
 
-
-class MatrixFloat4x4(ctypes.Union):
-  _anonymous_ = ['columns', 's1', 's2']
-  _fields_ = [
-    ('columns', Columns),
-    ('s1', Float16),
-    ('s2', M16),
+class matrix_float4x4(ctypes.Union):
+  _anonymous_ = [
+    ('columns'),
+    ('s1'),
+    ('s2'),
   ]
-  
+  _fields_ = [
+    ('columns', columns),
+    ('s1', float16),
+    ('s2', m16),
+  ]
+
   def __str__(self):
     valus = [float(x) for x in self.s1.m]
     mstr = f'''matrix_float4x4:
@@ -21,135 +23,135 @@ class MatrixFloat4x4(ctypes.Union):
       [{valus[8]:.4f}, {valus[9]:.4f}, {valus[10]:.4f}, {valus[11]:.4f}]
       [{valus[12]:.4f}, {valus[13]:.4f}, {valus[14]:.4f}, {valus[15]:.4f}]'''
     return mstr
-  
-  def __init__(self, *args: Any, **kw: Any):
+
+  def __init__(self):
     # xxx: `matrix_identity_float4x4` ?
-    super().__init__(*args, **kw)
     columns = (
-      Float4(1.0, 0.0, 0.0, 0.0),
-      Float4(0.0, 1.0, 0.0, 0.0),
-      Float4(0.0, 0.0, 1.0, 0.0),
-      Float4(0.0, 0.0, 0.0, 1.0))
+      float4(1.0, 0.0, 0.0, 0.0),
+      float4(0.0, 1.0, 0.0, 0.0),
+      float4(0.0, 0.0, 1.0, 0.0),
+      float4(0.0, 0.0, 0.0, 1.0))
     self.columns = columns
-  
+
   @staticmethod
   def translation_x_y_z_(x, y, z):
     columns = (
-      Float4(1.0, 0.0, 0.0, 0.0),
-      Float4(0.0, 1.0, 0.0, 0.0),
-      Float4(0.0, 0.0, 1.0, 0.0),
-      Float4(x, y, z, 1.0))
-    matrix = MatrixFloat4x4()
+      float4(1.0, 0.0, 0.0, 0.0),
+      float4(0.0, 1.0, 0.0, 0.0),
+      float4(0.0, 0.0, 1.0, 0.0),
+      float4(  x,   y,   z, 1.0))
+    matrix = matrix_float4x4()
     matrix.columns = columns
     return matrix
-  
+
   def translatedBy_x_y_z_(self, x, y, z):
     translateMatrix = self.translation_x_y_z_(x, y, z)
     return matrix_multiply(self, translateMatrix)
-  
+
   @staticmethod
   def scale_x_y_z_(x, y, z):
     columns = (
-      Float4(x, 0.0, 0.0, 0.0),
-      Float4(0.0, y, 0.0, 0.0),
-      Float4(0.0, 0.0, z, 0.0),
-      Float4(0.0, 0.0, 0.0, 1.0))
-    matrix = MatrixFloat4x4()
+      float4(  x, 0.0, 0.0, 0.0),
+      float4(0.0,   y, 0.0, 0.0),
+      float4(0.0, 0.0,   z, 0.0),
+      float4(0.0, 0.0, 0.0, 1.0))
+    matrix = matrix_float4x4()
     matrix.columns = columns
     return matrix
-  
+
   def scaledBy_x_y_z_(self, x, y, z):
     scaledMatrix = self.scale_x_y_z_(x, y, z)
     return matrix_multiply(self, scaledMatrix)
-  
+
   @staticmethod
   def rotation_angle_x_y_z_(angle, x, y, z):
     c = cos(angle)
     s = sin(angle)
-    
-    column0 = Float4(0.0, 0.0, 0.0, 0.0)
+
+    column0 = float4(0.0, 0.0, 0.0, 0.0)
     column0.x = x * x + (1.0 - x * x) * c
     column0.y = x * y * (1.0 - c) - z * s
     column0.z = x * z * (1.0 - c) + y * s
     column0.w = 0.0
-    
-    column1 = Float4(0.0, 0.0, 0.0, 0.0)
+
+    column1 = float4(0.0, 0.0, 0.0, 0.0)
     column1.x = x * y * (1.0 - c) + z * s
     column1.y = y * y + (1.0 - y * y) * c
     column1.z = y * z * (1.0 - c) - x * s
     column1.w = 0.0
-    
-    column2 = Float4(0.0, 0.0, 0.0, 0.0)
+
+    column2 = float4(0.0, 0.0, 0.0, 0.0)
     column2.x = x * z * (1.0 - c) - y * s
     column2.y = y * z * (1.0 - c) + x * s
     column2.z = z * z + (1.0 - z * z) * c
     column2.w = 0.0
-    
-    column3 = Float4(0.0, 0.0, 0.0, 1.0)
-    
-    matrix = MatrixFloat4x4()
+
+    column3 = float4(0.0, 0.0, 0.0, 1.0)
+
+    matrix = matrix_float4x4()
     columns = (column0, column1, column2, column3)
     matrix.columns = columns
     return matrix
-  
+
   def rotatedBy_angle_x_y_z_(self, angle, x, y, z):
     rotationMatrix = self.rotation_angle_x_y_z_(angle, x, y, z)
     return matrix_multiply(self, rotationMatrix)
-  
+
   @staticmethod
   def projection_fov_aspect_nearZ_farZ_(fov, aspect, nearZ, farZ):
     y = 1 / tan(fov * 0.5)
     x = y / aspect
     z = farZ / (nearZ - farZ)
-    
+
     columns = (
-      Float4(x, 0.0, 0.0, 0.0),
-      Float4(0.0, y, 0.0, 0.0),
-      Float4(0.0, 0.0, z, -1.0),
-      Float4(0.0, 0.0, z * nearZ, 0.0))
-    
-    matrix = MatrixFloat4x4()
+      float4(  x, 0.0, 0.0, 0.0),
+      float4(0.0,   y, 0.0, 0.0),
+      float4(0.0, 0.0,   z, -1.0),
+      float4(0.0, 0.0,   z * nearZ, 0.0))
+
+    matrix = matrix_float4x4()
     matrix.columns = columns
     return matrix
 
 
 # https://github.com/Cethric/OpenGLES-Pythonista/blob/master/GLKit/glkmath/matrix4.py
-def matrix_multiply(m_left, m_right):
-  matrix = MatrixFloat4x4()
-  matrix.m[0] = (m_left.m[0] * m_right.m[0] + m_left.m[4] * m_right.m[1]
-                 + m_left.m[8] * m_right.m[2] + m_left.m[12] * m_right.m[3])
-  matrix.m[4] = (m_left.m[0] * m_right.m[4] + m_left.m[4] * m_right.m[5]
-                 + m_left.m[8] * m_right.m[6] + m_left.m[12] * m_right.m[7])
-  matrix.m[8] = (m_left.m[0] * m_right.m[8] + m_left.m[4] * m_right.m[9]
-                 + m_left.m[8] * m_right.m[10] + m_left.m[12] * m_right.m[11])
-  matrix.m[12] = (m_left.m[0] * m_right.m[12] + m_left.m[4] * m_right.m[13]
-                  + m_left.m[8] * m_right.m[14] + m_left.m[12] * m_right.m[15])
-  
-  matrix.m[1] = (m_left.m[1] * m_right.m[0] + m_left.m[5] * m_right.m[1]
-                 + m_left.m[9] * m_right.m[2] + m_left.m[13] * m_right.m[3])
-  matrix.m[5] = (m_left.m[1] * m_right.m[4] + m_left.m[5] * m_right.m[5]
-                 + m_left.m[9] * m_right.m[6] + m_left.m[13] * m_right.m[7])
-  matrix.m[9] = (m_left.m[1] * m_right.m[8] + m_left.m[5] * m_right.m[9]
-                 + m_left.m[9] * m_right.m[10] + m_left.m[13] * m_right.m[11])
-  matrix.m[13] = (m_left.m[1] * m_right.m[12] + m_left.m[5] * m_right.m[13]
-                  + m_left.m[9] * m_right.m[14] + m_left.m[13] * m_right.m[15])
-  
-  matrix.m[2] = (m_left.m[2] * m_right.m[0] + m_left.m[6] * m_right.m[1]
-                 + m_left.m[10] * m_right.m[2] + m_left.m[14] * m_right.m[3])
-  matrix.m[6] = (m_left.m[2] * m_right.m[4] + m_left.m[6] * m_right.m[5]
-                 + m_left.m[10] * m_right.m[6] + m_left.m[14] * m_right.m[7])
-  matrix.m[10] = (m_left.m[2] * m_right.m[8] + m_left.m[6] * m_right.m[9]
-                  + m_left.m[10] * m_right.m[10] + m_left.m[14] * m_right.m[11])
-  matrix.m[14] = (m_left.m[2] * m_right.m[12] + m_left.m[6] * m_right.m[13]
-                  + m_left.m[10] * m_right.m[14] + m_left.m[14] * m_right.m[15])
-  
-  matrix.m[3] = (m_left.m[3] * m_right.m[0] + m_left.m[7] * m_right.m[1]
-                 + m_left.m[11] * m_right.m[2] + m_left.m[15] * m_right.m[3])
-  matrix.m[7] = (m_left.m[3] * m_right.m[4] + m_left.m[7] * m_right.m[5]
-                 + m_left.m[11] * m_right.m[6] + m_left.m[15] * m_right.m[7])
-  matrix.m[11] = (m_left.m[3] * m_right.m[8] + m_left.m[7] * m_right.m[9]
-                  + m_left.m[11] * m_right.m[10] + m_left.m[15] * m_right.m[11])
-  matrix.m[15] = (m_left.m[3] * m_right.m[12] + m_left.m[7] * m_right.m[13]
-                  + m_left.m[11] * m_right.m[14] + m_left.m[15] * m_right.m[15])
-  
+def matrix_multiply(matrixLeft, matrixRight):
+  matrix = matrix_float4x4()
+  matrix.m[
+    0] = matrixLeft.m[0] * matrixRight.m[0] + matrixLeft.m[4] * matrixRight.m[1] + matrixLeft.m[8] * matrixRight.m[2] + matrixLeft.m[12] * matrixRight.m[3]
+  matrix.m[
+    4] = matrixLeft.m[0] * matrixRight.m[4] + matrixLeft.m[4] * matrixRight.m[5] + matrixLeft.m[8] * matrixRight.m[6] + matrixLeft.m[12] * matrixRight.m[7]
+  matrix.m[
+    8] = matrixLeft.m[0] * matrixRight.m[8] + matrixLeft.m[4] * matrixRight.m[9] + matrixLeft.m[8] * matrixRight.m[10] + matrixLeft.m[12] * matrixRight.m[11]
+  matrix.m[
+    12] = matrixLeft.m[0] * matrixRight.m[12] + matrixLeft.m[4] * matrixRight.m[13] + matrixLeft.m[8] * matrixRight.m[14] + matrixLeft.m[12] * matrixRight.m[15]
+
+  matrix.m[
+    1] = matrixLeft.m[1] * matrixRight.m[0] + matrixLeft.m[5] * matrixRight.m[1] + matrixLeft.m[9] * matrixRight.m[2] + matrixLeft.m[13] * matrixRight.m[3]
+  matrix.m[
+    5] = matrixLeft.m[1] * matrixRight.m[4] + matrixLeft.m[5] * matrixRight.m[5] + matrixLeft.m[9] * matrixRight.m[6] + matrixLeft.m[13] * matrixRight.m[7]
+  matrix.m[
+    9] = matrixLeft.m[1] * matrixRight.m[8] + matrixLeft.m[5] * matrixRight.m[9] + matrixLeft.m[9] * matrixRight.m[10] + matrixLeft.m[13] * matrixRight.m[11]
+  matrix.m[
+    13] = matrixLeft.m[1] * matrixRight.m[12] + matrixLeft.m[5] * matrixRight.m[13] + matrixLeft.m[9] * matrixRight.m[14] + matrixLeft.m[13] * matrixRight.m[15]
+
+  matrix.m[
+    2] = matrixLeft.m[2] * matrixRight.m[0] + matrixLeft.m[6] * matrixRight.m[1] + matrixLeft.m[10] * matrixRight.m[2] + matrixLeft.m[14] * matrixRight.m[3]
+  matrix.m[
+    6] = matrixLeft.m[2] * matrixRight.m[4] + matrixLeft.m[6] * matrixRight.m[5] + matrixLeft.m[10] * matrixRight.m[6] + matrixLeft.m[14] * matrixRight.m[7]
+  matrix.m[
+    10] = matrixLeft.m[2] * matrixRight.m[8] + matrixLeft.m[6] * matrixRight.m[9] + matrixLeft.m[10] * matrixRight.m[10] + matrixLeft.m[14] * matrixRight.m[11]
+  matrix.m[
+    14] = matrixLeft.m[2] * matrixRight.m[12] + matrixLeft.m[6] * matrixRight.m[13] + matrixLeft.m[10] * matrixRight.m[14] + matrixLeft.m[14] * matrixRight.m[15]
+
+  matrix.m[
+    3] = matrixLeft.m[3] * matrixRight.m[0] + matrixLeft.m[7] * matrixRight.m[1] + matrixLeft.m[11] * matrixRight.m[2] + matrixLeft.m[15] * matrixRight.m[3]
+  matrix.m[
+    7] = matrixLeft.m[3] * matrixRight.m[4] + matrixLeft.m[7] * matrixRight.m[5] + matrixLeft.m[11] * matrixRight.m[6] + matrixLeft.m[15] * matrixRight.m[7]
+  matrix.m[
+    11] = matrixLeft.m[3] * matrixRight.m[8] + matrixLeft.m[7] * matrixRight.m[9] + matrixLeft.m[11] * matrixRight.m[10] + matrixLeft.m[15] * matrixRight.m[11]
+  matrix.m[
+    15] = matrixLeft.m[3] * matrixRight.m[12] + matrixLeft.m[7] * matrixRight.m[13] + matrixLeft.m[11] * matrixRight.m[14] + matrixLeft.m[15] * matrixRight.m[15]
+
   return matrix
+
