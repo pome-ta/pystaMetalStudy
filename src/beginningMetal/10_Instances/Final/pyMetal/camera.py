@@ -17,7 +17,6 @@ class Camera(Node):
     return radians(self.fovDegrees)
 
   def viewMatrix(self):
-    #self.modelMatrix = self.get_modelMatrix()
     return self.modelMatrix
 
   def projectionMatrix(self):
