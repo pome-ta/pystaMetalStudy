@@ -25,6 +25,7 @@ using namespace metal;
 
 struct ModelConstants {
   float4x4 modelViewMatrix;
+  float4 materialColor;
 };
 
 struct SceneConstants {
@@ -41,6 +42,7 @@ struct VertexOut {
   float4 position [[ position ]];
   float4 color;
   float2 textureCoordinates;
+  float4 materialColor;
 };
 
 vertex VertexOut vertex_shader(const VertexIn vertexIn [[ stage_in ]],
@@ -50,9 +52,26 @@ vertex VertexOut vertex_shader(const VertexIn vertexIn [[ stage_in ]],
   float4x4 matrix = sceneConstants.projectionMatrix * modelConstants.modelViewMatrix;
   vertexOut.position = matrix * vertexIn.position;
   vertexOut.color = vertexIn.color;
+  vertexOut.materialColor = modelConstants.materialColor;
   vertexOut.textureCoordinates = vertexIn.textureCoordinates;
   return vertexOut;
 }
+
+vertex VertexOut vertex_instance_shader(const VertexIn vertexIn [[ stage_in ]],
+                                        constant ModelConstants *instances [[ buffer(1) ]],
+                                        constant SceneConstants &sceneConstants [[ buffer(2) ]],
+                                        uint instanceId [[ instance_id ]]) {
+  ModelConstants modelConstants = instances[instanceId];
+  VertexOut vertexOut;
+  float4x4 matrix = sceneConstants.projectionMatrix * modelConstants.modelViewMatrix;
+  vertexOut.position = matrix * vertexIn.position;
+  vertexOut.color = vertexIn.color;
+  vertexOut.materialColor = modelConstants.materialColor;
+  vertexOut.textureCoordinates = vertexIn.textureCoordinates;
+  return vertexOut;
+}
+
+
 
 fragment half4 fragment_shader(VertexOut vertexIn [[ stage_in ]]) {
   return half4(vertexIn.color);
@@ -62,6 +81,7 @@ fragment half4 textured_fragment(VertexOut vertexIn [[ stage_in ]],
                                  sampler sampler2d [[ sampler(0) ]],
                                  texture2d<float> texture [[ texture(0) ]] ) {
   float4 color = texture.sample(sampler2d, vertexIn.textureCoordinates);
+  color = color * vertexIn.materialColor;
   if (color.a == 0.0)
     discard_fragment();
   return half4(color.r, color.g, color.b, 1);
@@ -77,5 +97,9 @@ fragment half4 textured_mask_fragment(VertexOut vertexIn [[ stage_in ]],
   if (maskOpacity < 0.5)
     discard_fragment();
   return half4(color.r, color.g, color.b, 1);
+}
+
+fragment half4 fragment_color(VertexOut vertexIn [[ stage_in ]]) {
+  return half4(vertexIn.materialColor);
 }
 
