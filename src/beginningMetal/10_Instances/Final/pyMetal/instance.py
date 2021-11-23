@@ -84,3 +84,4 @@ class Instance(Node, Renderable):
           submesh.indexType(),
           submesh.indexBuffer().buffer(),
           submesh.indexBuffer().offset(), len(self.nodes))
+  
