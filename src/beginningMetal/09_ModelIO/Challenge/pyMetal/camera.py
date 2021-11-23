@@ -7,6 +7,7 @@ from .matrixMath import matrix_float4x4
 class Camera(Node):
   def __init__(self):
     super().__init__()
+    self.name = 'camera'
     self.fovDegrees = 65
     self.aspect = 1.0
     self.nearZ = 0.1
@@ -16,7 +17,6 @@ class Camera(Node):
     return radians(self.fovDegrees)
 
   def viewMatrix(self):
-    self.modelMatrix = self.get_modelMatrix()
     return self.modelMatrix
 
   def projectionMatrix(self):
@@ -25,4 +25,3 @@ class Camera(Node):
     projectionMatrix = matrix_float4x4.projection_fov_aspect_nearZ_farZ_(
       fov, self.aspect, self.nearZ, self.farZ)
     return projectionMatrix
-
