@@ -8,7 +8,7 @@ class ViewController(ui.View):
     ui.View.__init__(self, *args, **kwargs)
     self.bg_color = 'slategray'
     self.present(style='fullscreen', orientations=['portrait'])
-
+    
     _bounds = self.bounds
     self.metal = MetalView(_bounds)
     self.objc_instance.addSubview_(self.metal.mtkView)
@@ -16,4 +16,3 @@ class ViewController(ui.View):
 
 if __name__ == '__main__':
   view = ViewController()
-

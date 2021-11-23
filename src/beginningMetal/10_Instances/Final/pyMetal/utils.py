@@ -1,5 +1,5 @@
-from pathlib import Path
 import ctypes
+from pathlib import Path
 
 err_ptr = ctypes.c_void_p()
 
@@ -10,4 +10,3 @@ def get_file_path(file_name):
       if file.name == file_name:
         return file.absolute()
   return None
-
