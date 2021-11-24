@@ -1,14 +1,11 @@
 import ctypes
 
-from objc_util import ObjCInstance
-
 from .mNode import Node
 from .matrixMath import matrix_multiply
 from .model import Model
 from .pyTypes import ModelConstants
 from .renderable import Renderable
 
-import pdbg
 
 
 class Instance(Node, Renderable):
@@ -45,27 +42,12 @@ class Instance(Node, Renderable):
       node.name = f'Instance {i}'
       self.nodes.append(node)
       self.instanceConstants.append(ModelConstants())
-    
-    #hoge = ctypes.byref(self.instanceConstants[0]) + ctypes.byref(self.instanceConstants[1])
-    #print(ctypes.addressof(self.instanceConstants[0]))
-    
-    #ctypes.memset()
-    #print(ctypes.byref(self.instanceConstants))
-    #print(type(ctypes.byref(self.instanceConstants[0])))
-    #print(ctypes.byref(self.instanceConstants[0]))
-    #pdbg.state(ctypes.byref(self.instanceConstants[0]))
   
   def makeBuffer(self, device):
     self.instanceBuffer = device.newBufferWithLength_options_(
       len(self.instanceConstants) * ctypes.sizeof(ModelConstants), 0)
     
     self.instanceBuffer.label = 'Instance Buffer'
-    #pdbg.state(self.instanceBuffer.contents())
-    #print(dir(self.instanceBuffer.contents()))
-    contents = (ModelConstants * len(self.instanceConstants))()
-    print(contents)
-    
-    
   
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
     # todo: 親の`Renderable` が`pass` だけどとりあえず呼んでる
@@ -75,23 +57,13 @@ class Instance(Node, Renderable):
       return
     instanceBuffer = self.instanceBuffer
     pointer = instanceBuffer.contents()
+    contents = (ModelConstants * len(self.instanceConstants))()
     
-    for n, (ic, node) in enumerate(zip(self.instanceConstants, self.nodes)):
-      ic.modelViewMatrix = matrix_multiply(modelViewMatrix, node.modelMatrix)
-      ic.materialColor = node.materialColor
-      
-      ctypes.memmove(pointer, ctypes.byref(ic), ctypes.sizeof(ic))
-      #bff = ctypes.byref(pointer)
-      #bff = ctypes.byref(ic)
-      
-      
+    for content, node in zip(contents, self.nodes):
+      content.modelViewMatrix = matrix_multiply(modelViewMatrix, node.modelMatrix)
+      content.materialColor = node.materialColor
     
-      #pointer = instanceBuffer.contents()
-      #ctypes.memmove(ctypes.byref(pointer), ctypes.byref(ic), ctypes.sizeof(ic))
-      #ctypes.memset(ctypes.byref(ic), ctypes.sizeof(ic))
-      #ad = ctypes.addressof(ctypes.byref(pointer, ctypes.sizeof(ic) * n))
-      #ctypes.memset(ad, ctypes.byref(ic), ctypes.sizeof(ic))
-    
+    ctypes.memmove(pointer, contents, len(self.instanceConstants) * ctypes.sizeof(ModelConstants))
     commandEncoder.setFragmentTexture_atIndex_(self.model.texture, 0)
     commandEncoder.setRenderPipelineState_(self.rps)
     commandEncoder.setVertexBuffer_offset_atIndex_(instanceBuffer, 0, 1)
