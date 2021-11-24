@@ -1,5 +1,7 @@
 import ctypes
 
+from objc_util import ObjCInstance
+
 from .mNode import Node
 from .matrixMath import matrix_multiply
 from .model import Model
@@ -43,6 +45,12 @@ class Instance(Node, Renderable):
       node.name = f'Instance {i}'
       self.nodes.append(node)
       self.instanceConstants.append(ModelConstants())
+    
+    #hoge = ctypes.byref(self.instanceConstants[0]) + ctypes.byref(self.instanceConstants[1])
+    #print(ctypes.addressof(self.instanceConstants[0]))
+    
+    #ctypes.memset()
+    #print(ctypes.byref(self.instanceConstants))
     #print(type(ctypes.byref(self.instanceConstants[0])))
     #print(ctypes.byref(self.instanceConstants[0]))
     #pdbg.state(ctypes.byref(self.instanceConstants[0]))
@@ -52,6 +60,12 @@ class Instance(Node, Renderable):
       len(self.instanceConstants) * ctypes.sizeof(ModelConstants), 0)
     
     self.instanceBuffer.label = 'Instance Buffer'
+    #pdbg.state(self.instanceBuffer.contents())
+    #print(dir(self.instanceBuffer.contents()))
+    contents = (ModelConstants * len(self.instanceConstants))()
+    print(contents)
+    
+    
   
   def doRender_commandEncoder_modelViewMatrix_(self, commandEncoder, modelViewMatrix):
     # todo: 親の`Renderable` が`pass` だけどとりあえず呼んでる
@@ -60,14 +74,23 @@ class Instance(Node, Renderable):
     if len(self.nodes) <= 0:
       return
     instanceBuffer = self.instanceBuffer
+    pointer = instanceBuffer.contents()
     
     for n, (ic, node) in enumerate(zip(self.instanceConstants, self.nodes)):
       ic.modelViewMatrix = matrix_multiply(modelViewMatrix, node.modelMatrix)
       ic.materialColor = node.materialColor
+      
+      ctypes.memmove(pointer, ctypes.byref(ic), ctypes.sizeof(ic))
+      #bff = ctypes.byref(pointer)
+      #bff = ctypes.byref(ic)
+      
+      
     
-      pointer = instanceBuffer.contents()
-      #ctypes.memset(pointer + (ctypes.sizeof(ic) * n), ctypes.byref(ic), ctypes.sizeof(ic))
-      ctypes.memset(pointer, ctypes.byref(ic), ctypes.sizeof(ic))
+      #pointer = instanceBuffer.contents()
+      #ctypes.memmove(ctypes.byref(pointer), ctypes.byref(ic), ctypes.sizeof(ic))
+      #ctypes.memset(ctypes.byref(ic), ctypes.sizeof(ic))
+      #ad = ctypes.addressof(ctypes.byref(pointer, ctypes.sizeof(ic) * n))
+      #ctypes.memset(ad, ctypes.byref(ic), ctypes.sizeof(ic))
     
     commandEncoder.setFragmentTexture_atIndex_(self.model.texture, 0)
     commandEncoder.setRenderPipelineState_(self.rps)
@@ -84,4 +107,3 @@ class Instance(Node, Renderable):
           submesh.indexType(),
           submesh.indexBuffer().buffer(),
           submesh.indexBuffer().offset(), len(self.nodes))
-  
