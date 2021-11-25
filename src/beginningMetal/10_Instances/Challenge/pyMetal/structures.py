@@ -1,10 +1,19 @@
 import ctypes
 from typing import Any
 
-Position = (ctypes.c_float * 3)
-Color = (ctypes.c_float * 4)
-Texture = (ctypes.c_float * 2)
 
+class Float2(ctypes.Structure):
+  _fields_ = [
+    ('x', ctypes.c_float),
+    ('y', ctypes.c_float)
+  ]
+  
+  def __str__(self):
+    float2_str = f'''float2:
+      [x:{self.x: .4f}
+       y:{self.y: .4f}]
+    '''
+    return float2_str
 
 class Float3(ctypes.Structure):
   _fields_ = [
@@ -72,3 +81,8 @@ class M16(ctypes.Structure):
     ('m20', ctypes.c_float), ('m21', ctypes.c_float), ('m22', ctypes.c_float), ('m23', ctypes.c_float),
     ('m30', ctypes.c_float), ('m31', ctypes.c_float), ('m32', ctypes.c_float), ('m33', ctypes.c_float),
   ]
+
+
+Position = Float3
+Color = Float4
+Texture = Float2

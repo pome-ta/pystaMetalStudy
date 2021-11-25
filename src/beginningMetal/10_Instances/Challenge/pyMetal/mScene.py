@@ -33,3 +33,7 @@ class Scene(Node):
     for child in self.children:
       child.render_commandEncoder_parentModelViewMatrix_(
         commandEncoder, self.camera.viewMatrix())
+        
+  def sceneSizeWillChange_size_(self, size):
+    width, height = size
+    self.camera.aspect = width / height

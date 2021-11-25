@@ -3,7 +3,7 @@ import ctypes
 from objc_util import c, ObjCClass, ObjCInstance
 
 # from .gameScene import GameScene
-# from .landscapeScene import LandscapeScene
+from .landscapeScene import LandscapeScene
 from .instanceScene import InstanceScene
 from .renderer import Renderer
 
@@ -28,9 +28,9 @@ class MetalView:
     # xxx: `bounds` 全部入れる？
     _frame = ((0.0, 0.0), (bounds[2], bounds[3]))
     self.mtkView.initWithFrame_device_(_frame, self.devices).autorelease()
-    # self.mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
+    self.mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
     self.mtkView.clearColor = skyBlue
-    self.scene = InstanceScene(self.devices, bounds)
-    self.scene.name = 'Instance Scene'
+    self.scene = LandscapeScene(self.devices, bounds)
+    self.scene.name = 'Landscape Scene'
     renderer = Renderer(self.devices).renderer_init(self.scene)
     self.mtkView.delegate = renderer

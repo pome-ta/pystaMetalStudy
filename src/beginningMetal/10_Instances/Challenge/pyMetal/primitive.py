@@ -22,7 +22,8 @@ class Primitive(Node, Renderable, Texturable):
     # --- Renderable
     Renderable.__init__(self)
     self.rps = None
-    self.fragmentFunctionName = 'fragment_shader'
+    self.fragmentFunctionName = 'fragment_color'
+    #self.fragmentFunctionName = 'fragment_shader'
     self.vertexFunctionName = 'vertex_shader'
     self.vertexDescriptor = self.set_vertexDescriptor()
     
@@ -115,6 +116,7 @@ class Primitive(Node, Renderable, Texturable):
       return
     
     self.modelConstants.modelViewMatrix = modelViewMatrix
+    self.modelConstants.materialColor = self.materialColor
     
     commandEncoder.setRenderPipelineState_(self.rps)
     commandEncoder.setVertexBuffer_offset_atIndex_(
