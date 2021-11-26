@@ -27,7 +27,8 @@ class Light(ctypes.Structure):
     ('color', Float3),
     ('ambientIntensity', (ctypes.c_float))
   ]
-  
+
+
 '''
 print('Vertex' ,ctypes.sizeof(Vertex))
 print('ModelConstants' ,ctypes.sizeof(ModelConstants))

@@ -1,14 +1,14 @@
 from random import random, randrange
 
-from .structures import Float3
-from .model import Model
 from .mScene import Scene
+from .model import Model
+from .structures import Float3
 
 
 class CrowdScene(Scene):
   def __init__(self, device, size):
     self.humans = []
-    #self.humans = Model(device, 'humanFigure')
+    # self.humans = Model(device, 'humanFigure')
     super().__init__(device, size)
     for _ in range(40):
       human = Model(device, 'humanFigure')

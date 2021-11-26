@@ -1,12 +1,10 @@
 from math import radians
-from random import choice, random, randrange
-import ctypes
+from random import choice, randrange
 
-from .mScene import Scene
-from .plane import Plane
-from .cube import Cube
-from .model import Model
 from .instance import Instance
+from .mScene import Scene
+from .model import Model
+from .plane import Plane
 from .structures import Float3, Float4
 
 

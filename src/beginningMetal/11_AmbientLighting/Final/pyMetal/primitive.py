@@ -23,7 +23,7 @@ class Primitive(Node, Renderable, Texturable):
     Renderable.__init__(self)
     self.rps = None
     self.fragmentFunctionName = 'fragment_color'
-    #self.fragmentFunctionName = 'fragment_shader'
+    # self.fragmentFunctionName = 'fragment_shader'
     self.vertexFunctionName = 'vertex_shader'
     self.vertexDescriptor = self.set_vertexDescriptor()
     

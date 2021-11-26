@@ -2,7 +2,6 @@ import ctypes
 from typing import Any
 
 
-
 class Float2(ctypes.Structure):
   _fields_ = [
     ('x', ctypes.c_float),
@@ -15,6 +14,7 @@ class Float2(ctypes.Structure):
        y:{self.y: .4f}]
     '''
     return float2_str
+
 
 class Float3(ctypes.Structure):
   _fields_ = [

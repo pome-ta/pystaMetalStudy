@@ -7,7 +7,6 @@ from .pyTypes import ModelConstants
 from .renderable import Renderable
 
 
-
 class Instance(Node, Renderable):
   def __init__(self, device=None, modelName=None, instances=None):
     self.model = None

@@ -1,8 +1,8 @@
 from random import random, randrange
 
-from .structures import Float3
 from .instance import Instance
 from .mScene import Scene
+from .structures import Float3
 
 
 class InstanceScene(Scene):

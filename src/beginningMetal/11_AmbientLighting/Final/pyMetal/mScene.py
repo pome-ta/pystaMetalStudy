@@ -28,21 +28,21 @@ class Scene(Node):
     self.sceneConstants.projectionMatrix = self.camera.projectionMatrix()
     
     commandEncoder.setFragmentBytes_length_atIndex_(
-      ctypes.byref(self.light), 
+      ctypes.byref(self.light),
       ctypes.sizeof(Light), 3)
     
-    #print(ctypes.byref(self.light))
-    #print(ctypes.sizeof(Light))
+    # print(ctypes.byref(self.light))
+    # print(ctypes.sizeof(Light))
     commandEncoder.setVertexBytes_length_atIndex_(
       ctypes.byref(self.sceneConstants),
       ctypes.sizeof(SceneConstants), 2)
     
-    #print(ctypes.byref(self.sceneConstants))
-    #print(ctypes.sizeof(SceneConstants))
+    # print(ctypes.byref(self.sceneConstants))
+    # print(ctypes.sizeof(SceneConstants))
     for child in self.children:
       child.render_commandEncoder_parentModelViewMatrix_(
         commandEncoder, self.camera.viewMatrix())
-        
+  
   def sceneSizeWillChange_size_(self, size):
     width, height = size
     self.camera.aspect = width / height

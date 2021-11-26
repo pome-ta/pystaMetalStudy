@@ -1,6 +1,7 @@
-from .structures import Float3
-from .model import Model
 from .mScene import Scene
+from .model import Model
+from .structures import Float3
+
 
 class LightingScene(Scene):
   def __init__(self, device, size):
@@ -11,8 +12,7 @@ class LightingScene(Scene):
     
     self.light.color = Float3(0.5, 0.0, 1.0)
     self.light.ambientIntensity = 0.2
-    
+  
   def update_deltaTime_(self, deltaTime):
     # todo: 親の`Scene` が`pass` だけどとりあえず
     super().update_deltaTime_(deltaTime)
-    

@@ -33,7 +33,7 @@ class Model(Node, Renderable, Texturable):
     self.texture = self.setTexture_device_imageName_(device, imageName)
     
     if self.texture:
-      #self.fragmentFunctionName = "textured_fragment"
+      # self.fragmentFunctionName = "textured_fragment"
       self.fragmentFunctionName = 'lit_textured_fragment'
     self.rps = self.buildPipelineState(device)
   

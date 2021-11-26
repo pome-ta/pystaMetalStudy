@@ -3,11 +3,10 @@ import ctypes
 from objc_util import c, ObjCClass, ObjCInstance
 
 # from .gameScene import GameScene
-#from .landscapeScene import LandscapeScene
-#from .instanceScene import InstanceScene
+# from .landscapeScene import LandscapeScene
+# from .instanceScene import InstanceScene
 from .lightingScene import LightingScene
 from .renderer import Renderer
-
 
 wenderlichGreen = (0.0, 0.4, 0.21, 1.0)
 skyBlue = (0.66, 0.9, 0.96, 1.0)
