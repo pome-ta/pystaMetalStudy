@@ -28,12 +28,3 @@ class Light(ctypes.Structure):
     ('ambientIntensity', (ctypes.c_float))
   ]
 
-
-'''
-print('Vertex' ,ctypes.sizeof(Vertex))
-print('ModelConstants' ,ctypes.sizeof(ModelConstants))
-print('SceneConstants' ,ctypes.sizeof(ModelConstants))
-print('Light' ,ctypes.sizeof(Light))
-print('ctypes.c_float', ctypes.sizeof(ctypes.c_float))
-print('Float3', ctypes.sizeof(Float3))
-'''
