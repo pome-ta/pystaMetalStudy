@@ -8,6 +8,69 @@
 以下列記は、実装日誌的なメモ
 
 
+## 📝 2021/11/29
+
+### `Light` の構造体が、`Shader.metal` で読めてない件
+
+
+`color` は読めているが、`ambientIntensity` に参照できていない
+
+``` .py
+class Light(ctypes.Structure):
+  _fields_ = [
+    ('color', Float3),
+    ('ambientIntensity', (ctypes.c_float))
+  ]
+```
+
+``` .metal
+fragment half4 fragment_color(VertexOut vertexIn [[ stage_in ]]) {
+  return half4(vertexIn.materialColor);
+}
+
+fragment half4 lit_textured_fragment(VertexOut vertexIn [[ stage_in ]],
+                                 sampler sampler2d [[ sampler(0) ]],
+                                 constant Light &light [[ buffer(3) ]],
+                                 texture2d<float> texture [[ texture(0) ]] ) {
+  float4 color = texture.sample(sampler2d, vertexIn.textureCoordinates);
+  color = color * vertexIn.materialColor;
+  
+  // Ambient
+  float3 ambientColor = light.color * light.ambientIntensity;
+  
+  // `light.ambientIntensity` が通らない
+  
+  color = color * float4(ambientColor, 1);
+  if (color.a == 0.0)
+    discard_fragment();
+  return half4(color.r, color.g, color.b, 1);
+}
+```
+
+### `mScene.py` での読み取り
+
+どうも、関数での読み取りの際に、サイズ(int) での指定がうまくいっていないっぽい
+
+`stride` の部分がキモっぽい
+
+#### Python で私が書いているコード
+
+``` .py
+    commandEncoder.setFragmentBytes_length_atIndex_(
+      ctypes.byref(self.light),
+      ctypes.sizeof(Light), 3)
+```
+
+#### 参照先のSwift のコード
+
+
+``` .swift
+// 関数が古いのは無視で
+commandEncoder.setFragmentBytes(&light, length: MemoryLayout<Light>.stride, at: 3)
+```
+
+
+
 
 
 ## 📝 2021/11/27
