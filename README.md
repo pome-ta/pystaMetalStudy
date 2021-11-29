@@ -69,8 +69,69 @@ fragment half4 lit_textured_fragment(VertexOut vertexIn [[ stage_in ]],
 commandEncoder.setFragmentBytes(&light, length: MemoryLayout<Light>.stride, at: 3)
 ```
 
+### log とり
+
+疑似的なコードから、数値を抜き出す
 
 
+``` .swift
+light.color = float3(0,0,1)
+light.ambientIntensity = 0.5
+dump(light)
+print("light ---")
+print(MemoryLayout<Light>.stride)
+print(MemoryLayout<Light>.size)
+print(MemoryLayout<Light>.alignment)
+print("float3 ---")
+print(MemoryLayout<float3>.stride)
+print(MemoryLayout<float3>.size)
+print(MemoryLayout<float3>.alignment)
+print("Float ---")
+print(MemoryLayout<Float>.stride)
+print(MemoryLayout<Float>.size)
+print(MemoryLayout<Float>.alignment)
+```
+
+出た、log
+
+```
+▿ simdFullTest.Light
+  ▿ color: SIMD3<Float>(0.0, 0.0, 1.0)
+    ▿ _storage: Swift.Float.SIMD4Storage
+      - _value: (Opaque Value)
+  - ambientIntensity: 0.5
+light ---
+32
+20
+16
+float3 ---
+16
+16
+16
+Float ---
+4
+4
+4
+```
+
+
+
+```
+self	simdFullTest.ContentView	
+  light	simdFullTest.Light	
+    color	SIMD3<Float>	(0, 0, 1)	
+      _storage	Float.SIMD4Storage	
+        _value	Builtin.Vec4xFPIEEE32	
+    ambientIntensity	Float	0b00111111000000000000000000000000
+```
+
+`float32` ということ。。。？
+
+[1/11 数値計算(3), パターン認識(1)](https://lecture.ecc.u-tokyo.ac.jp/~ktanaka/is11/0111.html)
+```
+decode_float32(0b00111111000000000000000000000000)
+=> 0.5
+```
 
 
 ## 📝 2021/11/27
