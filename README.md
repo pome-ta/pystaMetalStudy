@@ -101,17 +101,17 @@ print(MemoryLayout<Float>.alignment)
       - _value: (Opaque Value)
   - ambientIntensity: 0.5
 light ---
-32
-20
-16
+32    //stride
+20    // size
+16    // alignment
 float3 ---
-16
-16
-16
+16    // stride
+16    // size
+16    // alignment
 Float ---
-4
-4
-4
+4   // stride
+4   // size
+4   // alignment
 ```
 
 
