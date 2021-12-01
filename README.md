@@ -17,6 +17,42 @@
 Shaderコードを直接イジる
 
 
+- `float3`
+- `float`
+- `float3`
+- `float`
+
+
+の構造を、
+
+
+
+
+``` .metal
+struct Light {
+  float3 color;
+  float ambientIntensity;
+  float diffuseIntensity;
+  float3 direction;
+};
+```
+
+- `float4`
+  - `float3` + `float`
+- `float4`
+  - `float3` + `float`
+
+
+と、まとめて`Shader.metal` 上で、分解する
+
+
+
+``` .metal
+float3 light_color = float3(light.color.x, light.color.y, light.color.z);
+float light_ambientIntensity = float(light.color.w);
+float3 ambientColor = light_color * light_ambientIntensity;
+  
+```
 
 
 
