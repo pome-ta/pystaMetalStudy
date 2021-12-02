@@ -6,7 +6,7 @@ import ui
 import pdbg
 
 
-load_framework('')
+load_framework('ModelIO')
 
 err_ptr = ctypes.c_void_p()
 
@@ -25,7 +25,20 @@ MTKMeshBufferAllocator = ObjCClass('MTKMeshBufferAllocator')
 
 allocator = MTKMeshBufferAllocator.new().initWithDevice_(device)
 
-MDLMesh = ObjCClass('MDLMesh')
+MDLMesh = ObjCClass('MDLMesh').new()
+
+class vector_float3(ctypes.Structure):
+  _fields_ = [('x', ctypes.c_float), ('y', ctypes.c_float), ('z', ctypes.c_float)]
+
+class vector_uint2(ctypes.Structure):
+  _fields_ = [('x', ctypes.c_uint32), ('y', ctypes.c_uint32)]
+
+pdbg.state(MDLMesh)
+
+#mdlMesh = MDLMesh.initSphereWithExtent_segments_inwardNormals_geometryType_allocator_(vector_float3(0.75, 0.75, 0.75), vector_uint2(100, 100), 0, 2, allocator)
+
+#initSphereWithExtent_segments_inwardNormals_geometryType_allocator_
+#pdbg.state(MDLMesh)
 #mdlMesh = MDLMesh.new()
 
 commandQueue = device.newCommandQueue()
@@ -60,15 +73,38 @@ pipelineDescriptor.colorAttachments().objectAtIndexedSubscript_(0).pixelFormat =
 pipelineDescriptor.vertexFunction = vertexFunction
 pipelineDescriptor.fragmentFunction = fragmentFunction
 
+pipelineState = device.newRenderPipelineStateWithDescriptor_error_(pipelineDescriptor, err_ptr)
+
+
+commandBuffer = commandQueue.commandBuffer()
+
+
+renderPassDescriptor = view.currentRenderPassDescriptor()
+
+renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(renderPassDescriptor)
+'''
+renderEncoder.setRenderPipelineState_(pipelineState)
+renderEncoder.endEncoding()
+
+drawable = view.currentDrawable()
+commandBuffer.presentDrawable_(drawable)
+commandBuffer.commit()
+'''
+
+
+
+
 
 
 class ViewController(ui.View):
   def __init__(self, *args, **kwargs):
     ui.View.__init__(self, *args, **kwargs)
     self.bg_color = 'slategray'
+    #self.objc_instance.addSubview_(view)
 
 
 if __name__ == '__main__':
   view = ViewController()
   view.present(style='fullscreen')
+  
 
