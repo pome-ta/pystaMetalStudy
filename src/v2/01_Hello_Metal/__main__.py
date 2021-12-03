@@ -25,7 +25,7 @@ MTKMeshBufferAllocator = ObjCClass('MTKMeshBufferAllocator')
 
 allocator = MTKMeshBufferAllocator.new().initWithDevice_(device)
 
-MDLMesh = ObjCClass('MDLMesh').new()
+MDLMesh = ObjCClass('MDLMesh')
 
 class vector_float3(ctypes.Structure):
   _fields_ = [('x', ctypes.c_float), ('y', ctypes.c_float), ('z', ctypes.c_float)]
@@ -33,9 +33,19 @@ class vector_float3(ctypes.Structure):
 class vector_uint2(ctypes.Structure):
   _fields_ = [('x', ctypes.c_uint32), ('y', ctypes.c_uint32)]
 
-pdbg.state(MDLMesh)
+pdbg.state(MDLMesh.new())
 
-#mdlMesh = MDLMesh.initSphereWithExtent_segments_inwardNormals_geometryType_allocator_(vector_float3(0.75, 0.75, 0.75), vector_uint2(100, 100), 0, 2, allocator)
+#mdlMesh = MDLMesh.alloc().initSphereWithExtent_segments_inwardNormals_geometryType_allocator_(vector_float3(0.75, 0.75, 0.75), vector_uint2(100, 100), 0, 2, allocator)
+
+
+extent = (ctypes.c_float * 3)(0.75, 0.75, 0.75)
+segments = (ctypes.c_uint32 * 2)(100, 100)
+
+
+#mdlMesh = MDLMesh.initSphereWithExtent_segments_inwardNormals_geometryType_allocator_(extent,segments,0, 2, allocator)
+
+#pdbg.state(mdlMesh)
+
 
 #initSphereWithExtent_segments_inwardNormals_geometryType_allocator_
 #pdbg.state(MDLMesh)

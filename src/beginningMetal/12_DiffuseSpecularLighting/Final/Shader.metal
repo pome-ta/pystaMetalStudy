@@ -123,32 +123,15 @@ fragment half4 lit_textured_fragment(VertexOut vertexIn [[ stage_in ]],
   color = color * vertexIn.materialColor;
   
   // Ambient
-  //float3 ambientColor = light.color * light.ambientIntensity;
-  
-  float3 ambientColor = light.color * 0.5;
+  float3 ambientColor = light.color * light.ambientIntensity;
   
   // Diffuse lighting
-  // `vertexIn.normal` は生きてる
   float3 normal = normalize(vertexIn.normal);
-  
-  // float3 => light.direction
-  //float diffuseFactor = saturate(-dot(normal, light.direction));
-  
-  
-  
-  float3 direction = float3(0.0, 0.0, -1.0);
-  float diffuseFactor = saturate(-dot(normal, direction));
-  
-  
-  // float => light.diffuseIntensity
-  //float3 diffuseColor = light.color * light.diffuseIntensity * diffuseFactor;
-  
-  float3 diffuseColor = light.color * 0.5 * diffuseFactor;
-  
+  float diffuseFactor = saturate(-dot(normal, light.direction));
+  float3 diffuseColor = light.color * light.diffuseIntensity * diffuseFactor;
 
   color = color * float4((ambientColor + diffuseColor), 1);
   if (color.a == 0.0)
     discard_fragment();
   return half4(color.r, color.g, color.b, 1);
 }
-
