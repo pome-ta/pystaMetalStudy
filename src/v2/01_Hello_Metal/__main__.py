@@ -5,7 +5,6 @@ import ui
 
 import pdbg
 
-
 load_framework('ModelIO')
 
 err_ptr = ctypes.c_void_p()
@@ -27,25 +26,26 @@ allocator = MTKMeshBufferAllocator.new().initWithDevice_(device)
 
 MDLMesh = ObjCClass('MDLMesh')
 
+
 class vector_float3(ctypes.Structure):
-  _fields_ = [('x', ctypes.c_float), ('y', ctypes.c_float), ('z', ctypes.c_float)]
+  _fields_ = [('x', ctypes.c_float), ('y', ctypes.c_float), ('z',
+                                                             ctypes.c_float)]
+
 
 class vector_uint2(ctypes.Structure):
   _fields_ = [('x', ctypes.c_uint32), ('y', ctypes.c_uint32)]
+
 
 pdbg.state(MDLMesh.new())
 
 #mdlMesh = MDLMesh.alloc().initSphereWithExtent_segments_inwardNormals_geometryType_allocator_(vector_float3(0.75, 0.75, 0.75), vector_uint2(100, 100), 0, 2, allocator)
 
-
 extent = (ctypes.c_float * 3)(0.75, 0.75, 0.75)
 segments = (ctypes.c_uint32 * 2)(100, 100)
-
 
 #mdlMesh = MDLMesh.initSphereWithExtent_segments_inwardNormals_geometryType_allocator_(extent,segments,0, 2, allocator)
 
 #pdbg.state(mdlMesh)
-
 
 #initSphereWithExtent_segments_inwardNormals_geometryType_allocator_
 #pdbg.state(MDLMesh)
@@ -67,7 +67,6 @@ fragment float4 fragment_main() {
 }
 '''
 
-
 library = device.newLibraryWithSource_options_error_(shader, err_ptr, err_ptr)
 
 vertexFunction = library.newFunctionWithName_('vertex_main')
@@ -78,20 +77,21 @@ MTLRenderPipelineDescriptor = ObjCClass('MTLRenderPipelineDescriptor')
 pipelineDescriptor = MTLRenderPipelineDescriptor.new()
 
 # MTLPixelFormatBGRA8Unorm
-pipelineDescriptor.colorAttachments().objectAtIndexedSubscript_(0).pixelFormat = 80
+pipelineDescriptor.colorAttachments().objectAtIndexedSubscript_(
+  0).pixelFormat = 80
 
 pipelineDescriptor.vertexFunction = vertexFunction
 pipelineDescriptor.fragmentFunction = fragmentFunction
 
-pipelineState = device.newRenderPipelineStateWithDescriptor_error_(pipelineDescriptor, err_ptr)
-
+pipelineState = device.newRenderPipelineStateWithDescriptor_error_(
+  pipelineDescriptor, err_ptr)
 
 commandBuffer = commandQueue.commandBuffer()
 
-
 renderPassDescriptor = view.currentRenderPassDescriptor()
 
-renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(renderPassDescriptor)
+renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
+  renderPassDescriptor)
 '''
 renderEncoder.setRenderPipelineState_(pipelineState)
 renderEncoder.endEncoding()
@@ -100,10 +100,6 @@ drawable = view.currentDrawable()
 commandBuffer.presentDrawable_(drawable)
 commandBuffer.commit()
 '''
-
-
-
-
 
 
 class ViewController(ui.View):
@@ -116,5 +112,4 @@ class ViewController(ui.View):
 if __name__ == '__main__':
   view = ViewController()
   view.present(style='fullscreen')
-  
 
