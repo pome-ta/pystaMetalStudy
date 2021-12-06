@@ -15,6 +15,94 @@
 数値のlog 取り
 
 
+#### `testTransform`
+
+``` .mm
+float4x4 testTransform = matrix4x4_translation(0.3275f, 0.3f, 0.3725f);
+```
+
+```
+Printing description of testTransform:
+(simd::float4x4) testTransform = {
+  simd_float4x4 = {
+    columns = {
+      [0] = (1, 0, 0, 0)
+      [1] = (0, 1, 0, 0)
+      [2] = (0, 0, 1, 0)
+      [3] = (0.327499986, 0.300000012, 0.372500002, 1)
+    }
+  }
+}
+```
+
+
+#### `testScale`
+
+``` .mm
+float4x4 testScale = matrix4x4_scale(0.6f, 0.6f, 0.6f);
+```
+
+
+```
+Printing description of testScale:
+(simd::float4x4) testScale = {
+  simd_float4x4 = {
+    columns = {
+      [0] = (0.600000024, 0, 0, 0)
+      [1] = (0, 0.600000024, 0, 0)
+      [2] = (0, 0, 0.600000024, 0)
+      [3] = (0, 0, 0, 1)
+    }
+  }
+}
+```
+
+#### `testRotation`
+
+``` .mm
+float4x4 testRotation = matrix4x4_rotation(-0.3f, vector3(0.0f, 1.0f, 0.0f));
+```
+
+```
+Printing description of testRotation:
+(simd::float4x4) testRotation = {
+  simd_float4x4 = {
+    columns = {
+      [0] = (0.955336511, 0, 0.295520186, 0)
+      [1] = (0, 1, 0, 0)
+      [2] = (-0.295520186, 0, 0.955336511, 0)
+      [3] = (0, 0, 0, 1)
+    }
+  }
+}
+```
+
+
+#### `transform`
+
+``` .mm
+transform = matrix4x4_translation(0.3275f, 0.3f, 0.3725f) *
+            matrix4x4_rotation(-0.3f, vector3(0.0f, 1.0f, 0.0f)) *
+            matrix4x4_scale(0.6f, 0.6f, 0.6f);
+```
+
+```
+Printing description of transform:
+(simd::float4x4) transform = {
+  simd_float4x4 = {
+    columns = {
+      [0] = (0.573201954, 0, 0.177312121, 0)
+      [1] = (0, 0.600000024, 0, 0)
+      [2] = (-0.177312121, 0, 0.573201954, 0)
+      [3] = (0.327499986, 0.300000012, 0.372500002, 1)
+    }
+  }
+}
+```
+
+
+
+
 ``` .mm
     float4x4 transform = matrix4x4_translation(0.0f, 1.0f, 0.0f) *
                          matrix4x4_scale(0.5f, 1.98f, 0.5f);
@@ -33,6 +121,26 @@ Printing description of transform:
   }
 }
 ```
+
+``` .mm
+    transform = matrix4x4_translation(0.0f, 1.0f, 0.0f) * matrix4x4_scale(2.0f, 2.0f, 2.0f);
+```
+
+```
+Printing description of transform:
+(simd::float4x4) transform = {
+  simd_float4x4 = {
+    columns = {
+      [0] = (2, 0, 0, 0)
+      [1] = (0, 2, 0, 0)
+      [2] = (0, 0, 2, 0)
+      [3] = (0, 1, 0, 1)
+    }
+  }
+}
+```
+
+
 
 
 
