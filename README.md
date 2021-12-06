@@ -8,6 +8,33 @@
 以下列記は、実装日誌的なメモ
 
 
+## 📝 2021/12/06
+
+### ray tracing チャレンジ
+
+数値のlog 取り
+
+
+``` .mm
+    float4x4 transform = matrix4x4_translation(0.0f, 1.0f, 0.0f) *
+                         matrix4x4_scale(0.5f, 1.98f, 0.5f);
+```
+
+```
+Printing description of transform:
+(simd::float4x4) transform = {
+  simd_float4x4 = {
+    columns = {
+      [0] = (0.5, 0, 0, 0)
+      [1] = (0, 1.98000002, 0, 0)
+      [2] = (0, 0, 0.5, 0)
+      [3] = (0, 1, 0, 1)
+    }
+  }
+}
+```
+
+
 
 ## 📝 2021/12/01
 
