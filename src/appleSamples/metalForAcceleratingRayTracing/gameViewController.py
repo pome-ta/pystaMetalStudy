@@ -24,11 +24,9 @@ class GameViewController:
     self.view.setAutoresizingMask_((1 << 1) | (1 << 4))
     self.view.device = self.__create_system_default_device()
     self.view.backgroundColor = clearColor
-    
+
     self.renderer = Renderer()
     self.renderer.initWithMetalKitView_(self.view)
-
-    #pdbg.state(self.view)
 
   def __create_system_default_device(self):
     MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
