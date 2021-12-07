@@ -77,12 +77,12 @@ def matrix_multiply(m_left, m_right):
   return matrix
 
 
-def matrix4x4_translation(x, y, z):
+def matrix4x4_translation(tx, ty, tz):
   columns = (
     Float4(1.0, 0.0, 0.0, 0.0),
     Float4(0.0, 1.0, 0.0, 0.0),
     Float4(0.0, 0.0, 1.0, 0.0),
-    Float4(x, y, z, 1.0)
+    Float4(tx, ty, tz, 1.0)
   )
   matrix = MatrixFloat4x4()
   matrix.columns = columns
@@ -91,25 +91,26 @@ def matrix4x4_translation(x, y, z):
 
 def matrix4x4_rotation(angle, axis):
   x, y, z = axis
-  c = cos(angle)
-  s = sin(angle)
+  ct = cos(angle)
+  st = sin(angle)
+  ci = 1 - ct
 
   column0 = Float4(0.0, 0.0, 0.0, 0.0)
-  column0.x = x * x + (1.0 - x * x) * c
-  column0.y = x * y * (1.0 - c) - z * s
-  column0.z = x * z * (1.0 - c) + y * s
+  column0.x = ct + x * x * ci
+  column0.y = y * x * ci + z * st
+  column0.z = z * x * ci - y * st
   column0.w = 0.0
 
   column1 = Float4(0.0, 0.0, 0.0, 0.0)
-  column1.x = x * y * (1.0 - c) + z * s
-  column1.y = y * y + (1.0 - y * y) * c
-  column1.z = y * z * (1.0 - c) - x * s
+  column1.x = x * y * ci - z * st
+  column1.y = ct + y * y * ci
+  column1.z = z * y * ci + x * st
   column1.w = 0.0
 
   column2 = Float4(0.0, 0.0, 0.0, 0.0)
-  column2.x = x * z * (1.0 - c) - y * s
-  column2.y = y * z * (1.0 - c) + x * s
-  column2.z = z * z + (1.0 - z * z) * c
+  column2.x = x * z * ci + y * st
+  column2.y = y * z * ci - x * st
+  column2.z = ct + z * z * ci
   column2.w = 0.0
 
   column3 = Float4(0.0, 0.0, 0.0, 1.0)
@@ -120,12 +121,23 @@ def matrix4x4_rotation(angle, axis):
   return matrix
 
 
-def matrix4x4_scale(x, y, z):
-  columns = (Float4(x, 0.0, 0.0, 0.0), Float4(0.0, y, 0.0, 0.0), Float4(
-    0.0, 0.0, z, 0.0), Float4(0.0, 0.0, 0.0, 1.0))
+def matrix4x4_scale(sx, sy, sz):
+  columns = (
+    Float4(sx, 0.0, 0.0, 0.0),
+    Float4(0.0, sy, 0.0, 0.0),
+    Float4(0.0, 0.0, sz, 0.0),
+    Float4(0.0, 0.0, 0.0, 1.0)
+  )
   matrix = MatrixFloat4x4()
   matrix.columns = columns
   return matrix
+
+
+def min_max(l):
+  l_min = min(l)
+  l_max = max(l)
+  return [(i - l_min) / (l_max - l_min) for i in l]
+
 
 
 if __name__ == '__main__':
@@ -136,7 +148,10 @@ if __name__ == '__main__':
   #print(testScale)
   #print(testRotation)
   
-  transform = matrix_multiply(matrix4x4_translation(0.0, 1.0, 0.0), matrix4x4_scale(0.5, 1.98, 0.5))
+  _transform = matrix_multiply(testTransform, testRotation)
+  transform = matrix_multiply(matrix_multiply(testTransform, testRotation), testScale)
+  
   
   print(transform)
+  
 
