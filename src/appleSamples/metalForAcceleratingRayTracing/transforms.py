@@ -131,13 +131,13 @@ def matrix4x4_scale(sx, sy, sz):
   matrix = MatrixFloat4x4()
   matrix.columns = columns
   return matrix
+'''
 
-
-def min_max(l):
-  l_min = min(l)
-  l_max = max(l)
-  return [(i - l_min) / (l_max - l_min) for i in l]
-
+def vector_normalize(vector):
+  v_min = min(vector)
+  v_max = max(vector)
+  return [(i - v_min) / (v_max - v_min) for i in vector]
+'''
 
 
 if __name__ == '__main__':
@@ -153,5 +153,4 @@ if __name__ == '__main__':
   
   
   print(transform)
-  
 
