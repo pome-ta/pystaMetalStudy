@@ -4,6 +4,7 @@ import ctypes
 from objc_util import ObjCClass
 
 from transforms import matrix4x4_translation, matrix4x4_rotation, matrix4x4_scale
+from pyTypes import Uniforms
 #from simd.matrix4 import Matrix4
 import pdbg
 
@@ -11,11 +12,10 @@ root_path = Path(__file__).parent
 header_path = root_path / Path('./ShaderTypes.h')
 shader_path = root_path / Path('./Shaders.metal')
 
-err_ptr = ctypes.c_void_p()
-MTLPixelFormatRGBA16Float = 115
+maxFramesInFlight = 3
+alignedUniformsSize = (ctypes.sizeof(Uniforms) + 255) & ~255  # 255
 
-alignedUniformsSize = 
-
+# import -> Scene.h
 FACE_MASK_NONE = 0
 FACE_MASK_NEGATIVE_X = (1 << 0)
 FACE_MASK_POSITIVE_X = (1 << 1)
@@ -24,6 +24,14 @@ FACE_MASK_POSITIVE_Y = (1 << 3)
 FACE_MASK_NEGATIVE_Z = (1 << 4)
 FACE_MASK_POSITIVE_Z = (1 << 5)
 FACE_MASK_ALL = ((1 << 6) - 1)
+
+err_ptr = ctypes.c_void_p()
+MTLPixelFormatRGBA16Float = 115
+
+MTLStorageModeShared = 0
+MTLResourceStorageModeShift = 4
+
+MTLResourceStorageModeShared = MTLStorageModeShared << MTLResourceStorageModeShift
 
 
 class Renderer:
@@ -120,7 +128,26 @@ class Renderer:
   def createBuffers(self):
     # Uniform buffer contains a few small values which change from frame to frame. We will have up to 3 frames in flight at once, so allocate a range of the buffer for each frame. The GPU will read from one chunk while the CPU writes to the next chunk. Each chunk must be aligned to 256 bytes on macOS and 16 bytes on iOS.
     # 均一バッファには、フレームごとに変化するいくつかの小さな値が含まれています。 一度に最大3つのフレームが飛行するため、フレームごとにバッファの範囲を割り当てます。  GPUは1つのチャンクから読み取り、CPUは次のチャンクに書き込みます。 各チャンクは、macOSでは256バイト、iOSでは16バイトに揃える必要があります。
-    pass
+    uniformBufferSize = alignedUniformsSize * maxFramesInFlight
+
+    # Vertex data should be stored in private or managed buffers on discrete GPU systems (AMD, NVIDIA). Private buffers are stored entirely in GPU memory and cannot be accessed by the CPU. Managed buffers maintain a copy in CPU memory and a copy in GPU memory.
+    # 頂点データは、ディスクリートGPUシステム（AMD、NVIDIA）のプライベートバッファまたは管理バッファに保存する必要があります。 プライベートバッファは完全にGPUメモリに格納され、CPUによってアクセスできない。 管理バッファーは、CPUメモリとGPUメモリのコピーをコピーしてください。
+
+    # https://tech.ckme.co.jp/cpp/cpp_predef.shtml
+    # xxx: not だから、`MTLResourceStorageModeShared` ?
+    '''
+    #if !TARGET_OS_IPHONE
+      options = MTLResourceStorageModeManaged;
+    #else
+      options = MTLResourceStorageModeShared;
+    #endif
+    '''
+    options = MTLResourceStorageModeShared
+    uniformBuffer = self.device.newBufferWithLength_options_(uniformBufferSize, options)
+    
+    # Allocate buffers for vertex positions, colors, and normals. Note that each vertex position is a float3, which is a 16 byte aligned type.
+    # 頂点の位置、色、法線にバッファを割り当てます。 各頂点位置はfloat3であることに注意してください。これは、16バイトに整列されたタイプです。
+    
 
 
 if __name__ == '__main__':
