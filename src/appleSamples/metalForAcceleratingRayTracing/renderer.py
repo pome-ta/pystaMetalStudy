@@ -3,6 +3,8 @@ import ctypes
 
 from objc_util import ObjCClass
 
+from transforms import matrix4x4_translation, matrix4x4_rotation, matrix4x4_scale
+#from simd.matrix4 import Matrix4
 import pdbg
 
 root_path = Path(__file__).parent
@@ -11,6 +13,21 @@ shader_path = root_path / Path('./Shaders.metal')
 
 err_ptr = ctypes.c_void_p()
 MTLPixelFormatRGBA16Float = 115
+
+TRIANGLE_MASK_GEOMETRY = 1
+TRIANGLE_MASK_LIGHT = 2
+RAY_MASK_PRIMARY = 3
+RAY_MASK_SHADOW = 1
+RAY_MASK_SECONDARY = 1
+
+FACE_MASK_NONE = 0
+FACE_MASK_NEGATIVE_X = (1 << 0)
+FACE_MASK_POSITIVE_X = (1 << 1)
+FACE_MASK_NEGATIVE_Y = (1 << 2)
+FACE_MASK_POSITIVE_Y = (1 << 3)
+FACE_MASK_NEGATIVE_Z = (1 << 4)
+FACE_MASK_POSITIVE_Z = (1 << 5)
+FACE_MASK_ALL = ((1 << 6) - 1)
 
 
 class Renderer:
@@ -33,6 +50,8 @@ class Renderer:
 
     self.loadMetal()
     self.createPipelines()
+    self.createScene()
+    self.createBuffers()
 
   def loadMetal(self):
     self.view.colorPixelFormat = MTLPixelFormatRGBA16Float
@@ -97,6 +116,13 @@ class Renderer:
 
     self.copyPipeline = self.device.newRenderPipelineStateWithDescriptor_error_(
       renderDescriptor, err_ptr)
+
+  def createScene(self):
+    transform = matrix4x4_translation(0.0, 1.0, 0.0) * matrix4x4_scale(
+      0.5, 1.98, 0.5)
+
+  def createBuffers(self):
+    pass
 
 
 if __name__ == '__main__':
