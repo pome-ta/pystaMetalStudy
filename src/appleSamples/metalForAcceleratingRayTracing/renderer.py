@@ -124,6 +124,7 @@ class Renderer:
   def createScene(self):
     transform = matrix4x4_translation(0.0, 1.0, 0.0) * matrix4x4_scale(
       0.5, 1.98, 0.5)
+    print(transform)
 
   def createBuffers(self):
     # Uniform buffer contains a few small values which change from frame to frame. We will have up to 3 frames in flight at once, so allocate a range of the buffer for each frame. The GPU will read from one chunk while the CPU writes to the next chunk. Each chunk must be aligned to 256 bytes on macOS and 16 bytes on iOS.
