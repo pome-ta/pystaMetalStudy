@@ -14,11 +14,7 @@ shader_path = root_path / Path('./Shaders.metal')
 err_ptr = ctypes.c_void_p()
 MTLPixelFormatRGBA16Float = 115
 
-TRIANGLE_MASK_GEOMETRY = 1
-TRIANGLE_MASK_LIGHT = 2
-RAY_MASK_PRIMARY = 3
-RAY_MASK_SHADOW = 1
-RAY_MASK_SECONDARY = 1
+alignedUniformsSize = 
 
 FACE_MASK_NONE = 0
 FACE_MASK_NEGATIVE_X = (1 << 0)
@@ -122,6 +118,8 @@ class Renderer:
       0.5, 1.98, 0.5)
 
   def createBuffers(self):
+    # Uniform buffer contains a few small values which change from frame to frame. We will have up to 3 frames in flight at once, so allocate a range of the buffer for each frame. The GPU will read from one chunk while the CPU writes to the next chunk. Each chunk must be aligned to 256 bytes on macOS and 16 bytes on iOS.
+    # 均一バッファには、フレームごとに変化するいくつかの小さな値が含まれています。 一度に最大3つのフレームが飛行するため、フレームごとにバッファの範囲を割り当てます。  GPUは1つのチャンクから読み取り、CPUは次のチャンクに書き込みます。 各チャンクは、macOSでは256バイト、iOSでは16バイトに揃える必要があります。
     pass
 
 
