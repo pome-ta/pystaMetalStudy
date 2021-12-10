@@ -1,7 +1,7 @@
 from pathlib import Path
 import ctypes
 
-from objc_util import ObjCClass
+from objc_util import ObjCClass, create_objc_class
 
 from transforms import matrix4x4_translation, matrix4x4_rotation, matrix4x4_scale
 from pyTypes import Uniforms
@@ -124,7 +124,7 @@ class Renderer:
   def createScene(self):
     transform = matrix4x4_translation(0.0, 1.0, 0.0) * matrix4x4_scale(
       0.5, 1.98, 0.5)
-    print(transform)
+    #print(transform)
 
   def createBuffers(self):
     # Uniform buffer contains a few small values which change from frame to frame. We will have up to 3 frames in flight at once, so allocate a range of the buffer for each frame. The GPU will read from one chunk while the CPU writes to the next chunk. Each chunk must be aligned to 256 bytes on macOS and 16 bytes on iOS.
@@ -149,6 +149,24 @@ class Renderer:
     # Allocate buffers for vertex positions, colors, and normals. Note that each vertex position is a float3, which is a 16 byte aligned type.
     # 頂点の位置、色、法線にバッファを割り当てます。 各頂点位置はfloat3であることに注意してください。これは、16バイトに整列されたタイプです。
     
+    
+  def renderer_init(self):
+    # todo: MTKViewDelegate func
+    def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
+      print('mtkView_drawableSizeWillChange_')
+
+    def drawInMTKView_(_self, _cmd, _view):
+      view = ObjCInstance(_view)
+      print('drawInMTKView_')
+      
+
+    PyRenderer = create_objc_class(
+      name='PyRenderer',
+      methods=[drawInMTKView_, mtkView_drawableSizeWillChange_],
+      protocols=['MTKViewDelegate'])
+    return PyRenderer.new()
+
+
 
 
 if __name__ == '__main__':

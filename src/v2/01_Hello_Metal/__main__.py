@@ -43,7 +43,7 @@ pdbg.state(MDLMesh.new())
 extent = (ctypes.c_float * 3)(0.75, 0.75, 0.75)
 segments = (ctypes.c_uint32 * 2)(100, 100)
 
-#mdlMesh = MDLMesh.initSphereWithExtent_segments_inwardNormals_geometryType_allocator_(extent,segments,0, 2, allocator)
+mdlMesh = MDLMesh.initSphereWithExtent_segments_inwardNormals_geometryType_allocator_(extent,segments,0, 2, allocator)
 
 #pdbg.state(mdlMesh)
 
