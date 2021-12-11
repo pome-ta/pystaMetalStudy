@@ -8,6 +8,10 @@ def getTriangleNormal(v0, v1, v2):
   return Vector3CrossProduct(e1, e2)
 
 
+def createCubeFace():
+  pass
+
+
 def createCube(faceMask, color, transform, inwardNormals, triangleMask):
   cubeVertices = [
     Vector3(-0.5, -0.5, -0.5),
@@ -23,16 +27,31 @@ def createCube(faceMask, color, transform, inwardNormals, triangleMask):
   for i in range(8):
     vertex = cubeVertices[i]
     transformedVertex = Vector4(vertex.x, vertex.y, vertex.z, 1.0)
-    print(f'transform: {transform}')
-    print(f'transformedVertex: {transformedVertex}')
+    #print(f'transform: {transform}')
+    #print(f'transformedVertex: {transformedVertex}')
     transformedVertex = transform * transformedVertex
     print(f'matrixMULvertex: {transformedVertex}')
-    xyz = Vector3(
-      transformedVertex.x,
-      transformedVertex.y,
-      transformedVertex.z
-    )
+    xyz = Vector3(transformedVertex.x, transformedVertex.y,
+                  transformedVertex.z)
     cubeVertices[i] = xyz
+
+  if (faceMask & FACE_MASK_NEGATIVE_X):
+    print('faceMask & FACE_MASK_NEGATIVE_X')
+
+  if (faceMask & FACE_MASK_POSITIVE_X):
+    print('faceMask & FACE_MASK_POSITIVE_X')
+
+  if (faceMask & FACE_MASK_NEGATIVE_Y):
+    print('faceMask & FACE_MASK_NEGATIVE_Y')
+
+  if (faceMask & FACE_MASK_POSITIVE_Y):
+    print('faceMask & FACE_MASK_POSITIVE_Y')
+
+  if (faceMask & FACE_MASK_NEGATIVE_Z):
+    print('faceMask & FACE_MASK_NEGATIVE_Z')
+
+  if (faceMask & FACE_MASK_POSITIVE_Z):
+    print('faceMask & FACE_MASK_NEGATIVE_Z')
 
 
 if __name__ == '__main__':
@@ -53,8 +72,7 @@ if __name__ == '__main__':
   FACE_MASK_POSITIVE_Z = (1 << 5)
   FACE_MASK_ALL = ((1 << 6) - 1)
 
-  transform = matrix4x4_translation(0.0, 1.0, 0.0) * matrix4x4_scale(
-    0.5, 1.98, 0.5)
+  transform = matrix4x4_translation(0.0, 1.0, 0.0) * matrix4x4_scale(0.5, 1.98, 0.5)
 
   createCube(FACE_MASK_POSITIVE_Y,
              Vector3(1.0, 1.0, 1.0), transform, True, TRIANGLE_MASK_LIGHT)
