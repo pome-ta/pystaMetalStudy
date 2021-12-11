@@ -46,6 +46,8 @@ class Matrix4(ctypes.Union):
   def __mul__(self, other):
     if isinstance(other, self.__class__):
       return Matrix4Multiply(self, other)
+    elif isinstance(other, Vector4):
+      return matrix_mul_vector(self, other)
     else:
       raise NotImplementedError()
 
@@ -100,6 +102,14 @@ def Matrix4Multiply(matrixLeft, matrixRight):
 
   return m
 
+#https://www.opengl-tutorial.org/jp/beginners-tutorials/tutorial-3-matrices/
+# xxx: vector4 で書く？
+def matrix_mul_vector(matrix, vector):
+  x = matrix.m00 * vector.x + matrix.m01 * vector.y + matrix.m02 * vector.z + matrix.m03 * vector.w
+  y = matrix.m10 * vector.x + matrix.m11 * vector.y + matrix.m12 * vector.z + matrix.m13 * vector.w
+  z = matrix.m20 * vector.x + matrix.m21 * vector.y + matrix.m22 * vector.z + matrix.m23 * vector.w
+  w = matrix.m30 * vector.x + matrix.m31 * vector.y + matrix.m32 * vector.z + matrix.m33 * vector.w
+  return Vector4(x=x, y=y, z=z, w=w)
 
 if __name__ == '__main__':
   m4 = Matrix4()

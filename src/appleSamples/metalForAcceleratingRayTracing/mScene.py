@@ -2,6 +2,7 @@ from simd.vector3 import Vector3
 from simd.vector4 import Vector4
 
 
+
 def createCube(faceMask, color, transform, inwardNormals, triangleMask):
   cubeVertices = [
     Vector3(-0.5, -0.5, -0.5),
@@ -17,8 +18,16 @@ def createCube(faceMask, color, transform, inwardNormals, triangleMask):
   for i in range(8):
     vertex = cubeVertices[i]
     transformedVertex = Vector4(vertex.x, vertex.y, vertex.z, 1.0)
+    print(f'transform: {transform}')
+    print(f'transformedVertex: {transformedVertex}')
     transformedVertex = transform * transformedVertex
-    cubeVertices[i] = transformedVertex.xyz
+    print(f'matrixMULvertex: {transformedVertex}')
+    xyz = Vector3(
+      transformedVertex.x,
+      transformedVertex.y,
+      transformedVertex.z
+    )
+    cubeVertices[i] = xyz
 
 
 if __name__ == '__main__':

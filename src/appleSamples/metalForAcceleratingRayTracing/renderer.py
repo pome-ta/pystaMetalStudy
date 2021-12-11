@@ -72,7 +72,6 @@ class Renderer:
     options = MTLCompileOptions.new()
     self.library = self.device.newLibraryWithSource_options_error_(
       source, options, err_ptr)
-
     self.queue = self.device.newCommandQueue()
 
   def createPipelines(self):
@@ -157,6 +156,7 @@ class Renderer:
 
     def drawInMTKView_(_self, _cmd, _view):
       view = ObjCInstance(_view)
+      commandBuffer = self.queue.commandBuffer()
 
     PyRenderer = create_objc_class(
       name='PyRenderer',
