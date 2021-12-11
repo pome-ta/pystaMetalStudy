@@ -1,6 +1,11 @@
-from simd.vector3 import Vector3
+from simd.vector3 import Vector3, Vector3CrossProduct, Vector3Normalize
 from simd.vector4 import Vector4
 
+
+def getTriangleNormal(v0, v1, v2):
+  e1 = Vector3Normalize(v1 - v0)
+  e2 = Vector3Normalize(v2 - v0)
+  return Vector3CrossProduct(e1, e2)
 
 
 def createCube(faceMask, color, transform, inwardNormals, triangleMask):
@@ -12,7 +17,7 @@ def createCube(faceMask, color, transform, inwardNormals, triangleMask):
     Vector3(-0.5, -0.5, 0.5),
     Vector3(0.5, -0.5, 0.5),
     Vector3(-0.5, 0.5, 0.5),
-    Vector3(0.5, 0.5, 0.5),
+    Vector3(0.5, 0.5, 0.5)
   ]
 
   for i in range(8):
