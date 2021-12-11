@@ -28,9 +28,8 @@ class GameViewController:
     self.renderer = Renderer()
     self.renderer.initWithMetalKitView_(self.view)
     delegate = self.renderer.renderer_init()
-    delegate.mtkView_drawableSizeWillChange_(self.view, self.view.drawableSize())
     self.view.delegate = delegate
-    pdbg.state(self.view)
+    
     
 
   def __create_system_default_device(self):

@@ -11,7 +11,7 @@ class ViewController(ui.View):
     self.bg_color = 'slategray'
     #self.present(style='fullscreen', orientations=['portrait'])
     gv = GameViewController()
-    self.objc_instance.addSubview_(gv)
+    self.objc_instance.addSubview_(gv.view)
 
 
 if __name__ == '__main__':
