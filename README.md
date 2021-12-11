@@ -8,6 +8,18 @@
 以下列記は、実装日誌的なメモ
 
 
+
+## 📝 2021/12/11
+
+`__main__.py` での`addSubview_` は、class 定義したview を呼び出す
+
+
+
+```.py
+self.objc_instance.addSubview_({classのview})
+```
+
+
 ## 📝 2021/12/06
 
 前回のmatrix の素材をうまく生かしながら
