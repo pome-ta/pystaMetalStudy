@@ -24,6 +24,22 @@ self.objc_instance.addSubview_({classのview})
 
 ### simd の演算
 
+objc
+
+```
+cubeVertices	simd::float3 [8]	
+  [0]	simd::float3	(-0.25, 0.00999999046, -0.25, 1)	
+  [1]	simd::float3	(0.25, 0.00999999046, -0.25, 1)	
+  [2]	simd::float3	(-0.25, 1.99000001, -0.25, 1)	
+  [3]	simd::float3	(0.25, 1.99000001, -0.25, 1)	
+  [4]	simd::float3	(-0.25, 0.00999999046, 0.25, 1)	
+  [5]	simd::float3	(0.25, 0.00999999046, 0.25, 1)	
+  [6]	simd::float3	(-0.25, 1.99000001, 0.25, 1)	
+  [7]	simd::float3	(0.5, 0.5, 0.5, 0)	
+
+```
+
+
 ```
 transform: Matrix4:
   [0.5000, 0.0000, 0.0000, 0.0000]
