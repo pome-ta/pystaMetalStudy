@@ -1,6 +1,6 @@
 import ctypes
 
-from objc_util import c, ObjCClass, ObjCInstance, load_framework
+from objc_util import c, ObjCClass, ObjCInstance, load_framework, ns
 import ui
 
 import pdbg
@@ -26,35 +26,12 @@ allocator = MTKMeshBufferAllocator.new().initWithDevice_(device)
 
 MDLMesh = ObjCClass('MDLMesh')
 
-
-class vector_float3(ctypes.Structure):
-  _fields_ = [('x', ctypes.c_float), ('y', ctypes.c_float), ('z',
-                                                             ctypes.c_float)]
-
-
-class vector_uint2(ctypes.Structure):
-  _fields_ = [('x', ctypes.c_uint32), ('y', ctypes.c_uint32)]
-
-
-#pdbg.state(MDLMesh.new())
-
-#mdlMesh = MDLMesh.alloc().initSphereWithExtent_segments_inwardNormals_geometryType_allocator_(vector_float3(0.75, 0.75, 0.75), vector_uint2(100, 100), 0, 2, allocator)
-
-
-
 extent = (ctypes.c_float * 3)(0.75, 0.75, 0.75)
 segments = (ctypes.c_uint32 * 2)(100, 100)
 
-#mdlMesh = MDLMesh.alloc().newBoxWithDimensions_segments_geometryType_inwardNormals_allocator_(extent, segments, 3, 0, allocator)
+#mdlMesh = MDLMesh.alloc().initSphereWithExtent_segments_inwardNormals_geometryType_allocator_(extent, segments, 0, 2, allocator)
 
-
-mdlMesh = MDLMesh.new().initSphereWithExtent_segments_inwardNormals_geometryType_allocator_(extent,segments,0, 2, allocator)
-
-#pdbg.state(mdlMesh)
-
-#initSphereWithExtent_segments_inwardNormals_geometryType_allocator_
-#pdbg.state(MDLMesh)
-#mdlMesh = MDLMesh.new()
+MTKMesh = ObjCClass('MTKMesh')
 
 commandQueue = device.newCommandQueue()
 
@@ -111,7 +88,7 @@ class ViewController(ui.View):
   def __init__(self, *args, **kwargs):
     ui.View.__init__(self, *args, **kwargs)
     self.bg_color = 'slategray'
-    #self.objc_instance.addSubview_(view)
+    self.objc_instance.addSubview_(view)
 
 
 if __name__ == '__main__':
