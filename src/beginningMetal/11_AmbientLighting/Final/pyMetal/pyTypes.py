@@ -12,7 +12,7 @@ class Vertex(ctypes.Structure):
 class ModelConstants(ctypes.Structure):
   _fields_ = [
     ('modelViewMatrix', MatrixIdentityFloat4x4),
-    ('materialColor', Float4)
+    ('materialColor', Float4),
   ]
 
 
@@ -23,8 +23,9 @@ class SceneConstants(ctypes.Structure):
 
 
 class Light(ctypes.Structure):
+  _pack_ = 1
   _fields_ = [
     ('color', Float3),
-    ('ambientIntensity', (ctypes.c_float))
+    ('ambientIntensity', ctypes.c_float),
   ]
 

@@ -10,8 +10,8 @@ class LightingScene(Scene):
     self.mushroom.position.y = -1.0
     self.add_childNode_(self.mushroom)
     
-    self.light.color = Float3(0.5, 0.0, 1.0)
-    self.light.ambientIntensity = 0.2
+    self.light.color = Float3(0.0, 0.0, 1.0)
+    self.light.ambientIntensity = 0.5
   
   def update_deltaTime_(self, deltaTime):
     # todo: 親の`Scene` が`pass` だけどとりあえず
