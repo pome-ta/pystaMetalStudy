@@ -10,7 +10,7 @@ class ViewController(ui.View):
     # todo: touch 判明用
     self.oval = ui.View()
     self.oval.bg_color = 'maroon'
-    self.oval.corner_radius = 45
+    self.oval.corner_radius = 48
     self.oval.alpha = 0.0
 
     # self.present(style='fullscreen', orientations=['portrait'])

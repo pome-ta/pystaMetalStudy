@@ -10,6 +10,7 @@ class Vertex(ctypes.Structure):
 
 # matrix_identity_float4x4 <= 雰囲気
 class ModelConstants(ctypes.Structure):
+  _pack_ = 16
   _fields_ = [
     ('modelViewMatrix', MatrixIdentityFloat4x4),
     ('materialColor', Float4),
