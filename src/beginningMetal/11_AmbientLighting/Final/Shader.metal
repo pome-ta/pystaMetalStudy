@@ -116,6 +116,7 @@ fragment half4 lit_textured_fragment(VertexOut vertexIn [[ stage_in ]],
   
   // Ambient
   float3 ambientColor = light.color * light.ambientIntensity;
+  //float3 ambientColor = light.color * 0.5;
   
   color = color * float4(ambientColor, 1);
   if (color.a == 0.0)

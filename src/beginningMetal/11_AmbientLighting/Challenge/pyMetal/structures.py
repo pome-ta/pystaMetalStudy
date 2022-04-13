@@ -17,10 +17,12 @@ class Float2(ctypes.Structure):
 
 
 class Float3(ctypes.Structure):
+  _pack_ = 4
   _fields_ = [
     ('x', ctypes.c_float),
     ('y', ctypes.c_float),
-    ('z', ctypes.c_float)
+    ('z', ctypes.c_float),
+    ('-', ctypes.c_bool)
   ]
   
   def __str__(self):

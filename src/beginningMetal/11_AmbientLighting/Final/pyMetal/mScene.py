@@ -31,8 +31,9 @@ class Scene(Node):
       ctypes.byref(self.light),
       ctypes.sizeof(Light), 3)
     
-    print(ctypes.byref(self.light))
-    print(ctypes.sizeof(Light))
+    #print(ctypes.byref(self.light))
+    #print(ctypes.sizeof(Light))
+    #print(ctypes.sizeof(self.light))
     commandEncoder.setVertexBytes_length_atIndex_(
       ctypes.byref(self.sceneConstants),
       ctypes.sizeof(SceneConstants), 2)

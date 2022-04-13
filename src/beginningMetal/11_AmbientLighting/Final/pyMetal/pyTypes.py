@@ -23,7 +23,7 @@ class SceneConstants(ctypes.Structure):
 
 
 class Light(ctypes.Structure):
-  _pack_ = 1
+  #_pack_ = 1
   _fields_ = [
     ('color', Float3),
     ('ambientIntensity', ctypes.c_float),
