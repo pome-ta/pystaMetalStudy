@@ -3,8 +3,6 @@ import ui
 from gameViewController import GameViewController
 
 
-
-
 class ViewController(ui.View):
   def __init__(self, *args, **kwargs):
     ui.View.__init__(self, *args, **kwargs)
