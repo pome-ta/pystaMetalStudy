@@ -29,8 +29,6 @@ class GameViewController:
     self.renderer.initWithMetalKitView_(self.view)
     delegate = self.renderer.renderer_init()
     self.view.delegate = delegate
-    
-    
 
   def __create_system_default_device(self):
     MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
@@ -41,3 +39,4 @@ class GameViewController:
 
 if __name__ == '__main__':
   GameViewController()
+
