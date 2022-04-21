@@ -9,6 +9,82 @@
 
 
 
+## 📝 2022/04/22
+
+```
+n0	simd::float3	(-0, -0.707106649, -0, -0)	
+[0]	float	-0
+[1]	float	-0.707106649
+[2]	float	-0
+[3]	float	-0
+v0	simd::float3	(-0.25, 1.99000001, -0.25, 1)	
+[0]	float	-0.25
+[1]	float	1.99000001
+[2]	float	-0.25
+[3]	float	1
+v1	simd::float3	(-0.25, 1.99000001, 0.25, 1)	
+[0]	float	-0.25
+[1]	float	1.99000001
+[2]	float	0.25
+[3]	float	1
+v2	simd::float3	(0.25, 1.99000001, 0.25, 1)	
+[0]	float	0.25
+[1]	float	1.99000001
+[2]	float	0.25
+[3]	float	1
+n1	simd::float3	(-0, -0.707106649, -0, -0)	
+[0]	float	-0
+[1]	float	-0.707106649
+[2]	float	-0
+[3]	float	-0
+v3	simd::float3	(0.25, 1.99000001, -0.25, 1)	
+[0]	float	0.25
+[1]	float	1.99000001
+[2]	float	-0.25
+[3]	float	1
+```
+
+```
+vertices	std::vector<float __attribute__((ext_vector_type(3))), std::allocator<float __attribute__((ext_vector_type(3)))> > &	size=6	0x00000001083dce80
+[0]	float __attribute__((ext_vector_type(3)))	(-0.25, 1.99000001, -0.25, 1)	
+[1]	float __attribute__((ext_vector_type(3)))	(-0.25, 1.99000001, 0.25, 1)	
+[2]	float __attribute__((ext_vector_type(3)))	(0.25, 1.99000001, 0.25, 1)	
+[3]	float __attribute__((ext_vector_type(3)))	(-0.25, 1.99000001, -0.25, 1)	
+[4]	float __attribute__((ext_vector_type(3)))	(0.25, 1.99000001, 0.25, 1)	
+[5]	float __attribute__((ext_vector_type(3)))	(0.25, 1.99000001, -0.25, 1)	
+```
+
+
+
+
+```
+normals	std::vector<float __attribute__((ext_vector_type(3))), std::allocator<float __attribute__((ext_vector_type(3)))> > &	size=6	0x00000001045c6e98
+
+
+[0]	float __attribute__((ext_vector_type(3)))	(-0, -0.707106649, -0, -0)	
+[1]	float __attribute__((ext_vector_type(3)))	(-0, -0.707106649, -0, -0)	
+[2]	float __attribute__((ext_vector_type(3)))	(-0, -0.707106649, -0, -0)	
+[3]	float __attribute__((ext_vector_type(3)))	(-0, -0.707106649, -0, -0)	
+[4]	float __attribute__((ext_vector_type(3)))	(-0, -0.707106649, -0, -0)	
+[5]	float __attribute__((ext_vector_type(3)))	(-0, -0.707106649, -0, -0)	
+
+```
+
+```
+colors	std::vector<float __attribute__((ext_vector_type(3))), std::allocator<float __attribute__((ext_vector_type(3)))> > &	size=6	0x00000001045c6eb0
+[0]	float __attribute__((ext_vector_type(3)))	(1, 1, 1, 0)	
+[1]	float __attribute__((ext_vector_type(3)))	(1, 1, 1, 0)	
+[2]	float __attribute__((ext_vector_type(3)))	(1, 1, 1, 0)	
+[3]	float __attribute__((ext_vector_type(3)))	(1, 1, 1, 0)	
+[4]	float __attribute__((ext_vector_type(3)))	(1, 1, 1, 0)	
+[5]	float __attribute__((ext_vector_type(3)))	(1, 1, 1, 0)	
+```
+
+```
+color	simd::float3	(1, 1, 1, 0)	
+```
+
+
 ## 📝 2021/12/11
 
 ### delegate
