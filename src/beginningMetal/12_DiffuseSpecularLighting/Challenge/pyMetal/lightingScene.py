@@ -9,8 +9,8 @@ class LightingScene(Scene):
     self.previousTouchLocation = (0.0, 0.0)
     
     super().__init__(device, size)
-    self.mushroom.specularIntensity = 0.2
-    self.mushroom.shininess = 2.0
+    self.mushroom.specularIntensity = 1.0 #2.0
+    self.mushroom.shininess = 8.0 #2.0
     self.mushroom.position.y = -1.0
     self.add_childNode_(self.mushroom)
     

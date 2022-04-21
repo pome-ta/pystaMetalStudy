@@ -9,11 +9,9 @@ import pdbg
 # --- load Shader code
 shader_path = Path('./pyAAPLShaders.js')
 
-
 # --- load objc classes
 MTKView = ObjCClass('MTKView')
 MTLRenderPipelineDescriptor = ObjCClass('MTLRenderPipelineDescriptor')
-
 
 MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
 MTLCreateSystemDefaultDevice.argtypes = []
@@ -28,6 +26,7 @@ colors = (ctypes.c_uint32 * 4)
 class Vertex(ctypes.Structure):
   _fields_ = [('position', positions), ('color', colors)]
 
+
 '''
 AAPLVertex = (Vertex * 3)
 triangleVertices = AAPLVertex(
@@ -37,15 +36,11 @@ triangleVertices = AAPLVertex(
 )
 '''
 triangleVertices = ((ctypes.c_float * 6) * 3)(
-  ( 250, -250, 1, 0, 0, 1),
-  (-250, -250, 0, 1, 0, 1),
-  (   0,  250, 0, 0, 1, 1))
+  (250, -250, 1, 0, 0, 1), (-250, -250, 0, 1, 0, 1), (0, 250, 0, 0, 1, 1))
 
 viewportSize = (ctypes.c_uint32 * 2)()
 
-
-
-AAPLVertexInputIndexVertices     = 0
+AAPLVertexInputIndexVertices = 0
 AAPLVertexInputIndexViewportSize = 1
 
 
@@ -67,7 +62,7 @@ class MetalView(ui.View):
     _y = _uh / 4
     _frame = ((_x, _y), (_w, _w))
     '''
-    
+
     _frame = ((0.0, 0.0), (100.0, 100.0))
 
     mtkView.initWithFrame_device_(_frame, devices)
@@ -79,31 +74,31 @@ class MetalView(ui.View):
     #mtkView.framebufferOnly = False
     #mtkView.setNeedsDisplay()
     self.objc_instance.addSubview_(mtkView)
-    
+
   def renderer_init(self, delegate, _mtkView):
     renderer = delegate.alloc().init()
     device = _mtkView.device()
-    
+
     source = shader_path.read_text('utf-8')
     library = device.newLibraryWithSource_options_error_(
       source, err_ptr, err_ptr)
 
     vertex_func = library.newFunctionWithName_('vertexShader')
     frag_func = library.newFunctionWithName_('fragmentShader')
-    
+
     rpld = MTLRenderPipelineDescriptor.new()
     rpld.label = 'Simple Pipeline'
     rpld.vertexFunction = vertex_func
     rpld.fragmentFunction = frag_func
-    
+
     rpld.colorAttachments().objectAtIndexedSubscript(
       0).pixelFormat = 80  # .bgra8Unorm
-      
+
     renderer.rps = device.newRenderPipelineStateWithDescriptor_error_(
       rpld, err_ptr)
 
     renderer.commandQueue = device.newCommandQueue()
-    
+
     return renderer
 
 
@@ -111,24 +106,20 @@ class MetalView(ui.View):
 def drawInMTKView_(_self, _cmd, _view):
   self = ObjCInstance(_self)
   view = ObjCInstance(_view)
-  
+
   # --- triangleVertices
-  
-  
+
   commandBuffer = self.commandQueue.commandBuffer()
   commandBuffer.label = 'MyCommand'
-  
+
   rpd = view.currentRenderPassDescriptor()
   commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
   commandEncoder.label = 'MyRenderEncoder'
-  
-  commandEncoder.setViewport_((0.0, 0.0,
-    viewportSize[0], viewportSize[1],
-    0.0, 1.0))
+
+  commandEncoder.setViewport_((0.0, 0.0, viewportSize[0], viewportSize[1], 0.0,
+                               1.0))
   commandEncoder.setRenderPipelineState_(self.rps)
-  
-  
-  
+
   # --- mac log 96
   commandEncoder.setVertexBytes_length_atIndex_(
     #ctypes.addressof(triangleVertices),
@@ -137,7 +128,7 @@ def drawInMTKView_(_self, _cmd, _view):
     #ctypes.sizeof(triangleVertices),
     16 * 6,
     AAPLVertexInputIndexVertices)
-  
+
   #print(ctypes.addressof(triangleVertices))
   #print(ctypes.byref(triangleVertices, 6))
   #print(triangleVertices)
@@ -147,18 +138,15 @@ def drawInMTKView_(_self, _cmd, _view):
     ctypes.byref(viewportSize),
     ctypes.sizeof(viewportSize),
     AAPLVertexInputIndexViewportSize)
-  
-  
+
   #print(dir(commandEncoder))
   #print(commandEncoder.getRenderPipelineState())
-  
+
   commandEncoder.drawPrimitives_vertexStart_vertexCount_(3, 0, 3)
-  
+
   commandEncoder.endEncoding()
   commandBuffer.presentDrawable_(view.currentDrawable())
   commandBuffer.commit()
-  
-  
 
 
 def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
@@ -166,7 +154,6 @@ def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
   view = ObjCInstance(_view)
   viewportSize[0] = ctypes.c_uint32(int(_size.width))
   viewportSize[1] = ctypes.c_uint32(int(_size.height))
-  
 
 
 PyRenderer = create_objc_class(

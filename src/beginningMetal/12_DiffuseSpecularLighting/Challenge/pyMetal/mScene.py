@@ -17,7 +17,7 @@ class Scene(Node):
     
     # todo: self.size = bounds(x, y, width, height)
     self.camera.aspect = self.size[2] / self.size[3]
-    self.camera.position.z = -6.0
+    self.camera.position.z = -8.0
     self.add_childNode_(self.camera)
   
   def update_deltaTime_(self, deltaTime):

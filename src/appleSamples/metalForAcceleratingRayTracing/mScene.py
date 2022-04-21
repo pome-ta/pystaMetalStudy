@@ -1,6 +1,23 @@
 from simd.vector3 import Vector3, Vector3CrossProduct, Vector3Normalize, Vector3Negate
 from simd.vector4 import Vector4
 
+
+TRIANGLE_MASK_GEOMETRY = 1
+TRIANGLE_MASK_LIGHT = 2
+RAY_MASK_PRIMARY = 3
+RAY_MASK_SHADOW = 1
+RAY_MASK_SECONDARY = 1
+
+FACE_MASK_NONE = 0
+FACE_MASK_NEGATIVE_X = (1 << 0)
+FACE_MASK_POSITIVE_X = (1 << 1)
+FACE_MASK_NEGATIVE_Y = (1 << 2)
+FACE_MASK_POSITIVE_Y = (1 << 3)
+FACE_MASK_NEGATIVE_Z = (1 << 4)
+FACE_MASK_POSITIVE_Z = (1 << 5)
+FACE_MASK_ALL = ((1 << 6) - 1)
+
+
 vertices = Vector3()
 normals = Vector3()
 colors = Vector3()
@@ -19,6 +36,7 @@ def createCubeFace(vertices, normals, colors, cubeVertices, color, i0, i1, i2, i
   v2 = cubeVertices[i2]
   v3 = cubeVertices[i3]
   print(v0)
+  print(vertices)
   
   n0 = getTriangleNormal(v0, v1, v2)
   n1 = getTriangleNormal(v0, v2, v3)
@@ -62,7 +80,7 @@ def createCube(faceMask, color, transform, inwardNormals, triangleMask):
     print('faceMask & FACE_MASK_NEGATIVE_Y')
 
   if (faceMask & FACE_MASK_POSITIVE_Y):
-    #print('faceMask & FACE_MASK_POSITIVE_Y')
+    print('faceMask & FACE_MASK_POSITIVE_Y')
     createCubeFace(vertices, normals, colors, cubeVertices, color, 2, 6, 7, 3, inwardNormals, triangleMask)
 
   if (faceMask & FACE_MASK_NEGATIVE_Z):
@@ -75,20 +93,7 @@ def createCube(faceMask, color, transform, inwardNormals, triangleMask):
 if __name__ == '__main__':
   from transforms import matrix4x4_translation, matrix4x4_rotation, matrix4x4_scale
 
-  TRIANGLE_MASK_GEOMETRY = 1
-  TRIANGLE_MASK_LIGHT = 2
-  RAY_MASK_PRIMARY = 3
-  RAY_MASK_SHADOW = 1
-  RAY_MASK_SECONDARY = 1
-
-  FACE_MASK_NONE = 0
-  FACE_MASK_NEGATIVE_X = (1 << 0)
-  FACE_MASK_POSITIVE_X = (1 << 1)
-  FACE_MASK_NEGATIVE_Y = (1 << 2)
-  FACE_MASK_POSITIVE_Y = (1 << 3)
-  FACE_MASK_NEGATIVE_Z = (1 << 4)
-  FACE_MASK_POSITIVE_Z = (1 << 5)
-  FACE_MASK_ALL = ((1 << 6) - 1)
+  
 
   transform = matrix4x4_translation(0.0, 1.0, 0.0) * matrix4x4_scale(
     0.5, 1.98, 0.5)

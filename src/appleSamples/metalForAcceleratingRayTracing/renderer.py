@@ -3,7 +3,9 @@ import ctypes
 
 from objc_util import ObjCClass, create_objc_class, ObjCInstance
 
+from mScene import createCube
 from transforms import matrix4x4_translation, matrix4x4_rotation, matrix4x4_scale
+from simd.vector3 import Vector3
 from pyTypes import Uniforms
 #from simd.matrix4 import Matrix4
 import pdbg
@@ -24,6 +26,14 @@ FACE_MASK_POSITIVE_Y = (1 << 3)
 FACE_MASK_NEGATIVE_Z = (1 << 4)
 FACE_MASK_POSITIVE_Z = (1 << 5)
 FACE_MASK_ALL = ((1 << 6) - 1)
+
+
+TRIANGLE_MASK_GEOMETRY = 1
+TRIANGLE_MASK_LIGHT = 2
+RAY_MASK_PRIMARY = 3
+RAY_MASK_SHADOW = 1
+RAY_MASK_SECONDARY = 1
+
 
 err_ptr = ctypes.c_void_p()
 MTLPixelFormatRGBA16Float = 115
@@ -123,6 +133,7 @@ class Renderer:
   def createScene(self):
     transform = matrix4x4_translation(0.0, 1.0, 0.0) * matrix4x4_scale(
       0.5, 1.98, 0.5)
+    createCube(FACE_MASK_POSITIVE_Y, Vector3(1.0, 1.0, 1.0), transform, True, TRIANGLE_MASK_LIGHT);
     #print(transform)
 
   def createBuffers(self):

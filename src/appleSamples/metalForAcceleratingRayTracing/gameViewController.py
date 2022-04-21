@@ -6,7 +6,7 @@ from renderer import Renderer
 
 import pdbg
 
-clearColor = (0.0, 0.4, 0.21, 1.0)
+clearColor = (0.0, 0.0, 0.0, 0.0)
 
 
 class GameViewController:
