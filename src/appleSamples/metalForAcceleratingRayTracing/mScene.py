@@ -35,8 +35,7 @@ def createCubeFace(vertices, normals, colors, cubeVertices, color, i0, i1, i2, i
   v1 = cubeVertices[i1]
   v2 = cubeVertices[i2]
   v3 = cubeVertices[i3]
-  print(v0)
-  print(vertices)
+  
   
   n0 = getTriangleNormal(v0, v1, v2)
   n1 = getTriangleNormal(v0, v2, v3)
@@ -44,19 +43,25 @@ def createCubeFace(vertices, normals, colors, cubeVertices, color, i0, i1, i2, i
   if inwardNormals:
     n0 = Vector3Negate(n0)
     n1 = Vector3Negate(n1)
+  print(f'n0:{n0}')
+  print(f'v0:{v0}')
+  print(f'v1:{v1}')
+  print(f'v2:{v2}')
+  print(f'n1:{n1}')
+  print(f'v3:{v3}')
   
 
 
 def createCube(faceMask, color, transform, inwardNormals, triangleMask):
   cubeVertices = [
     Vector3(-0.5, -0.5, -0.5),
-    Vector3(0.5, -0.5, -0.5),
-    Vector3(-0.5, 0.5, -0.5),
-    Vector3(0.5, 0.5, -0.5),
-    Vector3(-0.5, -0.5, 0.5),
-    Vector3(0.5, -0.5, 0.5),
-    Vector3(-0.5, 0.5, 0.5),
-    Vector3(0.5, 0.5, 0.5)
+    Vector3( 0.5, -0.5, -0.5),
+    Vector3(-0.5,  0.5, -0.5),
+    Vector3( 0.5,  0.5, -0.5),
+    Vector3(-0.5, -0.5,  0.5),
+    Vector3( 0.5, -0.5,  0.5),
+    Vector3(-0.5,  0.5,  0.5),
+    Vector3( 0.5,  0.5,  0.5)
   ]
 
   for i in range(8):
@@ -65,7 +70,7 @@ def createCube(faceMask, color, transform, inwardNormals, triangleMask):
     #print(f'transform: {transform}')
     #print(f'transformedVertex: {transformedVertex}')
     transformedVertex = transform * transformedVertex
-    #print(f'matrixMULvertex: {transformedVertex}')
+    print(f'matrixMULvertex: {transformedVertex}')
     xyz = Vector3(transformedVertex.x, transformedVertex.y, transformedVertex.z)
     cubeVertices[i] = xyz
 

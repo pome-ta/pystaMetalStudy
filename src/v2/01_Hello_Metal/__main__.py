@@ -1,10 +1,12 @@
 import ctypes
 
-from objc_util import c, ObjCClass, ObjCInstance, load_framework, ns
+from objc_util import c, ObjCClass, ObjCInstance, load_framework, ns, sel
 import ui
 
 import pdbg
 
+
+load_framework('SceneKit')
 load_framework('ModelIO')
 
 err_ptr = ctypes.c_void_p()
@@ -29,9 +31,27 @@ MDLMesh = ObjCClass('MDLMesh')
 extent = (ctypes.c_float * 3)(0.75, 0.75, 0.75)
 segments = (ctypes.c_uint32 * 2)(100, 100)
 
-#mdlMesh = MDLMesh.alloc().initSphereWithExtent_segments_inwardNormals_geometryType_allocator_(extent, segments, 0, 2, allocator)
+
+SCNBox = ObjCClass('SCNBox')
+box = SCNBox.box()
+box.width = 1
+box.height = 1
+box.length = 1
+#pdbg.state(box)
+
+
+#pdbg.state(MDLMesh)
+#mdlMesh = MDLMesh.new().initSphereWithExtent_segments_inwardNormals_geometryType_allocator_((0.75, 0.75, 0.75), (100, 100),0,2, allocator)
+#mdlMesh = ObjCClass('MDLMesh').newBoxWithDimensions_segments_geometryType_inwardNormals_allocator_(extent, segments, 0, 2, allocator)
+
+mdlMesh = MDLMesh.meshWithSCNGeometry_bufferAllocator_(box, allocator)
+
 
 MTKMesh = ObjCClass('MTKMesh')
+
+
+mesh = MTKMesh.alloc().initWithMesh_device_error_(mdlMesh, device, err_ptr)
+#pdbg.state(mesh)
 
 commandQueue = device.newCommandQueue()
 
@@ -74,14 +94,14 @@ renderPassDescriptor = view.currentRenderPassDescriptor()
 
 renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
   renderPassDescriptor)
-'''
-renderEncoder.setRenderPipelineState_(pipelineState)
-renderEncoder.endEncoding()
+
+#renderEncoder.setRenderPipelineState_(pipelineState)
+#renderEncoder.endEncoding()
 
 drawable = view.currentDrawable()
 commandBuffer.presentDrawable_(drawable)
-commandBuffer.commit()
-'''
+#commandBuffer.commit()
+
 
 
 class ViewController(ui.View):
