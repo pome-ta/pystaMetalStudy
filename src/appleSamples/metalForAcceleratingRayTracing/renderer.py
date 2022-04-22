@@ -3,7 +3,7 @@ import ctypes
 
 from objc_util import ObjCClass, create_objc_class, ObjCInstance
 
-from mScene import createCube
+from mScene import createCube, vertices, colors,normals, masks
 from transforms import matrix4x4_translation, matrix4x4_rotation, matrix4x4_scale
 from simd.vector3 import Vector3
 from pyTypes import Uniforms
@@ -50,6 +50,15 @@ class Renderer:
     self.device: MTLDevice
     self.queue: MTLCommandQueue
     self.library: MTLLibrary
+
+    self.vertexPositionBuffer: MTLBuffer
+    self.vertexNormalBuffer: MTLBuffer
+    self.vertexColorBuffer: MTLBuffer
+    self.rayBuffer: MTLBuffer
+    self.shadowRayBuffer: MTLBuffer
+    self.intersectionBuffer: MTLBuffer
+    self.uniformBuffer: MTLBuffer
+    self.triangleMaskBuffer: MTLBuffer
 
     self.rayPipeline: MTLComputePipelineState
     self.shadePipeline: MTLComputePipelineState
@@ -154,11 +163,15 @@ class Renderer:
     #endif
     '''
     options = MTLResourceStorageModeShared
-    uniformBuffer = self.device.newBufferWithLength_options_(
+    self.uniformBuffer = self.device.newBufferWithLength_options_(
       uniformBufferSize, options)
 
     # Allocate buffers for vertex positions, colors, and normals. Note that each vertex position is a float3, which is a 16 byte aligned type.
     # 頂点の位置、色、法線にバッファを割り当てます。 各頂点位置はfloat3であることに注意してください。これは、16バイトに整列されたタイプです。
+    #self.vertexPositionBuffer = self.device.newBufferWithLength_options_(len(vertices) * )
+    #pdbg.state(self.device)
+    print(len(vertices))
+    print(ctypes.sizeof(Vector3))
 
   def renderer_init(self):
     # todo: MTKViewDelegate func
