@@ -99,7 +99,7 @@ def createCube(faceMask, color, transform, inwardNormals, triangleMask):
     print('faceMask & FACE_MASK_NEGATIVE_Y')
 
   if (faceMask & FACE_MASK_POSITIVE_Y):
-    #print('faceMask & FACE_MASK_POSITIVE_Y')
+    print('faceMask & FACE_MASK_POSITIVE_Y')
     createCubeFace(vertices, normals, colors, cubeVertices, color, 2, 6, 7, 3,
                    inwardNormals, triangleMask)
 

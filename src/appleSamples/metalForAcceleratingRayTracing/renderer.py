@@ -3,7 +3,7 @@ import ctypes
 
 from objc_util import ObjCClass, create_objc_class, ObjCInstance
 
-from mScene import createCube, vertices, colors,normals, masks
+from mScene import createCube, vertices, colors, normals, masks
 from transforms import matrix4x4_translation, matrix4x4_rotation, matrix4x4_scale
 from simd.vector3 import Vector3
 from pyTypes import Uniforms
@@ -17,6 +17,8 @@ shader_path = root_path / Path('./Shaders.metal')
 maxFramesInFlight = 3
 alignedUniformsSize = (ctypes.sizeof(Uniforms) + 255) & ~255  # 255
 
+rayStride = 48
+
 # import -> Scene.h
 FACE_MASK_NONE = 0
 FACE_MASK_NEGATIVE_X = (1 << 0)
@@ -27,21 +29,20 @@ FACE_MASK_NEGATIVE_Z = (1 << 4)
 FACE_MASK_POSITIVE_Z = (1 << 5)
 FACE_MASK_ALL = ((1 << 6) - 1)
 
-
 TRIANGLE_MASK_GEOMETRY = 1
 TRIANGLE_MASK_LIGHT = 2
 RAY_MASK_PRIMARY = 3
 RAY_MASK_SHADOW = 1
 RAY_MASK_SECONDARY = 1
 
-
-err_ptr = ctypes.c_void_p()
 MTLPixelFormatRGBA16Float = 115
 
 MTLStorageModeShared = 0
 MTLResourceStorageModeShift = 4
 
 MTLResourceStorageModeShared = MTLStorageModeShared << MTLResourceStorageModeShift
+
+err_ptr = ctypes.c_void_p()
 
 
 class Renderer:
@@ -50,6 +51,9 @@ class Renderer:
     self.device: MTLDevice
     self.queue: MTLCommandQueue
     self.library: MTLLibrary
+
+    self.accelerationStructure: MPSTriangleAccelerationStructure
+    self.intersector: MPSRayIntersector
 
     self.vertexPositionBuffer: MTLBuffer
     self.vertexNormalBuffer: MTLBuffer
@@ -75,6 +79,7 @@ class Renderer:
     self.createPipelines()
     self.createScene()
     self.createBuffers()
+    self.createIntersector()
 
   def loadMetal(self):
     self.view.colorPixelFormat = MTLPixelFormatRGBA16Float
@@ -142,7 +147,8 @@ class Renderer:
   def createScene(self):
     transform = matrix4x4_translation(0.0, 1.0, 0.0) * matrix4x4_scale(
       0.5, 1.98, 0.5)
-    createCube(FACE_MASK_POSITIVE_Y, Vector3(1.0, 1.0, 1.0), transform, True, TRIANGLE_MASK_LIGHT);
+    createCube(FACE_MASK_POSITIVE_Y,
+               Vector3(1.0, 1.0, 1.0), transform, True, TRIANGLE_MASK_LIGHT)
     #print(transform)
 
   def createBuffers(self):
@@ -168,10 +174,47 @@ class Renderer:
 
     # Allocate buffers for vertex positions, colors, and normals. Note that each vertex position is a float3, which is a 16 byte aligned type.
     # 頂点の位置、色、法線にバッファを割り当てます。 各頂点位置はfloat3であることに注意してください。これは、16バイトに整列されたタイプです。
-    #self.vertexPositionBuffer = self.device.newBufferWithLength_options_(len(vertices) * )
-    #pdbg.state(self.device)
-    print(len(vertices))
-    print(ctypes.sizeof(Vector3))
+    self.vertexPositionBuffer = self.device.newBufferWithLength_options_(
+      len(vertices) * ctypes.sizeof(Vector3), options)
+
+    self.vertexColorBuffer = self.device.newBufferWithLength_options_(
+      len(colors) * ctypes.sizeof(Vector3), options)
+
+    self.vertexNormalBuffer = self.device.newBufferWithLength_options_(
+      len(normals) * ctypes.sizeof(Vector3), options)
+
+    self.triangleMaskBuffer = self.device.newBufferWithLength_options_(
+      len(masks) * ctypes.sizeof(ctypes.c_uint32), options)
+
+    ctypes.memmove(self.vertexPositionBuffer.contents(),
+                   ctypes.byref(vertices[0]),
+                   self.vertexPositionBuffer.length())
+    ctypes.memmove(self.vertexColorBuffer.contents(),
+                   ctypes.byref(colors[0]), self.vertexColorBuffer.length())
+    ctypes.memmove(self.vertexNormalBuffer.contents(),
+                   ctypes.byref(normals[0]), self.vertexNormalBuffer.length())
+    ctypes.memmove(self.triangleMaskBuffer.contents(),
+                   ctypes.byref(ctypes.c_uint32(masks[0])),
+                   self.triangleMaskBuffer.length())
+
+  def createIntersector(self):
+    MPSRayIntersector = ObjCClass('MPSRayIntersector')
+    self.intersector = MPSRayIntersector.alloc().initWithDevice_(self.device)
+    self.intersector.rayDataType = 2  # MPSRayDataTypeOriginMaskDirectionMaxDistance
+    self.intersector.rayStride = rayStride
+    self.intersector.rayMaskOptions = 1  #MPSRayMaskOptionPrimitive
+
+    MPSTriangleAccelerationStructure = ObjCClass(
+      'MPSTriangleAccelerationStructure')
+
+    self.accelerationStructure = MPSTriangleAccelerationStructure.alloc(
+    ).initWithDevice_(self.device)
+    self.accelerationStructure.vertexBuffer = self.vertexPositionBuffer
+    self.accelerationStructure.maskBuffer = self.triangleMaskBuffer
+    self.accelerationStructure.triangleCount = int(len(vertices) / 3)
+
+    #self.accelerationStructure.rebuild()
+    pdbg.state(self.accelerationStructure)
 
   def renderer_init(self):
     # todo: MTKViewDelegate func
