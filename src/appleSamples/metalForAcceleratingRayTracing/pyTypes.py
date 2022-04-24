@@ -18,7 +18,7 @@ class Camera(ctypes.Structure):
     ('position', Vector3),
     ('right', Vector3),
     ('up', Vector3),
-    ('forward', Vector3)
+    ('forward', Vector3),
   ]
 
 
@@ -28,7 +28,7 @@ class AreaLight(ctypes.Structure):
     ('forward', Vector3),
     ('right', Vector3),
     ('up', Vector3),
-    ('color', Vector3)
+    ('color', Vector3),
   ]
 
 
@@ -39,7 +39,7 @@ class Uniforms(ctypes.Structure):
     ('height', ctypes.c_uint16),
     ('frameIndex', ctypes.c_uint16),
     ('camera', Camera),
-    ('light', AreaLight)
+    ('light', AreaLight),
   ]
 
 

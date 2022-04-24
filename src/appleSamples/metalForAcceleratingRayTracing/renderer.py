@@ -42,7 +42,21 @@ MTLResourceStorageModeShift = 4
 
 MTLResourceStorageModeShared = MTLStorageModeShared << MTLResourceStorageModeShift
 
+MTLStorageModePrivate = 2
+MTLResourceStorageModePrivate = MTLStorageModePrivate << MTLResourceStorageModeShift
+
 err_ptr = ctypes.c_void_p()
+
+
+class MPSIntersectionDistancePrimitiveIndexCoordinates(ctypes.Structure):
+  _fields_ = [
+    ('distance', ctypes.c_float),
+    ('primitiveIndex', ctypes.c_uint32),
+    ('coordinates', ctypes.c_float * 2),
+  ]
+
+intersectionStride = ctypes.sizeof(MPSIntersectionDistancePrimitiveIndexCoordinates)
+
 
 
 class Renderer:
@@ -214,12 +228,20 @@ class Renderer:
     self.accelerationStructure.triangleCount = int(len(vertices) / 3)
 
     #self.accelerationStructure.rebuild()
-    pdbg.state(self.accelerationStructure)
+    #pdbg.state(self.accelerationStructure)
 
   def renderer_init(self):
     # todo: MTKViewDelegate func
     def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
-      pass
+      rayCount = int(_size.width * _size.height)
+
+      self.rayBuffer = self.device.newBufferWithLength_options_(
+        rayStride * rayCount, MTLResourceStorageModePrivate)
+      self.shadowRayBuffer = self.device.newBufferWithLength_options_(
+        rayStride * rayCount, MTLResourceStorageModePrivate)
+      self.intersectionBuffer = self.device.newBufferWithLength_options_(intersectionStride * rayCount, MTLResourceStorageModePrivate)
+
+      #pdbg.state(self.device)
 
     def drawInMTKView_(_self, _cmd, _view):
       view = ObjCInstance(_view)
