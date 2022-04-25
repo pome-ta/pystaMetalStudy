@@ -1,6 +1,6 @@
 import ctypes
 
-from objc_util import c, ObjCClass, ObjCInstance, load_framework, ns, sel
+from objc_util import c, ObjCClass, ObjCInstance, load_framework, ns, sel, create_objc_class
 import ui
 
 import pdbg
@@ -103,6 +103,42 @@ commandBuffer.presentDrawable_(drawable)
 #commandBuffer.commit()
 
 
+# --- MTKViewDelegate
+def drawInMTKView_(_self, _cmd, _view):
+  self = ObjCInstance(_self)
+  view = ObjCInstance(_view)
+
+def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
+  self = ObjCInstance(_self)
+  view = ObjCInstance(_view)
+  _width = _size.width
+  _height = _size.height
+  aspect = math.fabs(_width / _height)
+  projectionMatrix = GLKMatrix4MakePerspective(
+    math.radians(65.0), aspect, 4.0, 10.0)
+  sceneMatrices.projectionMatrix = projectionMatrix
+
+
+
+PyRenderer = create_objc_class(
+  name='PyRenderer',
+  methods=[drawInMTKView_, mtkView_drawableSizeWillChange_],
+  protocols=['MTKViewDelegate'])
+
+
+class MetalView:
+  def __init__(self):
+    self.devices = self.createSystemDefaultDevice()
+    self.mtkView = ObjCClass('MTKView').alloc()
+    self.view_did_load()
+    
+  def createSystemDefaultDevice(self):
+    MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
+    MTLCreateSystemDefaultDevice.argtypes = []
+    MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
+    return ObjCInstance(MTLCreateSystemDefaultDevice())
+    
+  
 
 class ViewController(ui.View):
   def __init__(self, *args, **kwargs):

@@ -1,7 +1,7 @@
 from pathlib import Path
 import ctypes
 
-from objc_util import ObjCClass, create_objc_class, ObjCInstance
+from objc_util import ObjCClass, create_objc_class, ObjCInstance, on_main_thread
 
 from mScene import createCube, vertices, colors, normals, masks
 from transforms import matrix4x4_translation, matrix4x4_rotation, matrix4x4_scale
@@ -36,6 +36,8 @@ RAY_MASK_SHADOW = 1
 RAY_MASK_SECONDARY = 1
 
 MTLPixelFormatRGBA16Float = 115
+MTLPixelFormatRGBA32Float = 125
+MTLTextureType2D = 2
 
 MTLStorageModeShared = 0
 MTLResourceStorageModeShift = 4
@@ -55,9 +57,9 @@ class MPSIntersectionDistancePrimitiveIndexCoordinates(ctypes.Structure):
     ('coordinates', ctypes.c_float * 2),
   ]
 
-intersectionStride = ctypes.sizeof(MPSIntersectionDistancePrimitiveIndexCoordinates)
 
-
+intersectionStride = ctypes.sizeof(
+  MPSIntersectionDistancePrimitiveIndexCoordinates)
 
 class Renderer:
   def __init__(self):
@@ -239,9 +241,17 @@ class Renderer:
         rayStride * rayCount, MTLResourceStorageModePrivate)
       self.shadowRayBuffer = self.device.newBufferWithLength_options_(
         rayStride * rayCount, MTLResourceStorageModePrivate)
-      self.intersectionBuffer = self.device.newBufferWithLength_options_(intersectionStride * rayCount, MTLResourceStorageModePrivate)
+      self.intersectionBuffer = self.device.newBufferWithLength_options_(
+        intersectionStride * rayCount, MTLResourceStorageModePrivate)
 
-      #pdbg.state(self.device)
+      renderTargetDescriptor = ObjCClass('MTLTextureDescriptor').alloc().init()
+      renderTargetDescriptor.pixelFormat = MTLPixelFormatRGBA32Float
+      renderTargetDescriptor.textureType = MTLTextureType2D
+      #renderTargetDescriptor.setWidth_(_size.width)
+      #renderTargetDescriptor.height = int(_size.height)
+      #renderTargetDescriptor.height = int(_size.height())
+      pdbg.state(renderTargetDescriptor)
+      print(_size.height)
 
     def drawInMTKView_(_self, _cmd, _view):
       view = ObjCInstance(_view)
