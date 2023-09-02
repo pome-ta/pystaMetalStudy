@@ -4,14 +4,11 @@ import ctypes
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
 
-
 # --- get Shader path
 shader_path = Path('./final_Shader.metal')
 
 wenderlichGreen = (0.0, 0.4, 0.21, 1.0)
 err_ptr = ctypes.c_void_p()
-
-
 '''
              1
 (-1, 1)  ( 0, 1)  ( 1, 1)
@@ -24,16 +21,25 @@ err_ptr = ctypes.c_void_p()
     2                 3
 '''
 
+
 class Renderer:
+
   def __init__(self, device):
     self.device = device
     self.commandQueue = self.device.newCommandQueue()
-    
+
     self.vertices = (ctypes.c_float * 9)(
-       0.0,  1.0, 0.0,    # 1
-      -1.0, -1.0, 0.0,    # 2
-       1.0, -1.0, 0.0, )  # 3
-    
+      0.0,
+      1.0,
+      0.0,  # 1
+      -1.0,
+      -1.0,
+      0.0,  # 2
+      1.0,
+      -1.0,
+      0.0,
+    )  # 3
+
     self.buildModel()
     self.buildPipelineState()
 
@@ -87,6 +93,7 @@ class Renderer:
 
 
 class PyMetalView:
+
   def __init__(self):
     self.devices = self.createSystemDefaultDevice()
     self.mtkView = ObjCClass('MTKView').alloc()
@@ -108,6 +115,7 @@ class PyMetalView:
 
 
 class ViewController(ui.View):
+
   def __init__(self, *args, **kwargs):
     ui.View.__init__(self, *args, **kwargs)
     self.bg_color = 'slategray'
