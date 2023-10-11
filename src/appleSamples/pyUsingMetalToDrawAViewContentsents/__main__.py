@@ -55,6 +55,7 @@ class AAPLViewController:
       #print('viewDidLoad')
       this = ObjCInstance(_self)
       view = this.view()
+      pdbg.state(this)
 
     # --- `UIViewController` set up
     _methods = [
