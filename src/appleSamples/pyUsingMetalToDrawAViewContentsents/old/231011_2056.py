@@ -13,7 +13,10 @@ UIBarButtonItem = ObjCClass('UIBarButtonItem')
 UIViewController = ObjCClass('UIViewController')
 
 # --- view
+UIView = ObjCClass('UIView')
 NSLayoutConstraint = ObjCClass('NSLayoutConstraint')
+
+UIColor = ObjCClass('UIColor')
 
 # --- Metal
 MTKView = ObjCClass('MTKView')
@@ -34,55 +37,8 @@ class AAPLRenderer:
 
   def create_delegate(self):
     # --- `MTKViewDelegate` Methods
-    def drawInMTKView_(_self, _cmd, _view):
-      this = ObjCInstance(_self)
-      view = ObjCInstance(_view)
-
-      renderPassDescriptor = view.currentRenderPassDescriptor()
-      commandBuffer = self._commandQueue.commandBuffer()
-      commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
-        renderPassDescriptor)
-
-      commandEncoder.endEncoding()
-
-      drawable = view.currentDrawable()
-      commandBuffer.presentDrawable(drawable)
-      commandBuffer.commit()
-
-    def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
-      print('mtkView_drawableSizeWillChange_')
-      this = ObjCInstance(_self)
-      view = ObjCInstance(_view)
-      size = ObjCInstance(_size)
-
-    # --- `MTKViewDelegate` set up
-    _methods = [
-      drawInMTKView_,
-      mtkView_drawableSizeWillChange_,
-    ]
-    _protocols = [
-      'MTKViewDelegate',
-    ]
-
-    create_kwargs = {
-      'name': '_delegate',
-      'methods': _methods,
-      'protocols': _protocols,
-    }
-
-    _delegate = create_objc_class(**create_kwargs)
-    return _delegate.new()
-
-  @on_main_thread
-  def _init(self):
-    return self.create_delegate()
-
-  @classmethod
-  def initWithMetalKitView_(cls, mtkView: MTKView) -> ObjCInstance:
-    _cls = cls()
-    _cls._device = mtkView.device()
-    _cls._commandQueue = _cls._device.newCommandQueue()
-    return _cls._init()
+    def initWithMetalKitView_(_self, _cmd, _mtkView):
+      mtkView = ObjCInstance(_mtkView)
 
 
 class AAPLViewController:
@@ -93,36 +49,27 @@ class AAPLViewController:
     self._renderer: AAPLRenderer
 
   def _override_viewController(self):
+
     # --- `UIViewController` Methods
     def viewDidLoad(_self, _cmd):
       this = ObjCInstance(_self)
-      view = this.view()
-
-      CGRectZero = CGRect((0.0, 0.0), (0.0, 0.0))
-      _device = ObjCInstance(MTLCreateSystemDefaultDevice())
+      #view = this.view()  # frame = (0 0; 414 896); autoresize = W+H;
+      #pdbg.state(view)
 
       self._view = MTKView.alloc()
-      self._view.initWithFrame_device_(CGRectZero, _device)
+      #initWithFrame_device_
+      # w 1 << 1
+      # h 1 << 4
+
+      self._view.setAutoresizingMask_((1 << 1) | (1 << 4))
       self._view.enableSetNeedsDisplay = True
+      self._view.device = MTLCreateSystemDefaultDevice()
       self._view.clearColor = (0.0, 0.5, 1.0, 1.0)
-      #self._renderer=
 
-      view.addSubview_(self._view)
-      self._view.translatesAutoresizingMaskIntoConstraints = False
-
-      NSLayoutConstraint.activateConstraints_([
-        self._view.centerXAnchor().constraintEqualToAnchor_(
-          view.centerXAnchor()),
-        self._view.centerYAnchor().constraintEqualToAnchor_(
-          view.centerYAnchor()),
-        self._view.widthAnchor().constraintEqualToAnchor_multiplier_(
-          view.widthAnchor(), 1.0),
-        self._view.heightAnchor().constraintEqualToAnchor_multiplier_(
-          view.heightAnchor(), 1.0),
-      ])
-
-      pdbg.state(view)
-      #pdbg.state(self._view.drawableSize().height)
+      #pdbg.state(self._view)
+      #pdbg.state(this)
+      #this.setView_(self._view)
+      #pdbg.state(this.view())
 
     # --- `UIViewController` set up
     _methods = [
@@ -283,4 +230,5 @@ if __name__ == '__main__':
   #ovc = ObjcUIViewController.new()
   ovc = AAPLViewController.new()
   present_objc(ovc)
+
 
