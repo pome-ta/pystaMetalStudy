@@ -1,7 +1,8 @@
+import ctypes
 from objc_util import ObjCClass, ObjCInstance, create_objc_class, on_main_thread
-from objc_util import sel, CGRect
+from objc_util import c,sel, CGRect
 
-#import pdbg
+import pdbg
 
 # --- navigation
 UINavigationController = ObjCClass('UINavigationController')
@@ -17,16 +18,67 @@ NSLayoutConstraint = ObjCClass('NSLayoutConstraint')
 
 UIColor = ObjCClass('UIColor')
 
-
 # --- Metal
 MTKView = ObjCClass('MTKView')
+
+MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
+MTLCreateSystemDefaultDevice.argtypes = []
+MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
+
+
 
 
 class AAPLRenderer:
 
   def __init__(self):
-    self._device: None
-    self._commandQueue: None
+    self._device: 'MTLDevice'
+    self._commandQueue: 'MTLCommandQueue'
+
+  def create_delegate(self):
+    # --- `MTKViewDelegate` Methods
+    def initWithMetalKitView_(_self, _cmd, _mtkView):
+      mtkView = ObjCInstance(_mtkView)
+
+
+class AAPLViewController:
+
+  def __init__(self):
+    self._viewController: UIViewController
+    self._view: MTKView
+    self._renderer: AAPLRenderer
+
+  def _override_viewController(self):
+
+    # --- `UIViewController` Methods
+
+    def viewDidLoad(_self, _cmd):
+      #print('viewDidLoad')
+      this = ObjCInstance(_self)
+      view = this.view()
+
+    # --- `UIViewController` set up
+    _methods = [
+      viewDidLoad,
+    ]
+
+    create_kwargs = {
+      'name': '_aplvc',
+      'superclass': UIViewController,
+      'methods': _methods,
+    }
+    _aplvc = create_objc_class(**create_kwargs)
+    self._viewController = _aplvc
+
+  @on_main_thread
+  def _init(self):
+    self._override_viewController()
+    vc = self._viewController.new().autorelease()
+    return vc
+
+  @classmethod
+  def new(cls) -> ObjCInstance:
+    _cls = cls()
+    return _cls._init()
 
 
 class ObjcUIViewController:
@@ -155,11 +207,12 @@ def present_objc(vc):
   case  7 : popover
   case  8 : blurOverFullScreen
   '''
-  vc.setModalPresentationStyle(0)
+  #vc.setModalPresentationStyle(0)
   root_vc.presentViewController_animated_completion_(vc, True, None)
 
 
 if __name__ == '__main__':
-  ovc = ObjcUIViewController.new()
+  #ovc = ObjcUIViewController.new()
+  ovc = AAPLViewController.new()
   present_objc(ovc)
 
