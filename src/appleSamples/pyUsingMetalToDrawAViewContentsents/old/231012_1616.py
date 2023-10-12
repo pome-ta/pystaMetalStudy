@@ -254,8 +254,9 @@ class ObjcUIViewController:
     return _nvDelegate.new()
 
   @on_main_thread
-  def _init(self, vc):
+  def _init(self, _vc):
     self._override_navigationController()
+    vc =_vc.new()
     nv = self._navigationController.alloc()
     nv.initWithRootViewController_(vc).autorelease()
     _delegate = self.create_navigationControllerDelegate()
@@ -298,7 +299,8 @@ def present_objc(vc):
 if __name__ == '__main__':
   #ovc = ObjcUIViewController.new()
   #ovc = AAPLViewController.new()
-  aplvc = AAPLViewController.new()
-  ovc = ObjcUIViewController.new(aplvc)
+  #aplvc = AAPLViewController.new()
+  ovc = ObjcUIViewController.new(AAPLViewController)
   present_objc(ovc)
+
 
