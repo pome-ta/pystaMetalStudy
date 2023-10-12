@@ -3,7 +3,7 @@ import ctypes
 from objc_util import ObjCClass, ObjCInstance, create_objc_class, on_main_thread, c
 from objc_util import sel, CGRect
 
-#import pdbg
+import pdbg
 
 # --- navigation
 UINavigationController = ObjCClass('UINavigationController')
@@ -76,6 +76,9 @@ class AAPLRenderer:
   #@on_main_thread
   def _init(self, mtkView: MTKView):
     self._device = mtkView.device()
+    defaultLibrary = self._device.newDefaultLibrary()
+    
+    
     self._commandQueue = self._device.newCommandQueue()
 
     return self._create_delegate()
