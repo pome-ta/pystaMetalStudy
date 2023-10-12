@@ -52,8 +52,8 @@ class AAPLRenderer:
     def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
       print('mtkView_drawableSizeWillChange_')
       this = ObjCInstance(_self)
-      #view = ObjCInstance(_view)
-      #size = ObjCInstance(_size)
+      view = ObjCInstance(_view)
+      size = ObjCInstance(_size)
 
     # --- `MTKViewDelegate` set up
     _methods = [
@@ -73,7 +73,7 @@ class AAPLRenderer:
     _delegate = create_objc_class(**create_kwargs)
     return _delegate.new()
 
-  #@on_main_thread
+  @on_main_thread
   def _init(self):
     return self._create_delegate()
 
@@ -106,8 +106,7 @@ class AAPLViewController:
       self._view.enableSetNeedsDisplay = True
       self._view.clearColor = (0.0, 0.5, 1.0, 1.0)
       self._renderer = AAPLRenderer.initWithMetalKitView_(self._view)
-      self._renderer.mtkView_drawableSizeWillChange_(self._view, view.size())
-      self._view.delegate = self._renderer
+      pdbg.state(self._renderer)
 
       view.addSubview_(self._view)
       self._view.translatesAutoresizingMaskIntoConstraints = False
@@ -140,7 +139,7 @@ class AAPLViewController:
     _aplvc = create_objc_class(**create_kwargs)
     self._viewController = _aplvc
 
-  #@on_main_thread
+  @on_main_thread
   def _init(self):
     self._override_viewController()
     vc = self._viewController.new().autorelease()
@@ -286,4 +285,5 @@ if __name__ == '__main__':
   #ovc = ObjcUIViewController.new()
   ovc = AAPLViewController.new()
   present_objc(ovc)
+
 
