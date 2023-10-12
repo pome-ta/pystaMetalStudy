@@ -51,10 +51,7 @@ class AAPLRenderer:
       commandBuffer.commit()
 
     def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
-      #print('mtkView_drawableSizeWillChange_')
-      this = ObjCInstance(_self)
-      #view = ObjCInstance(_view)
-      #size = ObjCInstance(_size)
+      pass
 
     # --- `MTKViewDelegate` set up
     _methods = [
@@ -213,8 +210,6 @@ class ObjcUIViewController:
 
       # --- navigationItem
       navigationItem = visibleViewController.navigationItem()
-
-      #navigationItem.setTitle_('nv')
       navigationItem.rightBarButtonItem = done_btn
 
     # --- `UINavigationControllerDelegate` set up
