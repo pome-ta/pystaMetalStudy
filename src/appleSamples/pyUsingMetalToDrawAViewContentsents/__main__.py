@@ -124,9 +124,6 @@ class AAPLViewController:
       ]
       NSLayoutConstraint.activateConstraints_(constraints)
 
-      #pdbg.state(view)
-      #pdbg.state(self._view.drawableSize().height)
-
     # --- `UIViewController` set up
     _methods = [
       viewDidLoad,
