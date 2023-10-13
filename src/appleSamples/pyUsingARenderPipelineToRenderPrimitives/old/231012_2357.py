@@ -40,6 +40,8 @@ class AAPLRenderer:
     def drawInMTKView_(_self, _cmd, _view):
       this = ObjCInstance(_self)
       view = ObjCInstance(_view)
+      
+      
 
       renderPassDescriptor = view.currentRenderPassDescriptor()
       commandBuffer = self._commandQueue.commandBuffer()
@@ -75,8 +77,14 @@ class AAPLRenderer:
 
   #@on_main_thread
   def _init(self, mtkView: MTKView):
+    
     self._device = mtkView.device()
+    err_ptr = ctypes.c_void_p()
+    
     defaultLibrary = self._device.newDefaultLibrary()
+    pdbg.state(defaultLibrary)
+    vertexFunction=defaultLibrary.newFunctionWithName_('vertexShader')
+    fragmentFunction=defaultLibrary.newFunctionWithName_('fragmentShader')
     
     
     self._commandQueue = self._device.newCommandQueue()
