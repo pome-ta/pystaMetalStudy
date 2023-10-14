@@ -1,6 +1,6 @@
 import ctypes
 
-from objc_util import ObjCClass, ObjCInstance, create_objc_class, on_main_thread, c
+from objc_util import ObjCClass, ObjCInstance, create_objc_class, on_main_thread, load_framework, c
 from objc_util import sel, CGRect
 
 import pdbg
@@ -19,16 +19,15 @@ UIViewController = ObjCClass('UIViewController')
 NSLayoutConstraint = ObjCClass('NSLayoutConstraint')
 
 # --- Metal
+load_framework('MetalKit')
 MTKView = ObjCClass('MTKView')
-
-pdbg.state(MTKView.new())
 
 
 def MTLCreateSystemDefaultDevice():
   _MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
   _MTLCreateSystemDefaultDevice.argtypes = []
   _MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
-  return _MTLCreateSystemDefaultDevice()
+  return ObjCInstance(_MTLCreateSystemDefaultDevice())
 
 
 class MetalView:
@@ -36,13 +35,23 @@ class MetalView:
   def __init__(self):
     self.mtkView: MTKView
     self.devices: 'MTLDevice'
+    self.count = 0
 
   def _override_mtkView(self):
 
     # --- `MTKView` Methods
     def drawRect_(_self, _cmd, _rect):
       this = ObjCInstance(_self)
+      drawable = this.currentDrawable()
+      rpd = this.currentRenderPassDescriptor()
+      if self.count  < 1:
+        print('h')
+        #pdbg.state(this)
+        print(rpd)
+      self.count += 1
 
+        
+      
     # --- `MTKView` set up
     _methods = [
       drawRect_,
@@ -69,8 +78,8 @@ class MetalView:
 class ViewController:
 
   def __init__(self):
-    self.devices: 'MTLDevice'
-    self.mtlView: MetalView
+    self.device: 'MTLDevice'
+    self.mtlView: MTKView
 
   def _override_viewController(self):
 
@@ -78,9 +87,30 @@ class ViewController:
     def viewDidLoad(_self, _cmd):
       this = ObjCInstance(_self)
       view = this.view()
+      
+      _mtlView = MetalView.new()
 
-      self.device = ObjCInstance(MTLCreateSystemDefaultDevice())
-      self.mtlView = MetalView
+      CGRectZero = CGRect((0.0, 0.0), (0.0, 0.0))
+
+      self.device = MTLCreateSystemDefaultDevice()
+      self.mtlView = _mtlView.alloc()
+      self.mtlView.initWithFrame_device_(CGRectZero, self.device)
+
+      view.addSubview_(self.mtlView)
+
+      self.mtlView.translatesAutoresizingMaskIntoConstraints = False
+
+      constraints = [
+        self.mtlView.centerXAnchor().constraintEqualToAnchor_(
+          view.centerXAnchor()),
+        self.mtlView.centerYAnchor().constraintEqualToAnchor_(
+          view.centerYAnchor()),
+        self.mtlView.widthAnchor().constraintEqualToAnchor_multiplier_(
+          view.widthAnchor(), 1.0),
+        self.mtlView.heightAnchor().constraintEqualToAnchor_multiplier_(
+          view.heightAnchor(), 1.0),
+      ]
+      NSLayoutConstraint.activateConstraints_(constraints)
 
     # --- `UIViewController` set up
     _methods = [
