@@ -44,22 +44,17 @@ class MetalView:
           this.currentDrawable()) and (rpd :=
                                        this.currentRenderPassDescriptor()):
 
-        
-        rpd.colorAttachments().objectAtIndexedSubscript(
-          0).texture = this.currentDrawable().texture()
-        rpd.colorAttachments().objectAtIndexedSubscript(0).clearColor = (0.0,
-                                                                         0.5,
-                                                                         0.5,
-                                                                         1.0)
-        rpd.colorAttachments().objectAtIndexedSubscript(
-          0).loadAction = 2  # .clear
+        _index0 = rpd.colorAttachments().objectAtIndexedSubscript(0)
+
+        _index0.texture = this.currentDrawable().texture()
+        _index0.clearColor = (0.0, 0.5, 0.5, 1.0)
+        _index0.loadAction = 2  # .clear
 
         commandBuffer = this.device().newCommandQueue().commandBuffer()
         commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
         commandEncoder.endEncoding()
         commandBuffer.presentDrawable_(drawable)
         commandBuffer.commit()
-        
 
     # --- `MTKView` set up
     _methods = [
@@ -96,7 +91,7 @@ class ViewController:
     def viewDidLoad(_self, _cmd):
       this = ObjCInstance(_self)
       view = this.view()
-      
+
       CGRectZero = CGRect((0.0, 0.0), (0.0, 0.0))
 
       _mtlView = MetalView.new()
