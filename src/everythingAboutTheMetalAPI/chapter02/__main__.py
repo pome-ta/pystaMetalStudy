@@ -19,6 +19,9 @@ UIViewController = ObjCClass('UIViewController')
 NSLayoutConstraint = ObjCClass('NSLayoutConstraint')
 
 # --- Metal
+MTKView = ObjCClass('MTKView')
+
+pdbg.state(MTKView.new())
 
 
 def MTLCreateSystemDefaultDevice():
@@ -28,10 +31,46 @@ def MTLCreateSystemDefaultDevice():
   return _MTLCreateSystemDefaultDevice()
 
 
+class MetalView:
+
+  def __init__(self):
+    self.mtkView: MTKView
+    self.devices: 'MTLDevice'
+
+  def _override_mtkView(self):
+
+    # --- `MTKView` Methods
+    def drawRect_(_self, _cmd, _rect):
+      this = ObjCInstance(_self)
+
+    # --- `MTKView` set up
+    _methods = [
+      drawRect_,
+    ]
+
+    create_kwargs = {
+      'name': '_mtk',
+      'superclass': MTKView,
+      'methods': _methods,
+    }
+    _mtk = create_objc_class(**create_kwargs)
+    self.mtkView = _mtk
+
+  def _init(self):
+    self._override_mtkView()
+    return self.mtkView
+
+  @classmethod
+  def new(cls) -> ObjCInstance:
+    _cls = cls()
+    return _cls._init()
+
+
 class ViewController:
 
   def __init__(self):
     self.devices: 'MTLDevice'
+    self.mtlView: MetalView
 
   def _override_viewController(self):
 
@@ -41,7 +80,7 @@ class ViewController:
       view = this.view()
 
       self.device = ObjCInstance(MTLCreateSystemDefaultDevice())
-      print(self.device)
+      self.mtlView = MetalView
 
     # --- `UIViewController` set up
     _methods = [
@@ -192,5 +231,4 @@ def present_objc(vc):
 if __name__ == '__main__':
   ovc = ObjcUIViewController.new(ViewController.new())
   present_objc(ovc)
-
 
