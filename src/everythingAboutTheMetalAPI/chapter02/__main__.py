@@ -1,6 +1,6 @@
 import ctypes
 
-from objc_util import ObjCClass, ObjCInstance, create_objc_class, on_main_thread, load_framework, c
+from objc_util import ObjCClass, ObjCInstance, create_objc_class, on_main_thread, c
 from objc_util import sel, CGRect
 
 import pdbg
@@ -19,7 +19,6 @@ UIViewController = ObjCClass('UIViewController')
 NSLayoutConstraint = ObjCClass('NSLayoutConstraint')
 
 # --- Metal
-load_framework('MetalKit')
 MTKView = ObjCClass('MTKView')
 
 
@@ -33,25 +32,30 @@ def MTLCreateSystemDefaultDevice():
 class MetalView:
 
   def __init__(self):
-    self.mtkView: MTKView
-    self.devices: 'MTLDevice'
-    self.count = 0
+    self._mtkView: MTKView
 
   def _override_mtkView(self):
 
     # --- `MTKView` Methods
     def drawRect_(_self, _cmd, _rect):
       this = ObjCInstance(_self)
-      drawable = this.currentDrawable()
-      rpd = this.currentRenderPassDescriptor()
-      if self.count  < 1:
-        print('h')
-        #pdbg.state(this)
-        print(rpd)
-      self.count += 1
 
-        
-      
+      if (drawable :=
+          this.currentDrawable()) and (rpd :=
+                                       this.currentRenderPassDescriptor()):
+
+        _index0 = rpd.colorAttachments().objectAtIndexedSubscript(0)
+
+        _index0.texture = this.currentDrawable().texture()
+        _index0.clearColor = (0.0, 0.5, 0.5, 1.0)
+        _index0.loadAction = 2  # .clear
+
+        commandBuffer = this.device().newCommandQueue().commandBuffer()
+        commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
+        commandEncoder.endEncoding()
+        commandBuffer.presentDrawable_(drawable)
+        commandBuffer.commit()
+
     # --- `MTKView` set up
     _methods = [
       drawRect_,
@@ -63,11 +67,11 @@ class MetalView:
       'methods': _methods,
     }
     _mtk = create_objc_class(**create_kwargs)
-    self.mtkView = _mtk
+    self._mtkView = _mtk
 
   def _init(self):
     self._override_mtkView()
-    return self.mtkView
+    return self._mtkView
 
   @classmethod
   def new(cls) -> ObjCInstance:
@@ -87,13 +91,12 @@ class ViewController:
     def viewDidLoad(_self, _cmd):
       this = ObjCInstance(_self)
       view = this.view()
-      
-      _mtlView = MetalView.new()
 
       CGRectZero = CGRect((0.0, 0.0), (0.0, 0.0))
 
+      _mtlView = MetalView.new()
       self.device = MTLCreateSystemDefaultDevice()
-      self.mtlView = _mtlView.alloc()
+      self.mtlView = _mtlView.alloc().autorelease()
       self.mtlView.initWithFrame_device_(CGRectZero, self.device)
 
       view.addSubview_(self.mtlView)
@@ -261,4 +264,5 @@ def present_objc(vc):
 if __name__ == '__main__':
   ovc = ObjcUIViewController.new(ViewController.new())
   present_objc(ovc)
+
 
