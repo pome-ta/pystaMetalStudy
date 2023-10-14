@@ -33,12 +33,19 @@ class MetalView:
 
   def __init__(self):
     self._mtkView: MTKView
+    self.count = 0
 
   def _override_mtkView(self):
 
     # --- `MTKView` Methods
     def drawRect_(_self, _cmd, _rect):
       this = ObjCInstance(_self)
+      if self.count < 1:
+        height = _rect.size.height
+        width = _rect.size.width
+        #pdbg.state(_rect.size)
+        print(width, height)
+        self.count += 1
 
       if (drawable :=
           this.currentDrawable()) and (rpd :=

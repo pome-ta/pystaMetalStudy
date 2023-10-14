@@ -21,7 +21,7 @@ NSLayoutConstraint = ObjCClass('NSLayoutConstraint')
 # --- Metal
 MTKView = ObjCClass('MTKView')
 
-
+#@on_main_thread
 def MTLCreateSystemDefaultDevice():
   _MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
   _MTLCreateSystemDefaultDevice.argtypes = []
@@ -50,11 +50,16 @@ class MetalView:
         _index0.clearColor = (0.0, 0.5, 0.5, 1.0)
         _index0.loadAction = 2  # .clear
 
-        commandBuffer = this.device().newCommandQueue().commandBuffer()
-        commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
-        commandEncoder.endEncoding()
-        commandBuffer.presentDrawable_(drawable)
-        commandBuffer.commit()
+        # xxx: 再現性なく、エラー出るのでとりあえず
+        try:
+          commandBuffer = this.device().newCommandQueue().commandBuffer()
+        
+          commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
+          commandEncoder.endEncoding()
+          commandBuffer.presentDrawable_(drawable)
+          commandBuffer.commit()
+        except :
+          pass
 
     # --- `MTKView` set up
     _methods = [
