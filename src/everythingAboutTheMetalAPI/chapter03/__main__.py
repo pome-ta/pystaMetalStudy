@@ -3,7 +3,7 @@ import ctypes
 from objc_util import ObjCClass, ObjCInstance, create_objc_class, on_main_thread, c
 from objc_util import sel, CGRect
 
-#import pdbg
+import pdbg
 
 TITLE = 'chapter03'
 
@@ -29,34 +29,33 @@ def MTLCreateSystemDefaultDevice():
   return ObjCInstance(_MTLCreateSystemDefaultDevice())
 
 
-class AAPLRenderer:
+class Renderer:
 
   def __init__(self):
-    self._device: 'MTLDevice'
-    self._commandQueue: 'MTLCommandQueue'
+    self.device: 'MTLDevice'
+    self.commandQueue: 'MTLCommandQueue'
 
   def _create_delegate(self):
     # --- `MTKViewDelegate` Methods
+    
+    def override_init(_self, _cmd):
+      this = ObjCInstance(_self)
+      this.init()
+      print('init')
+      pdbg.state(this)
+      
     def drawInMTKView_(_self, _cmd, _view):
       this = ObjCInstance(_self)
       view = ObjCInstance(_view)
-
-      renderPassDescriptor = view.currentRenderPassDescriptor()
-      commandBuffer = self._commandQueue.commandBuffer()
-      commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
-        renderPassDescriptor)
-
-      commandEncoder.endEncoding()
-
-      drawable = view.currentDrawable()
-      commandBuffer.presentDrawable(drawable)
-      commandBuffer.commit()
+      
+      self.device = MTLCreateSystemDefaultDevice()
 
     def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
       pass
 
     # --- `MTKViewDelegate` set up
     _methods = [
+      #init,
       drawInMTKView_,
       mtkView_drawableSizeWillChange_,
     ]
@@ -78,19 +77,17 @@ class AAPLRenderer:
     return self._create_delegate()
 
   @classmethod
-  def initWithMetalKitView_(cls, mtkView: MTKView) -> ObjCInstance:
+  def new(cls) -> ObjCInstance:
     _cls = cls()
-    _cls._device = mtkView.device()
-    _cls._commandQueue = _cls._device.newCommandQueue()
     return _cls._init()
 
 
-class AAPLViewController:
+class MetalViewController:
 
   def __init__(self):
     self._viewController: UIViewController
-    self._view: MTKView
-    self._renderer: AAPLRenderer
+    self.mtkView: MTKView
+    self.renderer: Renderer
 
   def _override_viewController(self):
 
@@ -98,8 +95,15 @@ class AAPLViewController:
     def viewDidLoad(_self, _cmd):
       this = ObjCInstance(_self)
       view = this.view()
-
+      
+      
+      self.renderer = Renderer.new()
+      #pdbg.state(self.renderer)
+      #print(self.renderer.device())
+      #print(ObjCInstance(self.renderer.device))
+      #pdbg.state(self.renderer)
       CGRectZero = CGRect((0.0, 0.0), (0.0, 0.0))
+      '''
 
       self._view = MTKView.alloc()
       self._view.initWithFrame_device_(CGRectZero, MTLCreateSystemDefaultDevice())
@@ -124,6 +128,7 @@ class AAPLViewController:
           view.heightAnchor(), 1.0),
       ]
       NSLayoutConstraint.activateConstraints_(constraints)
+      '''
 
     # --- `UIViewController` set up
     _methods = [
@@ -272,6 +277,6 @@ def present_objc(vc):
 
 
 if __name__ == '__main__':
-  aplvc = AAPLViewController.new()
-  ovc = ObjcUIViewController.new(aplvc)
+  mtlvc = MetalViewController.new()
+  ovc = ObjcUIViewController.new(mtlvc)
   present_objc(ovc)
