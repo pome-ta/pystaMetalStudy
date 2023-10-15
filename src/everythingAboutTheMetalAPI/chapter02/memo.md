@@ -6,3 +6,9 @@
 
 
 [https://github.com/MetalKit/metal/tree/master/ch02/chapter02](https://github.com/MetalKit/metal/tree/master/ch02/chapter02)
+
+
+## OS ごと逝く
+
+`drawRect_` 内だと思われるけど、エラー起こすと面倒だから実行しない方がいいかも
+
