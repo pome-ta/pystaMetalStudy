@@ -1,107 +1,278 @@
-import pathlib
 import ctypes
-from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
-import ui
+
+from objc_util import ObjCClass, ObjCInstance, create_objc_class, on_main_thread, c
+from objc_util import sel, CGRect
 
 #import pdbg
 
-shader_path = pathlib.Path('./Shaders.metal')
+TITLE = 'chapter03'
 
-# --- load objc classes
+# --- navigation
+UINavigationController = ObjCClass('UINavigationController')
+UINavigationBarAppearance = ObjCClass('UINavigationBarAppearance')
+UIBarButtonItem = ObjCClass('UIBarButtonItem')
+
+# --- viewController
+UIViewController = ObjCClass('UIViewController')
+
+# --- view
+NSLayoutConstraint = ObjCClass('NSLayoutConstraint')
+
+# --- Metal
 MTKView = ObjCClass('MTKView')
-MTLCompileOptions = ObjCClass('MTLCompileOptions')
-MTLRenderPipelineDescriptor = ObjCClass('MTLRenderPipelineDescriptor')
-
-# --- initialize MetalDevice
-MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
-MTLCreateSystemDefaultDevice.argtypes = []
-MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
-
-err_ptr = ctypes.c_void_p()
 
 
-class MetalView(ui.View):
-  def __init__(self, *args, **kwargs):
-    ui.View.__init__(self, *args, **kwargs)
-    self.bg_color = 'maroon'
-    self.view_did_load()
+def MTLCreateSystemDefaultDevice():
+  _MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
+  _MTLCreateSystemDefaultDevice.argtypes = []
+  _MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
+  return ObjCInstance(_MTLCreateSystemDefaultDevice())
 
-  def view_did_load(self):
-    mtkView = MTKView.alloc()
-    _device = MTLCreateSystemDefaultDevice()
-    _frame = ((0.0, 0.0), (100.0, 100.0))
 
-    devices = ObjCInstance(_device)
-    mtkView.initWithFrame_device_(_frame, devices)
-    mtkView.setAutoresizingMask_((1 << 1) | (1 << 4))
-    renderer = self.renderer_init(PyRenderer, mtkView)
-    mtkView.delegate = renderer
+class AAPLRenderer:
 
-    self.objc_instance.addSubview_(mtkView)
+  def __init__(self):
+    self._device: 'MTLDevice'
+    self._commandQueue: 'MTLCommandQueue'
 
-  def renderer_init(self, delegate, _mtkView):
-    renderer = delegate.alloc().init()
-    renderer.device = _mtkView.device()
-    renderer.commandQueue = renderer.device.newCommandQueue()
+  def _create_delegate(self):
+    # --- `MTKViewDelegate` Methods
+    def drawInMTKView_(_self, _cmd, _view):
+      this = ObjCInstance(_self)
+      view = ObjCInstance(_view)
 
-    vertexData = (ctypes.c_float * 12)()
-    array_vertex = [
-      -1.0, -1.0, 0.0, 1.0, 1.0, -1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0
+      renderPassDescriptor = view.currentRenderPassDescriptor()
+      commandBuffer = self._commandQueue.commandBuffer()
+      commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
+        renderPassDescriptor)
+
+      commandEncoder.endEncoding()
+
+      drawable = view.currentDrawable()
+      commandBuffer.presentDrawable(drawable)
+      commandBuffer.commit()
+
+    def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
+      pass
+
+    # --- `MTKViewDelegate` set up
+    _methods = [
+      drawInMTKView_,
+      mtkView_drawableSizeWillChange_,
     ]
-    for n, i in enumerate(array_vertex):
-      vertexData[n] = i
+    _protocols = [
+      'MTKViewDelegate',
+    ]
 
-    # xxx: 要確認
-    dataSize = vertexData.__len__() * 16  # 192
-    #dataSize = ctypes.sizeof(vertexData)  # 48
-    
-    renderer.vertexBuffer = renderer.device.newBufferWithBytes_length_options_(vertexData, dataSize, 0)
+    create_kwargs = {
+      'name': '_delegate',
+      'methods': _methods,
+      'protocols': _protocols,
+    }
 
-    source = shader_path.read_text('utf-8')
-    library = renderer.device.newLibraryWithSource_options_error_(source, MTLCompileOptions.new(), err_ptr)
+    _delegate = create_objc_class(**create_kwargs)
+    return _delegate.new()
 
-    vertex_func = library.newFunctionWithName_('vertex_func')
-    frag_func = library.newFunctionWithName_('fragment_func')
+  #@on_main_thread
+  def _init(self):
+    return self._create_delegate()
 
-    rpld = MTLRenderPipelineDescriptor.new()
-    rpld.vertexFunction = vertex_func
-    rpld.fragmentFunction = frag_func
-    rpld.colorAttachments().objectAtIndexedSubscript(0).pixelFormat = 80  # .bgra8Unorm
-
-    renderer.rps = renderer.device.newRenderPipelineStateWithDescriptor_error_(rpld, err_ptr)
-
-    return renderer
-
-
-# --- MTKViewDelegate
-def drawInMTKView_(_self, _cmd, _view):
-  self = ObjCInstance(_self)
-  view = ObjCInstance(_view)
-  drawable = view.currentDrawable()
-  rpd = view.currentRenderPassDescriptor()
-  rpd.colorAttachments().objectAtIndexedSubscript(0).clearColor = (0.0, 0.5, 0.5, 1.0)
-
-  commandBuffer = self.commandQueue.commandBuffer()
-  commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
-  commandEncoder.setRenderPipelineState_(self.rps)
-  commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
-  commandEncoder.drawPrimitives_vertexStart_vertexCount_instanceCount_(3, 0, 3, 1)  # .triangle
-  commandEncoder.endEncoding()
-  commandBuffer.presentDrawable_(drawable)
-  commandBuffer.commit()
+  @classmethod
+  def initWithMetalKitView_(cls, mtkView: MTKView) -> ObjCInstance:
+    _cls = cls()
+    _cls._device = mtkView.device()
+    _cls._commandQueue = _cls._device.newCommandQueue()
+    return _cls._init()
 
 
-def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
-  self = ObjCInstance(_self)
-  view = ObjCInstance(_view)
+class AAPLViewController:
+
+  def __init__(self):
+    self._viewController: UIViewController
+    self._view: MTKView
+    self._renderer: AAPLRenderer
+
+  def _override_viewController(self):
+
+    # --- `UIViewController` Methods
+    def viewDidLoad(_self, _cmd):
+      this = ObjCInstance(_self)
+      view = this.view()
+
+      CGRectZero = CGRect((0.0, 0.0), (0.0, 0.0))
+
+      self._view = MTKView.alloc()
+      self._view.initWithFrame_device_(CGRectZero, MTLCreateSystemDefaultDevice())
+      self._view.enableSetNeedsDisplay = True
+      self._view.clearColor = (0.0, 0.5, 1.0, 1.0)
+      self._renderer = AAPLRenderer.initWithMetalKitView_(self._view)
+      self._renderer.mtkView_drawableSizeWillChange_(self._view, view.size())
+      self._view.delegate = self._renderer
+
+      # --- layout
+      view.addSubview_(self._view)
+      self._view.translatesAutoresizingMaskIntoConstraints = False
+
+      constraints = [
+        self._view.centerXAnchor().constraintEqualToAnchor_(
+          view.centerXAnchor()),
+        self._view.centerYAnchor().constraintEqualToAnchor_(
+          view.centerYAnchor()),
+        self._view.widthAnchor().constraintEqualToAnchor_multiplier_(
+          view.widthAnchor(), 1.0),
+        self._view.heightAnchor().constraintEqualToAnchor_multiplier_(
+          view.heightAnchor(), 1.0),
+      ]
+      NSLayoutConstraint.activateConstraints_(constraints)
+
+    # --- `UIViewController` set up
+    _methods = [
+      viewDidLoad,
+    ]
+
+    create_kwargs = {
+      'name': '_vc',
+      'superclass': UIViewController,
+      'methods': _methods,
+    }
+    _vc = create_objc_class(**create_kwargs)
+    self._viewController = _vc
+
+  #@on_main_thread
+  def _init(self):
+    self._override_viewController()
+    vc = self._viewController.new().autorelease()
+    return vc
+
+  @classmethod
+  def new(cls) -> ObjCInstance:
+    _cls = cls()
+    return _cls._init()
 
 
-PyRenderer = create_objc_class(
-  name='PyRenderer',
-  methods=[drawInMTKView_, mtkView_drawableSizeWillChange_],
-  protocols=['MTKViewDelegate'])
+class ObjcUIViewController:
+
+  def __init__(self):
+    self._navigationController: UINavigationController
+
+  def _override_navigationController(self):
+    # --- `UINavigationController` Methods
+    def doneButtonTapped_(_self, _cmd, _sender):
+      this = ObjCInstance(_self)
+      visibleViewController = this.visibleViewController()
+      visibleViewController.dismissViewControllerAnimated_completion_(
+        True, None)
+
+    # --- `UINavigationController` set up
+    _methods = [
+      doneButtonTapped_,
+    ]
+
+    create_kwargs = {
+      'name': '_nv',
+      'superclass': UINavigationController,
+      'methods': _methods,
+    }
+    _nv = create_objc_class(**create_kwargs)
+    self._navigationController = _nv
+
+  def create_navigationControllerDelegate(self):
+    # --- `UINavigationControllerDelegate` Methods
+    def navigationController_willShowViewController_animated_(
+        _self, _cmd, _navigationController, _viewController, _animated):
+
+      navigationController = ObjCInstance(_navigationController)
+      viewController = ObjCInstance(_viewController)
+
+      # --- appearance
+      appearance = UINavigationBarAppearance.alloc()
+      appearance.configureWithDefaultBackground()
+      #appearance.configureWithOpaqueBackground()
+      #appearance.configureWithTransparentBackground()
+
+      # --- navigationBar
+      navigationBar = navigationController.navigationBar()
+
+      navigationBar.standardAppearance = appearance
+      navigationBar.scrollEdgeAppearance = appearance
+      navigationBar.compactAppearance = appearance
+      navigationBar.compactScrollEdgeAppearance = appearance
+
+      #navigationBar.prefersLargeTitles = True
+
+      viewController.setEdgesForExtendedLayout_(0)
+      #viewController.setExtendedLayoutIncludesOpaqueBars_(True)
+
+      done_btn = UIBarButtonItem.alloc(
+      ).initWithBarButtonSystemItem_target_action_(0, navigationController,
+                                                   sel('doneButtonTapped:'))
+
+      visibleViewController = navigationController.visibleViewController()
+
+      # --- navigationItem
+      navigationItem = visibleViewController.navigationItem()
+      navigationItem.rightBarButtonItem = done_btn
+      navigationItem.setTitle_(TITLE)
+
+    # --- `UINavigationControllerDelegate` set up
+    _methods = [
+      navigationController_willShowViewController_animated_,
+    ]
+    _protocols = [
+      'UINavigationControllerDelegate',
+    ]
+
+    create_kwargs = {
+      'name': '_nvDelegate',
+      'methods': _methods,
+      'protocols': _protocols,
+    }
+    _nvDelegate = create_objc_class(**create_kwargs)
+    return _nvDelegate.new()
+
+  @on_main_thread
+  def _init(self, vc: UIViewController):
+    self._override_navigationController()
+    _delegate = self.create_navigationControllerDelegate()
+    nv = self._navigationController.alloc()
+    nv.initWithRootViewController_(vc).autorelease()
+    nv.setDelegate_(_delegate)
+    return nv
+
+  @classmethod
+  def new(cls, vc: UIViewController) -> ObjCInstance:
+    _cls = cls()
+    return _cls._init(vc)
+
+
+@on_main_thread
+def present_objc(vc):
+  app = ObjCClass('UIApplication').sharedApplication()
+  window = app.keyWindow() if app.keyWindow() else app.windows().firstObject()
+
+  root_vc = window.rootViewController()
+
+  while root_vc.presentedViewController():
+    root_vc = root_vc.presentedViewController()
+  '''
+  case -2 : automatic
+  case -1 : none
+  case  0 : fullScreen
+  case  1 : pageSheet <- default ?
+  case  2 : formSheet
+  case  3 : currentContext
+  case  4 : custom
+  case  5 : overFullScreen
+  case  6 : overCurrentContext
+  case  7 : popover
+  case  8 : blurOverFullScreen
+  '''
+  vc.setModalPresentationStyle(0)
+  root_vc.presentViewController_animated_completion_(vc, True, None)
+
 
 if __name__ == '__main__':
-  view = MetalView()
-  view.present(style='fullscreen', orientations=['portrait'])
+  aplvc = AAPLViewController.new()
+  ovc = ObjcUIViewController.new(aplvc)
+  present_objc(ovc)
 
