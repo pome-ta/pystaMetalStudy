@@ -5,6 +5,13 @@ from objc_util import sel, CGRect
 
 import pdbg
 
+
+"""
+`drawRect_` がコケると、OS 巻き込むっぽいから
+実行しない方がいい
+
+"""
+
 TITLE = 'chapter02'
 
 # --- navigation
@@ -51,6 +58,7 @@ class MetalView:
         _index0.loadAction = 2  # .clear
 
         # xxx: 再現性なく、エラー出るのでとりあえず
+        '''
         try:
           commandBuffer = this.device().newCommandQueue().commandBuffer()
         
@@ -60,6 +68,13 @@ class MetalView:
           commandBuffer.commit()
         except :
           pass
+        '''
+        commandBuffer = this.device().newCommandQueue().commandBuffer()
+        
+        commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
+        commandEncoder.endEncoding()
+        commandBuffer.presentDrawable_(drawable)
+        commandBuffer.commit()
 
     # --- `MTKView` set up
     _methods = [
