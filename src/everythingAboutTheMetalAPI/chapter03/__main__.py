@@ -37,17 +37,17 @@ class Renderer:
 
   def _create_delegate(self):
     # --- `MTKViewDelegate` Methods
-    
+
     def override_init(_self, _cmd):
       this = ObjCInstance(_self)
       this.init()
       print('init')
       pdbg.state(this)
-      
+
     def drawInMTKView_(_self, _cmd, _view):
       this = ObjCInstance(_self)
       view = ObjCInstance(_view)
-      
+
       self.device = MTLCreateSystemDefaultDevice()
 
     def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
@@ -95,8 +95,7 @@ class MetalViewController:
     def viewDidLoad(_self, _cmd):
       this = ObjCInstance(_self)
       view = this.view()
-      
-      
+
       self.renderer = Renderer.new()
       #pdbg.state(self.renderer)
       #print(self.renderer.device())
@@ -280,3 +279,4 @@ if __name__ == '__main__':
   mtlvc = MetalViewController.new()
   ovc = ObjcUIViewController.new(mtlvc)
   present_objc(ovc)
+
