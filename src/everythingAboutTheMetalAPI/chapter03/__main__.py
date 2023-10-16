@@ -1,3 +1,4 @@
+import pathlib
 import ctypes
 
 from objc_util import ObjCClass, ObjCInstance, create_objc_class, on_main_thread, c
@@ -6,6 +7,8 @@ from objc_util import sel, CGRect
 import pdbg
 
 TITLE = 'chapter03'
+shader_path = pathlib.Path('./Shaders.metal')
+err_ptr = ctypes.c_void_p()
 
 # --- navigation
 UINavigationController = ObjCClass('UINavigationController')
@@ -20,6 +23,8 @@ NSLayoutConstraint = ObjCClass('NSLayoutConstraint')
 
 # --- Metal
 MTKView = ObjCClass('MTKView')
+MTLCompileOptions = ObjCClass('MTLCompileOptions')
+MTLRenderPipelineDescriptor = ObjCClass('MTLRenderPipelineDescriptor')
 
 
 def MTLCreateSystemDefaultDevice():
@@ -34,14 +39,64 @@ class Renderer:
   def __init__(self):
     self.device: 'MTLDevice'
     self.commandQueue: 'MTLCommandQueue'
-    self.vertexData:[float]
-    self.vertexBuffer:'MTLBuffer'
+    self.vertexData: [float]
+    self.vertexBuffer: 'MTLBuffer'
+
+  def _init(self, mtkView: MTKView) -> 'MTKViewDelegate':
+    self.device = mtkView.device()
+    self.commandQueue = self.device.newCommandQueue()
+    self.vertexData = (ctypes.c_float * 12)()
+    array_vertex = [
+      -1.0, -1.0, 0.0, 1.0, 1.0, -1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0
+    ]
+    for n, i in enumerate(array_vertex):
+      self.vertexData[n] = i
+    # xxx: 要確認
+    dataSize = self.vertexData.__len__() * 16  # 192
+    #dataSize = ctypes.sizeof(vertexData)  # 48
+    self.vertexBuffer = self.device.newBufferWithBytes_length_options_(
+      self.vertexData, dataSize, 0)
+
+    source = shader_path.read_text('utf-8')
+    library = self.device.newLibraryWithSource_options_error_(
+      source, MTLCompileOptions.new(), err_ptr)
+
+    vertex_func = library.newFunctionWithName_('vertex_func')
+    frag_func = library.newFunctionWithName_('fragment_func')
+
+    rpld = MTLRenderPipelineDescriptor.new()
+    rpld.vertexFunction = vertex_func
+    rpld.fragmentFunction = frag_func
+
+    rpld.colorAttachments().objectAtIndexedSubscript(
+      0).pixelFormat = 80  # .bgra8Unorm
+
+    self.rps = self.device.newRenderPipelineStateWithDescriptor_error_(
+      rpld, err_ptr)
+
+    return self._create_delegate()
 
   def _create_delegate(self):
     # --- `MTKViewDelegate` Methods
     def drawInMTKView_(_self, _cmd, _view):
       this = ObjCInstance(_self)
       view = ObjCInstance(_view)
+
+      drawable = view.currentDrawable()
+      rpd = view.currentRenderPassDescriptor()
+      rpd.colorAttachments().objectAtIndexedSubscript(0).clearColor = (0.0,
+                                                                       0.5,
+                                                                       0.5,
+                                                                       1.0)
+      commandBuffer = self.commandQueue.commandBuffer()
+      commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
+      commandEncoder.setRenderPipelineState_(self.rps)
+      commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
+      commandEncoder.drawPrimitives_vertexStart_vertexCount_instanceCount_(
+        3, 0, 3, 1)  # .triangle
+      commandEncoder.endEncoding()
+      commandBuffer.presentDrawable_(drawable)
+      commandBuffer.commit()
 
     def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
       pass
@@ -64,11 +119,6 @@ class Renderer:
     _delegate = create_objc_class(**create_kwargs)
     return _delegate.new()
 
-  def _init(self, mtkView: MTKView) -> 'MTKViewDelegate':
-    self.device = mtkView.device()
-    self.commandQueue = self.device.newCommandQueue()
-    return self._create_delegate()
-
   @classmethod
   def initWithMetalKitView_(cls, mtkView: MTKView) -> 'MTKViewDelegate':
     _cls = cls()
@@ -89,38 +139,32 @@ class MetalViewController:
       this = ObjCInstance(_self)
       view = this.view()
 
-      self.renderer = Renderer.new()
-      #pdbg.state(self.renderer)
-      #print(self.renderer.device())
-      #print(ObjCInstance(self.renderer.device))
-      #pdbg.state(self.renderer)
       CGRectZero = CGRect((0.0, 0.0), (0.0, 0.0))
-      '''
 
-      self._view = MTKView.alloc()
-      self._view.initWithFrame_device_(CGRectZero, MTLCreateSystemDefaultDevice())
-      self._view.enableSetNeedsDisplay = True
-      self._view.clearColor = (0.0, 0.5, 1.0, 1.0)
-      self._renderer = AAPLRenderer.initWithMetalKitView_(self._view)
-      self._renderer.mtkView_drawableSizeWillChange_(self._view, view.size())
-      self._view.delegate = self._renderer
+      self.mtkView = MTKView.alloc()
+      self.mtkView.initWithFrame_device_(CGRectZero,
+                                         MTLCreateSystemDefaultDevice())
+      #self.mtkView.enableSetNeedsDisplay = True
+      #self.mtkView.clearColor = (0.0, 0.5, 1.0, 1.0)
+      self.renderer = Renderer.initWithMetalKitView_(self.mtkView)
+      self.renderer.mtkView_drawableSizeWillChange_(self.mtkView, view.size())
+      self.mtkView.delegate = self.renderer
 
       # --- layout
-      view.addSubview_(self._view)
-      self._view.translatesAutoresizingMaskIntoConstraints = False
+      view.addSubview_(self.mtkView)
+      self.mtkView.translatesAutoresizingMaskIntoConstraints = False
 
       constraints = [
-        self._view.centerXAnchor().constraintEqualToAnchor_(
+        self.mtkView.centerXAnchor().constraintEqualToAnchor_(
           view.centerXAnchor()),
-        self._view.centerYAnchor().constraintEqualToAnchor_(
+        self.mtkView.centerYAnchor().constraintEqualToAnchor_(
           view.centerYAnchor()),
-        self._view.widthAnchor().constraintEqualToAnchor_multiplier_(
+        self.mtkView.widthAnchor().constraintEqualToAnchor_multiplier_(
           view.widthAnchor(), 1.0),
-        self._view.heightAnchor().constraintEqualToAnchor_multiplier_(
+        self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(
           view.heightAnchor(), 1.0),
       ]
       NSLayoutConstraint.activateConstraints_(constraints)
-      '''
 
     # --- `UIViewController` set up
     _methods = [
