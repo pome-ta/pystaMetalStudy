@@ -93,15 +93,10 @@ class Renderer:
 
       drawable = view.currentDrawable()
       rpd = view.currentRenderPassDescriptor()
-      _index0 = rpd.colorAttachments().objectAtIndexedSubscript(0)
-      _index0.clearColor = (0.0, 0.5, 0.5, 1.0)
-      '''
-
       rpd.colorAttachments().objectAtIndexedSubscript(0).clearColor = (0.0,
                                                                        0.5,
                                                                        0.5,
                                                                        1.0)
-      '''
       commandBuffer = self.commandQueue.commandBuffer()
       commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
       commandEncoder.setRenderPipelineState_(self.rps)
@@ -261,7 +256,7 @@ class ObjcUIViewController:
       navigationBar.compactAppearance = appearance
       navigationBar.compactScrollEdgeAppearance = appearance
 
-      navigationBar.prefersLargeTitles = True
+      #navigationBar.prefersLargeTitles = True
 
       viewController.setEdgesForExtendedLayout_(0)
       #viewController.setExtendedLayoutIncludesOpaqueBars_(True)

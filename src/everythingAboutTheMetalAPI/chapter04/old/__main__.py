@@ -3,9 +3,10 @@ import ctypes
 from objc_util import c, create_objc_class, ObjCClass, ObjCInstance
 import ui
 
-#import pdbg
+import pdbg
 
 shader_path = pathlib.Path('./Shaders.metal')
+err_ptr = ctypes.c_void_p()
 
 # --- load objc classes
 MTKView = ObjCClass('MTKView')
@@ -17,7 +18,7 @@ MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
 MTLCreateSystemDefaultDevice.argtypes = []
 MTLCreateSystemDefaultDevice.restype = ctypes.c_void_p
 
-err_ptr = ctypes.c_void_p()
+
 
 
 # xxx: クソダサ
