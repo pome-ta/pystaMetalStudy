@@ -6,9 +6,6 @@
 //  Copyright © 2016 Marius Horga. All rights reserved.
 //
 
-// [https://github.com/MetalKit/metal/blob/master/ch04/chapter04/Shaders.metal](https://github.com/MetalKit/metal/blob/master/ch04/chapter04/Shaders.metal)
-
-
 #include <metal_stdlib>
 using namespace metal;
 
