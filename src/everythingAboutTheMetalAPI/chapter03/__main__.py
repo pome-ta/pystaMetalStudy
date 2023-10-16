@@ -34,6 +34,8 @@ class Renderer:
   def __init__(self):
     self.device: 'MTLDevice'
     self.commandQueue: 'MTLCommandQueue'
+    self.vertexData:[float]
+    self.vertexBuffer:'MTLBuffer'
 
   def _create_delegate(self):
     # --- `MTKViewDelegate` Methods
