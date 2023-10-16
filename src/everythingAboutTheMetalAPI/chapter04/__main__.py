@@ -34,6 +34,22 @@ def MTLCreateSystemDefaultDevice():
   return ObjCInstance(_MTLCreateSystemDefaultDevice())
 
 
+# xxx: クソダサ
+def create_buffer(structure, array):
+  for s1, a1 in enumerate(array):
+    for s2, a2 in enumerate(a1):
+      for s3, a3 in enumerate(a2):
+        structure[s1][s2][s3] = a3
+  return structure
+
+# --- set Vertex
+Vertex = (((ctypes.c_float * 4) * 2) * 3)()
+
+bf_array = [[[-0.5, -0.5, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0]],
+            [[0.5, -0.5, 0.0, 1.0], [0.0, 1.0, 0.0, 1.0]],
+            [[0.0, 0.5, 0.0, 1.0], [0.0, 0.0, 1.0, 1.0]]]
+
+
 class Renderer:
 
   def __init__(self):
@@ -43,6 +59,9 @@ class Renderer:
     self.vertexBuffer: 'MTLBuffer'
     self.rps: 'MTLRenderPipelineState'
 
+  def _createBuffer(self):
+    pass
+  
   def _registerShaders(self):
     self.vertexData = (ctypes.c_float * 12)()
     array_vertex = [
@@ -119,6 +138,7 @@ class Renderer:
   def _init(self, mtkView: MTKView) -> 'MTKViewDelegate':
     self.device = mtkView.device()
     self.commandQueue = self.device.newCommandQueue()
+    self._createBuffer()
     self._registerShaders()
 
     return self._create_delegate()
