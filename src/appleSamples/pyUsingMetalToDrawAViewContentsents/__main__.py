@@ -72,15 +72,15 @@ class AAPLRenderer:
     return _delegate.new()
 
   #@on_main_thread
-  def _init(self):
+  def _init(self, mtkView: MTKView) -> 'MTKViewDelegate':
+    self._device = mtkView.device()
+    self._commandQueue = self._device.newCommandQueue()
     return self._create_delegate()
 
   @classmethod
-  def initWithMetalKitView_(cls, mtkView: MTKView) -> ObjCInstance:
+  def initWithMetalKitView_(cls, mtkView: MTKView) -> 'MTKViewDelegate':
     _cls = cls()
-    _cls._device = mtkView.device()
-    _cls._commandQueue = _cls._device.newCommandQueue()
-    return _cls._init()
+    return _cls._init(mtkView)
 
 
 class AAPLViewController:
