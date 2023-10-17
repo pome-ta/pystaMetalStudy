@@ -63,6 +63,7 @@ class Renderer:
 
   def _createBuffer(self):
     vertexData = create_buffer(Vertex, bf_array)
+    print(vertexData)
     # xxx: 要検証
     dataSize = 16 * (3 * 2)
 
