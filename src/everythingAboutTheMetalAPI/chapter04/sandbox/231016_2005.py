@@ -1,7 +1,7 @@
 import pathlib
 import ctypes
 
-import numpy as np
+#import numpy as np
 
 from objc_util import ObjCClass, ObjCInstance, create_objc_class, on_main_thread, c
 from objc_util import sel, CGRect
@@ -65,6 +65,8 @@ class Renderer:
     vertexData = create_buffer(Vertex, bf_array)
     # xxx: 要検証
     dataSize = 16 * (3 * 2)
+    print(vertexData)
+    print(dataSize)
 
     self.vertexBuffer = self.device.newBufferWithBytes_length_options_(
       vertexData, dataSize, 0)
