@@ -95,7 +95,7 @@ class Renderer:
     length = shape * strides
 
     self.vertexBuffer = self.device.newBufferWithBytes_length_options_(
-      vertexData, length, 0)
+      vertexData.ctypes, length, 0)
 
   def _registerShaders(self):
     source = shader_path.read_text('utf-8')

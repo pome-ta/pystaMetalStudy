@@ -1,7 +1,7 @@
 import pathlib
 import ctypes
 
-import numpy as np
+#import numpy as np
 
 from objc_util import ObjCClass, ObjCInstance, create_objc_class, on_main_thread, c
 from objc_util import sel, CGRect
@@ -36,38 +36,21 @@ def MTLCreateSystemDefaultDevice():
   return ObjCInstance(_MTLCreateSystemDefaultDevice())
 
 
-vector_float4 = np.dtype(
-  {
-    'names': [
-      'x',
-      'y',
-      'z',
-      'w',
-    ],
-    'formats': [
-      np.float32,
-      np.float32,
-      np.float32,
-      np.float32,
-    ],
-    'offsets': [o * 4 for o in range(4)],
-    'itemsize': 16,
-  },
-  align=True)
+# xxx: クソダサ
+def create_buffer(structure, array):
+  for s1, a1 in enumerate(array):
+    for s2, a2 in enumerate(a1):
+      for s3, a3 in enumerate(a2):
+        structure[s1][s2][s3] = a3
+  return structure
 
-Vertex = np.dtype(
-  {
-    'names': [
-      'position',
-      'color',
-    ],
-    'formats': [
-      vector_float4,
-      vector_float4,
-    ],
-    'offsets': [0, 16],
-  },
-  align=True)
+
+# --- set Vertex
+Vertex = (((ctypes.c_float * 4) * 2) * 3)()
+
+bf_array = [[[-0.5, -0.5, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0]],
+            [[0.5, -0.5, 0.0, 1.0], [0.0, 1.0, 0.0, 1.0]],
+            [[0.0, 0.5, 0.0, 1.0], [0.0, 0.0, 1.0, 1.0]]]
 
 
 class Renderer:
@@ -79,23 +62,14 @@ class Renderer:
     self.rps: 'MTLRenderPipelineState'
 
   def _createBuffer(self):
-    _v = [((-0.5, -0.5, 0.0, 1.0), (1, 0, 0, 1)),
-          ((0.5, -0.5, 0.0, 1.0), (0, 1, 0, 1)),
-          ((0.0, 0.5, 0.0, 1.0), (0, 0, 1, 1))]
-
-    vertexData = np.array((
-      np.array(((-0.5, -0.5, 0.0, 1.0), (1, 0, 0, 1)), dtype=Vertex),
-      np.array(((0.5, -0.5, 0.0, 1.0), (0, 1, 0, 1)), dtype=Vertex),
-      np.array(((0.0, 0.5, 0.0, 1.0), (0, 0, 1, 1)), dtype=Vertex),
-    ))
-
-    shape, *_ = vertexData.shape
-    strides, *_ = vertexData.strides
-
-    length = shape * strides
+    vertexData = create_buffer(Vertex, bf_array)
+    # xxx: 要検証
+    dataSize = 16 * (3 * 2)
+    print(vertexData)
+    print(dataSize)
 
     self.vertexBuffer = self.device.newBufferWithBytes_length_options_(
-      vertexData, length, 0)
+      vertexData, dataSize, 0)
 
   def _registerShaders(self):
     source = shader_path.read_text('utf-8')
