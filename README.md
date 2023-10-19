@@ -8,6 +8,44 @@
 以下列記は、実装日誌的なメモ
 
 
+# 📝 2023/10/19
+
+
+過去の困りを確認しようとしても、困ってるお気持ちしか書いてないので、キャッチアップできない
+
+
+困りのコードと、期待値と結果程度は残すようにしたい
+
+
+
+## [src/everythingAboutTheMetalAPI/chapter04/sandbox/231019_0004.py](https://github.com/pome-ta/pystaMetalStudy/blob/main/src/everythingAboutTheMetalAPI/chapter04/sandbox/231019_0004.py)
+
+
+numpy で構造体を書いてみてる
+
+サイズの取り方とか、どうかなぁ、、、
+
+
+[NumPy - Structured arrays](https://runebook.dev/ja/docs/numpy/user/basics.rec#numpy.lib.recfunctions.repack_fields)
+
+
+
+## ヘッダーファイルの取り込み
+
+目算がついていない
+
+
+`.metal` に直書きにするとしても、cpu 側でのパスすることを確認しなければ、、、
+
+
+[[Metal]metalファイルをプリコンパイルしつつ実機でもコンパイルする #iOS - Qiita](https://qiita.com/noppefoxwolf/items/ddfec339f6002a33bc3b)
+
+[[Metal]MTLLibraryをランタイムでコンパイルする #iOS - Qiita](https://qiita.com/noppefoxwolf/items/fe6ea83f0e0e9703033c)
+
+
+[User defined. What I typically do is 1) add some sensible defaults to the top of my shader code so that I can use a precompiled library if I choose: #ifndef THREADS_PER_THREADGROUP #define... - Matthew Kieber-Emmons - Medium](https://kieber-emmons.medium.com/user-defined-3767eb5bfee4)
+
+
 # 📝 2023/10/10
 
 ## `ui` モジュール依存を剥がす

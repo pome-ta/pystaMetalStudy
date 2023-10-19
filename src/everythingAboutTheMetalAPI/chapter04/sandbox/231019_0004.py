@@ -38,33 +38,17 @@ def MTLCreateSystemDefaultDevice():
 
 vector_float4 = np.dtype(
   {
-    'names': [
-      'x',
-      'y',
-      'z',
-      'w',
-    ],
-    'formats': [
-      np.float32,
-      np.float32,
-      np.float32,
-      np.float32,
-    ],
-    'offsets': [o * 4 for o in range(4)],
+    'names': ['x', 'y', 'z', 'w'],
+    'formats': [np.float32, np.float32, np.float32, np.float32],
+    'offsets': [_offset * 4 for _offset in range(4)],
     'itemsize': 16,
   },
   align=True)
 
 Vertex = np.dtype(
   {
-    'names': [
-      'position',
-      'color',
-    ],
-    'formats': [
-      vector_float4,
-      vector_float4,
-    ],
+    'names': ['position', 'color'],
+    'formats': [vector_float4, vector_float4],
     'offsets': [0, 16],
   },
   align=True)
@@ -125,13 +109,7 @@ class Renderer:
       rpd = view.currentRenderPassDescriptor()
       _index0 = rpd.colorAttachments().objectAtIndexedSubscript(0)
       _index0.clearColor = (0.0, 0.5, 0.5, 1.0)
-      '''
-
-      rpd.colorAttachments().objectAtIndexedSubscript(0).clearColor = (0.0,
-                                                                       0.5,
-                                                                       0.5,
-                                                                       1.0)
-      '''
+      
       commandBuffer = self.commandQueue.commandBuffer()
       commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
       commandEncoder.setRenderPipelineState_(self.rps)
