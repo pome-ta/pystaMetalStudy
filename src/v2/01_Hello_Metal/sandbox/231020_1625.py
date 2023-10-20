@@ -1,7 +1,7 @@
 #import pathlib
 import ctypes
 
-import numpy as np
+#import numpy as np
 
 from objc_util import ObjCClass, ObjCInstance
 from objc_util import create_objc_class, on_main_thread, c, load_framework
@@ -33,24 +33,6 @@ MTKMeshBufferAllocator = ObjCClass('MTKMeshBufferAllocator')
 
 MDLMesh = ObjCClass('MDLMesh')
 MTKMesh = ObjCClass('MTKMesh')
-
-vector_float3 = np.dtype(
-  {
-    'names': ['x', 'y', 'z'],
-    'formats': [np.float32, np.float32, np.float32],
-    'offsets': [_offset * 4 for _offset in range(3)],
-    'itemsize': 16,
-  },
-  align=True)
-
-vector_uint2 = np.dtype(
-  {
-    'names': ['x', 'y'],
-    'formats': [np.uint32, np.uint32],
-    'offsets': [_offset * 4 for _offset in range(2)],
-    'itemsize': 8,
-  },
-  align=True)
 
 
 def MTLCreateSystemDefaultDevice():
@@ -91,18 +73,16 @@ class Renderer:
   def __init__(self):
     self.device: 'MTLDevice'
     self.commandQueue: 'MTLCommandQueue'
-    self.allocator: MTKMeshBufferAllocator
-    self.mesh: None
-    self.pipelineState = None
+    self.mesh: MTKMesh
+    self.pipelineState = 'MTLRenderPipelineState'
 
   def _init(self, mtkView: MTKView) -> 'MTKViewDelegate':
     self.device = mtkView.device()
-    self.allocator = MTKMeshBufferAllocator.alloc().initWithDevice_(
-      self.device)
+    allocator = MTKMeshBufferAllocator.alloc().initWithDevice_(self.device)
 
     # xxx: 球体諦め
     mdlMesh = MDLMesh.newIcosahedronWithRadius_inwardNormals_allocator_(
-      100.0, False, self.allocator)
+      10.0, False, allocator)
 
     self.mesh = MTKMesh.alloc().initWithMesh_device_error_(
       mdlMesh, self.device, err_ptr)
