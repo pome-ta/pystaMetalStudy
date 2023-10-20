@@ -96,7 +96,7 @@ class Renderer:
     fragmentFunction = library.newFunctionWithName_('fragment_main')
 
     pipelineDescriptor = MTLRenderPipelineDescriptor.new()
-    pipelineDescriptor.colorAttachments().objectAtIndexedSubscript(
+    pipelineDescriptor.colorAttachments().objectAtIndexedSubscript_(
       0).pixelFormat = 80  # .bgra8Unorm
     pipelineDescriptor.vertexFunction = vertexFunction
     pipelineDescriptor.fragmentFunction = fragmentFunction
@@ -123,7 +123,7 @@ class Renderer:
         renderPassDescriptor)
       renderEncoder.setRenderPipelineState_(self.pipelineState)
 
-      _buffer = self.mesh.vertexBuffers().objectAtIndexedSubscript(0).buffer()
+      _buffer = self.mesh.vertexBuffers().objectAtIndexedSubscript_(0).buffer()
       renderEncoder.setVertexBuffer_offset_atIndex_(_buffer, 0, 0)
 
       submesh = self.mesh.submeshes().firstObject()
