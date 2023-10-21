@@ -9,7 +9,7 @@ from objc_util import sel, CGRect
 
 import pdbg
 
-TITLE = '1. Hello, Metal!'
+TITLE = '2. 3D Models'
 err_ptr = ctypes.c_void_p()
 
 load_framework('SceneKit')
