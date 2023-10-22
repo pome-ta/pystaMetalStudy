@@ -1,7 +1,7 @@
 from pathlib import Path
 import ctypes
 
-#import numpy as np
+import numpy as np
 
 from objc_util import ObjCClass, ObjCInstance
 from objc_util import create_objc_class, on_main_thread, c, load_framework
@@ -73,6 +73,15 @@ fragment float4 fragment_main() {
 }
 '''
 
+vector_float3 = np.dtype(
+  {
+    'names': ['x', 'y', 'z'],
+    'formats': [np.float32, np.float32, np.float32],
+    'offsets': [_offset * 4 for _offset in range(3)],
+    'itemsize': 16,
+  },
+  align=True)
+
 
 class Renderer:
 
@@ -93,11 +102,11 @@ class Renderer:
     attr_indx0.format = 30
     attr_indx0.offset = 0
     attr_indx0.bufferIndex = 0
-    
-    
+
     lyt_indx0 = vertexDescriptor.layouts().objectAtIndexedSubscript_(0)
-    
-    pdbg.state(lyt_indx0.stride())
+    lyt_indx0.stride = vector_float3.itemsize
+
+    #pdbg.state(lyt_indx0.stride())
 
     # xxx: 球体諦め
     #mdlMesh = MDLMesh.newIcosahedronWithRadius_inwardNormals_allocator_(100.0, False, allocator)
