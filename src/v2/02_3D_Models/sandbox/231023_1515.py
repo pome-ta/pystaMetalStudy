@@ -12,7 +12,6 @@ import pdbg
 TITLE = '2. 3D Models'
 err_ptr = ctypes.c_void_p()
 
-#load_framework('SceneKit')
 #load_framework('ModelIO')
 
 # --- navigation
@@ -37,8 +36,6 @@ MDLMesh = ObjCClass('MDLMesh')
 MTKMesh = ObjCClass('MTKMesh')
 MDLAsset = ObjCClass('MDLAsset')
 
-#SCNSphere = ObjCClass('SCNSphere')
-
 
 def MTLCreateSystemDefaultDevice():
   _MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
@@ -62,7 +59,8 @@ def MTKModelIOVertexDescriptorFromMetal(metalDescriptor):
   _ptr = _MTKModelIOVertexDescriptorFromMetal(metalDescriptor)
   return ObjCInstance(_ptr)
 
-#@on_main_thread
+
+@on_main_thread
 def get_assetURL(path: Path) -> nsurl:
   return nsurl(str(path.resolve()))
 
@@ -107,8 +105,6 @@ class Renderer:
 
   def _init(self, mtkView: MTKView) -> 'MTKViewDelegate':
     self.device = mtkView.device()
-    
-    print('h')
 
     allocator = MTKMeshBufferAllocator.alloc().initWithDevice_(self.device)
     vertexDescriptor = MTLVertexDescriptor.new()
@@ -175,10 +171,8 @@ class Renderer:
 
       _buffer = self.mesh.vertexBuffers().objectAtIndexedSubscript_(0).buffer()
       renderEncoder.setVertexBuffer_offset_atIndex_(_buffer, 0, 0)
-      
 
       renderEncoder.setTriangleFillMode_(1)
-      
 
       for submesh in self.mesh.submeshes():
         renderEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
@@ -186,12 +180,10 @@ class Renderer:
           submesh.indexBuffer().buffer(),
           submesh.indexBuffer().offset())
 
-      
       renderEncoder.endEncoding()
 
       commandBuffer.presentDrawable_(drawable)
       commandBuffer.commit()
-      
 
     def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
 
