@@ -119,10 +119,12 @@ class Renderer:
 
     assetURL = get_assetURL(asset_path)
 
-    vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
+    #vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
+    vertexDescriptor = MTLVertexDescriptor.new()
+    pdbg.state(vertexDescriptor.attributes())
+    
     attributes = vertexDescriptor.attributes()
     layouts = vertexDescriptor.layouts()
-    #pdbg.state(vertexDescriptor)
 
     attribute0 = MDLVertexAttribute.new()
     attribute0.initWithName_format_offset_bufferIndex_(
@@ -133,9 +135,12 @@ class Renderer:
     layout0 = MDLVertexBufferLayout.new()
     layout0.initWithStride_(vector_float3.itemsize)
     layouts.setObject_atIndexedSubscript_(layout0, 0)
+    
+    #vertexDescriptor.newSerializedDescriptor()
 
     meshDescriptor = MTKModelIOVertexDescriptorFromMetal(vertexDescriptor)
     
+    pdbg.state(meshDescriptor)
     #pdbg.state(vertexDescriptor)
 
     # xxx: 名前呼び出しが終えてるということになる？
@@ -271,9 +276,9 @@ class MetalViewController:
           view.centerYAnchor()),
         self.mtkView.widthAnchor().constraintEqualToAnchor_multiplier_(
           view.widthAnchor(), 1.0),
-        #self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(view.heightAnchor(), 1.0),
+        #self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(view.widthAnchor(), 1.0),
         self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(
-          view.widthAnchor(), 1.0),
+          view.heightAnchor(), 1.0),
       ]
       NSLayoutConstraint.activateConstraints_(constraints)
 
