@@ -80,8 +80,7 @@ struct VertexIn {
   float4 position [[attribute(0)]];
 };
 
-vertex float4
-  vertex_main(const VertexIn vertex_in [[stage_in]]) {
+vertex float4 vertex_main(const VertexIn vertex_in [[stage_in]]) {
   return vertex_in.position;
 }
 
@@ -112,11 +111,12 @@ class Renderer:
     self.device = mtkView.device()
 
     allocator = MTKMeshBufferAllocator.alloc().initWithDevice_(self.device)
-    
+
     assetURL = get_assetURL(asset_path)
-    
+
     vertexDescriptor = MTLVertexDescriptor.new()
     attr_indx0 = vertexDescriptor.attributes().objectAtIndexedSubscript_(0)
+    #pdbg.state(attr_indx0)
 
     # [MTLVertexFormat | Apple Developer Documentation](https://developer.apple.com/documentation/metal/mtlvertexformat)
     attr_indx0.format = 30
@@ -128,15 +128,15 @@ class Renderer:
     lyt_indx0.stride = 16
 
     meshDescriptor = MTKModelIOVertexDescriptorFromMetal(vertexDescriptor)
-    meshDescriptor.attributes().objectAtIndexedSubscript_(
-      0).name = 'MDLVertexAttributePosition'
+    #meshDescriptor.attributes().objectAtIndexedSubscript_( 0).setName_('MDLVertexAttributePosition')
+    meshDescriptor.attributes().objectAtIndexedSubscript_(0).setName_(
+      'position')
 
     asset = MDLAsset.new()
     asset.initWithURL_vertexDescriptor_bufferAllocator_(
       assetURL, meshDescriptor, allocator)
 
     mdlMesh = asset.childObjectsOfClass_(MDLMesh).firstObject()
-    pdbg.state(mdlMesh)
 
     self.mesh = MTKMesh.alloc()
     self.mesh.initWithMesh_device_error_(mdlMesh, self.device, err_ptr)
@@ -261,8 +261,9 @@ class MetalViewController:
           view.centerYAnchor()),
         self.mtkView.widthAnchor().constraintEqualToAnchor_multiplier_(
           view.widthAnchor(), 1.0),
+        #self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(view.heightAnchor(), 1.0),
         self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(
-          view.heightAnchor(), 1.0),
+          view.widthAnchor(), 1.0),
       ]
       NSLayoutConstraint.activateConstraints_(constraints)
 
