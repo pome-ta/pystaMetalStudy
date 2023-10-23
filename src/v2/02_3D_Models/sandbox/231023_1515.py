@@ -60,9 +60,14 @@ def MTKModelIOVertexDescriptorFromMetal(metalDescriptor):
   return ObjCInstance(_ptr)
 
 
-@on_main_thread
+#@on_main_thread
 def get_assetURL(path: Path) -> nsurl:
-  return nsurl(str(path.resolve()))
+  _url = nsurl(str(path.resolve()))
+  #_url = str(path.resolve())
+
+  #print(_url)
+  #print(path.read_text())
+  return _url
 
 
 asset_path = Path('../Resources/train.obj')
@@ -175,8 +180,9 @@ class Renderer:
       renderEncoder.setTriangleFillMode_(1)
 
       for submesh in self.mesh.submeshes():
+        #print(submesh.indexCount())
         renderEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
-          2, submesh.indexCount(), submesh.indexType(),
+          3, submesh.indexCount(), submesh.indexType(),
           submesh.indexBuffer().buffer(),
           submesh.indexBuffer().offset())
 
