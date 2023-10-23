@@ -37,7 +37,7 @@ MDLMesh = ObjCClass('MDLMesh')
 MTKMesh = ObjCClass('MTKMesh')
 MDLAsset = ObjCClass('MDLAsset')
 
-SCNSphere = ObjCClass('SCNSphere')
+#SCNSphere = ObjCClass('SCNSphere')
 
 
 def MTLCreateSystemDefaultDevice():
@@ -62,9 +62,12 @@ def MTKModelIOVertexDescriptorFromMetal(metalDescriptor):
   _ptr = _MTKModelIOVertexDescriptorFromMetal(metalDescriptor)
   return ObjCInstance(_ptr)
 
+#@on_main_thread
+def get_assetURL(path: Path) -> nsurl:
+  return nsurl(str(path.resolve()))
+
 
 asset_path = Path('../Resources/train.obj')
-assetURL = nsurl(str(asset_path.resolve()))
 
 shader = '''
 #include <metal_stdlib>
@@ -104,6 +107,8 @@ class Renderer:
 
   def _init(self, mtkView: MTKView) -> 'MTKViewDelegate':
     self.device = mtkView.device()
+    
+    print('h')
 
     allocator = MTKMeshBufferAllocator.alloc().initWithDevice_(self.device)
     vertexDescriptor = MTLVertexDescriptor.new()
@@ -123,7 +128,7 @@ class Renderer:
 
     asset = MDLAsset.new()
     asset.initWithURL_vertexDescriptor_bufferAllocator_(
-      assetURL, meshDescriptor, allocator)
+      get_assetURL(asset_path), meshDescriptor, allocator)
 
     mdlMesh = asset.childObjectsOfClass_(MDLMesh).firstObject()
 
@@ -157,7 +162,6 @@ class Renderer:
     def drawInMTKView_(_self, _cmd, _view):
       this = ObjCInstance(_self)
       view = ObjCInstance(_view)
-      '''
 
       drawable = view.currentDrawable()
 
@@ -187,7 +191,7 @@ class Renderer:
 
       commandBuffer.presentDrawable_(drawable)
       commandBuffer.commit()
-      '''
+      
 
     def mtkView_drawableSizeWillChange_(_self, _cmd, _view, _size):
 
@@ -270,7 +274,7 @@ class MetalViewController:
     _vc = create_objc_class(**create_kwargs)
     self._viewController = _vc
 
-  #@on_main_thread
+  @on_main_thread
   def _init(self):
     self._override_viewController()
     vc = self._viewController.new().autorelease()
