@@ -128,6 +128,8 @@ class Renderer:
     lyt_indx0.stride = 16
 
     meshDescriptor = MTKModelIOVertexDescriptorFromMetal(vertexDescriptor)
+    
+    pdbg.state(meshDescriptor)
     #meshDescriptor.attributes().objectAtIndexedSubscript_( 0).setName_('MDLVertexAttributePosition')
     meshDescriptor.attributes().objectAtIndexedSubscript_(0).setName_(
       'position')

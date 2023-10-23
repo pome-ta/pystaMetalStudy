@@ -38,6 +38,9 @@ MDLMesh = ObjCClass('MDLMesh')
 MTKMesh = ObjCClass('MTKMesh')
 MDLAsset = ObjCClass('MDLAsset')
 
+MDLVertexFormatFloatBits = 0xC0000
+MDLVertexFormatFloat3 = MDLVertexFormatFloatBits | 3
+
 
 def MTLCreateSystemDefaultDevice():
   _MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
@@ -116,39 +119,32 @@ class Renderer:
 
     assetURL = get_assetURL(asset_path)
 
-    #vertexDescriptor = MTLVertexDescriptor.new()
     vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
-    #pdbg.state(MTLVertexDescriptor.vertexDescriptor())
-    attr_indx0 = vertexDescriptor.attributes().objectAtIndexedSubscript_(0)
-    #pdbg.state(attr_indx0)
-    attribute = MDLVertexAttribute.new()
-    attribute.initWithName_format_offset_bufferIndex_(
-      'MDLVertexAttributePosition', 0xC0000 | 3, 0, 0)
-    #pdbg.state(attr_indx0)
-    #attribute.format = 30
-    pdbg.state(vertexDescriptor.attributes())
+    attributes = vertexDescriptor.attributes()
+    layouts = vertexDescriptor.layouts()
+    #pdbg.state(vertexDescriptor)
 
-    # [MTLVertexFormat | Apple Developer Documentation](https://developer.apple.com/documentation/metal/mtlvertexformat)
-    
-    attr_indx0.format = 30
-    attr_indx0.offset = 0
-    attr_indx0.bufferIndex = 0
-    
-    
-    #attr_indx0 = attribute
-    
+    attribute0 = MDLVertexAttribute.new()
+    attribute0.initWithName_format_offset_bufferIndex_(
+      'MDLVertexAttributePosition', MDLVertexFormatFloat3, 0, 0)
 
-    lyt_indx0 = vertexDescriptor.layouts().objectAtIndexedSubscript_(0)
-    #lyt_indx0.stride = vector_float3.itemsize
-    lyt_indx0.stride = 16
+    attributes.setObject_atIndexedSubscript_(attribute0, 0)
+    
+    layout0 = MDLVertexBufferLayout.new()
+    layout0.initWithStride_(vector_float3.itemsize)
+    layouts.setObject_atIndexedSubscript_(layout0, 0)
 
     meshDescriptor = MTKModelIOVertexDescriptorFromMetal(vertexDescriptor)
+    
+    #pdbg.state(vertexDescriptor)
+
+    # xxx: 名前呼び出しが終えてるということになる？
     #meshDescriptor.attributes().objectAtIndexedSubscript_( 0).setName_('MDLVertexAttributePosition')
     #meshDescriptor.attributes().objectAtIndexedSubscript_(0).setName_('position')
 
     asset = MDLAsset.new()
     asset.initWithURL_vertexDescriptor_bufferAllocator_(
-      assetURL, meshDescriptor, allocator)
+      assetURL, vertexDescriptor, allocator)
 
     mdlMesh = asset.childObjectsOfClass_(MDLMesh).firstObject()
 
