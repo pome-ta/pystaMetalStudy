@@ -40,8 +40,6 @@ MDLAsset = ObjCClass('MDLAsset')
 SCNSphere = ObjCClass('SCNSphere')
 
 
-
-
 def MTLCreateSystemDefaultDevice():
   _MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
   _MTLCreateSystemDefaultDevice.argtypes = []
@@ -123,30 +121,16 @@ class Renderer:
     meshDescriptor.attributes().objectAtIndexedSubscript_(
       0).name = 'MDLVertexAttributePosition'
 
-    #pdbg.state(meshDescriptor.attributes().objectAtIndexedSubscript_(0))
-    
     asset = MDLAsset.new()
-    asset.initWithURL_vertexDescriptor_bufferAllocator_(assetURL, meshDescriptor, allocator)
-    #pdbg.state(asset)
-    
-    mdlMeshs = asset.childObjectsOfClass_(MDLMesh).firstObject()
-    #pdbg.state(mdlMeshs)
-    meshs = MTKMesh.alloc()
-    meshs.initWithMesh_device_error_(mdlMeshs, self.device, err_ptr)
-    #pdbg.state(meshs)
+    asset.initWithURL_vertexDescriptor_bufferAllocator_(
+      assetURL, meshDescriptor, allocator)
 
-    
-
-    #pdbg.state(lyt_indx0.stride())
-
-    # xxx: 球体諦め
-    #mdlMesh = MDLMesh.newIcosahedronWithRadius_inwardNormals_allocator_(100.0, False, allocator)
-
-    sphere = SCNSphere.sphereWithRadius_(0.75)
-    mdlMesh = MDLMesh.meshWithSCNGeometry_bufferAllocator_(sphere, allocator)
+    mdlMesh = asset.childObjectsOfClass_(MDLMesh).firstObject()
 
     self.mesh = MTKMesh.alloc()
     self.mesh.initWithMesh_device_error_(mdlMesh, self.device, err_ptr)
+
+    #pdbg.state(self.mesh.submeshes())
 
     self.commandQueue = self.device.newCommandQueue()
 
@@ -182,18 +166,18 @@ class Renderer:
       renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
         renderPassDescriptor)
 
-      renderEncoder.setTriangleFillMode_(1)
       renderEncoder.setRenderPipelineState_(self.pipelineState)
 
       _buffer = self.mesh.vertexBuffers().objectAtIndexedSubscript_(0).buffer()
       renderEncoder.setVertexBuffer_offset_atIndex_(_buffer, 0, 0)
 
-      submesh = self.mesh.submeshes().firstObject()
+      renderEncoder.setTriangleFillMode_(1)
 
-      #
-      renderEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
-        2, submesh.indexCount(), submesh.indexType(),
-        submesh.indexBuffer().buffer(), 0)
+      for submesh in self.mesh.submeshes():
+        renderEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
+          2, submesh.indexCount(), submesh.indexType(),
+          submesh.indexBuffer().buffer(),
+          submesh.indexBuffer().offset())
 
       renderEncoder.endEncoding()
 
