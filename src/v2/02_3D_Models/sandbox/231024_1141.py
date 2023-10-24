@@ -120,10 +120,11 @@ class Renderer:
 
     assetURL = get_assetURL(asset_path)
 
-    vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
+    #vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
     #vertexDescriptor = MTLVertexDescriptor.new()
     #pdbg.state(vertexDescriptor.attributes())
-    #vertexDescriptor = MDLVertexDescriptor.new()
+    vertexDescriptor = MDLVertexDescriptor.new()
+    
 
     attributes = vertexDescriptor.attributes()
     layouts = vertexDescriptor.layouts()
@@ -132,14 +133,20 @@ class Renderer:
     attribute0.initWithName_format_offset_bufferIndex_(
       'MDLVertexAttributePosition', MDLVertexFormatFloat3, 0, 0)
 
-    attributes.setObject_atIndexedSubscript_(attribute0, 0)
+    #attributes.setObject_atIndexedSubscript_(attribute0, 0)
+    #pdbg.state(vertexDescriptor)
+    #attributes.addOrReplaceAttribute_(attribute0)
+    vertexDescriptor.addOrReplaceAttribute_(attribute0)
 
     layout0 = MDLVertexBufferLayout.new()
     layout0.initWithStride_(vector_float3.itemsize)
-    layouts.setObject_atIndexedSubscript_(layout0, 0)
+    #layouts.setObject_atIndexedSubscript_(layout0, 0)
+    #layouts.insertObject_atIndex_(layout0, 0)
+    #pdbg.state(layouts)
+    
 
     #vertexDescriptor.newSerializedDescriptor()
-    #pdbg.state(vertexDescriptor)
+    pdbg.state(vertexDescriptor)
 
     #meshDescriptor = MTKModelIOVertexDescriptorFromMetal(vertexDescriptor)
 
