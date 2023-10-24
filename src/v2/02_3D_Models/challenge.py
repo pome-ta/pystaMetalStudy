@@ -9,7 +9,7 @@ from objc_util import sel, CGRect, nsurl
 
 import pdbg
 
-TITLE = '2. 3D Models'
+TITLE = '2. 3D Models ---challenge'
 err_ptr = ctypes.c_void_p()
 
 # --- navigation
@@ -66,7 +66,7 @@ def get_assetURL(path: Path) -> nsurl:
   return _url
 
 
-asset_path = Path('./Resources/train.obj')
+asset_path = Path('./Resources/mushroom.obj')
 
 shader = '''\
 #include <metal_stdlib>
