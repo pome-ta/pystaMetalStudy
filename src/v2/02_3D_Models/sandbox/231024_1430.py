@@ -39,6 +39,7 @@ MDLMesh = ObjCClass('MDLMesh')
 MTKMesh = ObjCClass('MTKMesh')
 MDLAsset = ObjCClass('MDLAsset')
 
+MTLVertexFormatFloat3 = 30
 MDLVertexFormatFloatBits = 0xC0000
 MDLVertexFormatFloat3 = MDLVertexFormatFloatBits | 3
 
@@ -66,19 +67,14 @@ def MTKModelIOVertexDescriptorFromMetal(metalDescriptor):
   return ObjCInstance(_ptr)
 
 
-#@on_main_thread
 def get_assetURL(path: Path) -> nsurl:
   _url = nsurl(str(path.resolve()))
-  #_url = str(path.resolve())
-
-  #print(_url)
-  #print(path.read_text())
   return _url
 
 
 asset_path = Path('../Resources/train.obj')
 
-shader = '''
+shader = '''\
 #include <metal_stdlib>
 using namespace metal;
 
@@ -120,44 +116,26 @@ class Renderer:
 
     assetURL = get_assetURL(asset_path)
 
-    #vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
-    #vertexDescriptor = MTLVertexDescriptor.new()
-    #pdbg.state(vertexDescriptor.attributes())
-    vertexDescriptor = MDLVertexDescriptor.new()
+    vertexDescriptor = MTLVertexDescriptor.new()
+    #pdbg.state(vertexDescriptor.layouts())
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      0).format = MTLVertexFormatFloat3
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).offset = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).bufferIndex = 0
 
-    attributes = vertexDescriptor.attributes()
-    layouts = vertexDescriptor.layouts()
+    vertexDescriptor.layouts().objectAtIndexedSubscript_(
+      0).stride = vector_float3.itemsize
 
-    attribute0 = MDLVertexAttribute.new()
-    attribute0.initWithName_format_offset_bufferIndex_(
-      'MDLVertexAttributePosition', MDLVertexFormatFloat3, 0, 0)
-
-    #attributes.setObject_atIndexedSubscript_(attribute0, 0)
-    #pdbg.state(vertexDescriptor)
-    #attributes.addOrReplaceAttribute_(attribute0)
-    vertexDescriptor.addOrReplaceAttribute_(attribute0)
-
-    layout0 = MDLVertexBufferLayout.new()
-    layout0.initWithStride_(vector_float3.itemsize)
-    #layouts.setObject_atIndexedSubscript_(layout0, 0)
-    #layouts.insertObject_atIndex_(layout0, 0)
-    #pdbg.state(layouts)
-
-    #vertexDescriptor.newSerializedDescriptor()
-    pdbg.state(vertexDescriptor)
-
-    #meshDescriptor = MTKModelIOVertexDescriptorFromMetal(vertexDescriptor)
+    meshDescriptor = MTKModelIOVertexDescriptorFromMetal(vertexDescriptor)
+    meshDescriptor.attributes().objectAtIndexedSubscript_(0).setName_(
+      'MDLVertexAttributePosition')
+    #meshDescriptor.attributes().objectAtIndexedSubscript_(0).setName_('position')
 
     #pdbg.state(meshDescriptor)
-    #pdbg.state(vertexDescriptor)
-
-    # xxx: 名前呼び出しが終えてるということになる？
-    #meshDescriptor.attributes().objectAtIndexedSubscript_( 0).setName_('MDLVertexAttributePosition')
-    #meshDescriptor.attributes().objectAtIndexedSubscript_(0).setName_('position')
 
     asset = MDLAsset.new()
     asset.initWithURL_vertexDescriptor_bufferAllocator_(
-      assetURL, vertexDescriptor, allocator)
+      assetURL, meshDescriptor, allocator)
 
     mdlMesh = asset.childObjectsOfClass_(MDLMesh).firstObject()
 
