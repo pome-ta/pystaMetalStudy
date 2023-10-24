@@ -129,15 +129,15 @@ class Renderer:
 
     meshDescriptor = MTKModelIOVertexDescriptorFromMetal(vertexDescriptor)
     #meshDescriptor.attributes().objectAtIndexedSubscript_( 0).setName_('MDLVertexAttributePosition')
-    meshDescriptor.attributes().objectAtIndexedSubscript_( 0).setName_('position')
+    meshDescriptor.attributes().objectAtIndexedSubscript_(0).setName_(
+      'position')
 
-    
+    #pdbg.state(meshDescriptor)
     asset = MDLAsset.new()
     asset.initWithURL_vertexDescriptor_bufferAllocator_(
       assetURL, meshDescriptor, allocator)
 
     mdlMesh = asset.childObjectsOfClass_(MDLMesh).firstObject()
-    
 
     self.mesh = MTKMesh.alloc()
     self.mesh.initWithMesh_device_error_(mdlMesh, self.device, err_ptr)
@@ -267,7 +267,6 @@ class MetalViewController:
       # --- layout
       view.addSubview_(self.mtkView)
       self.mtkView.translatesAutoresizingMaskIntoConstraints = False
-      
 
       constraints = [
         self.mtkView.centerXAnchor().constraintEqualToAnchor_(
