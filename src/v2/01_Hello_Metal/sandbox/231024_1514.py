@@ -1,17 +1,18 @@
-from pathlib import Path
+#import pathlib
 import ctypes
 
-import numpy as np
+#import numpy as np
 
 from objc_util import ObjCClass, ObjCInstance
 from objc_util import create_objc_class, on_main_thread, c, load_framework
-from objc_util import sel, CGRect, nsurl
+from objc_util import sel, CGRect
 
 import pdbg
 
-TITLE = '2. 3D Models'
+TITLE = '1. Hello, Metal!'
 err_ptr = ctypes.c_void_p()
 
+load_framework('SceneKit')
 #load_framework('ModelIO')
 
 # --- navigation
@@ -30,18 +31,11 @@ MTKView = ObjCClass('MTKView')
 MTLCompileOptions = ObjCClass('MTLCompileOptions')
 MTLRenderPipelineDescriptor = ObjCClass('MTLRenderPipelineDescriptor')
 MTKMeshBufferAllocator = ObjCClass('MTKMeshBufferAllocator')
-MTLVertexDescriptor = ObjCClass('MTLVertexDescriptor')
 
-MDLVertexDescriptor = ObjCClass('MDLVertexDescriptor')
-MDLVertexAttribute = ObjCClass('MDLVertexAttribute')
-MDLVertexBufferLayout = ObjCClass('MDLVertexBufferLayout')
 MDLMesh = ObjCClass('MDLMesh')
 MTKMesh = ObjCClass('MTKMesh')
-MDLAsset = ObjCClass('MDLAsset')
 
-MTLVertexFormatFloat3 = 30
-MDLVertexFormatFloatBits = 0xC0000
-MDLVertexFormatFloat3 = MDLVertexFormatFloatBits | 3
+SCNSphere = ObjCClass('SCNSphere')
 
 
 def MTLCreateSystemDefaultDevice():
@@ -59,22 +53,7 @@ def MTKMetalVertexDescriptorFromModelIO(modelIODescriptor):
   return ObjCInstance(_ptr)
 
 
-def MTKModelIOVertexDescriptorFromMetal(metalDescriptor):
-  _MTKModelIOVertexDescriptorFromMetal = c.MTKModelIOVertexDescriptorFromMetal
-  _MTKModelIOVertexDescriptorFromMetal.argtypes = [ctypes.c_void_p]
-  _MTKModelIOVertexDescriptorFromMetal.restype = ctypes.c_void_p
-  _ptr = _MTKModelIOVertexDescriptorFromMetal(metalDescriptor)
-  return ObjCInstance(_ptr)
-
-
-def get_assetURL(path: Path) -> nsurl:
-  _url = nsurl(str(path.resolve()))
-  return _url
-
-
-asset_path = Path('../Resources/train.obj')
-
-shader = '''\
+shader = '''
 #include <metal_stdlib>
 using namespace metal;
 
@@ -91,15 +70,6 @@ fragment float4 fragment_main() {
 }
 '''
 
-vector_float3 = np.dtype(
-  {
-    'names': ['x', 'y', 'z'],
-    'formats': [np.float32, np.float32, np.float32],
-    'offsets': [_offset * 4 for _offset in range(3)],
-    'itemsize': 16,
-  },
-  align=True)
-
 
 class Renderer:
 
@@ -114,27 +84,11 @@ class Renderer:
 
     allocator = MTKMeshBufferAllocator.alloc().initWithDevice_(self.device)
 
-    assetURL = get_assetURL(asset_path)
+    # xxx: 球体諦め
+    #mdlMesh = MDLMesh.newIcosahedronWithRadius_inwardNormals_allocator_(100.0, False, allocator)
 
-    vertexDescriptor = MTLVertexDescriptor.new()
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
-      0).format = MTLVertexFormatFloat3
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).offset = 0
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).bufferIndex = 0
-
-    vertexDescriptor.layouts().objectAtIndexedSubscript_(
-      0).stride = vector_float3.itemsize
-
-    meshDescriptor = MTKModelIOVertexDescriptorFromMetal(vertexDescriptor)
-    #meshDescriptor.attributes().objectAtIndexedSubscript_(0).setName_('MDLVertexAttributePosition')
-    meshDescriptor.attributes().objectAtIndexedSubscript_(0).setName_(
-      'position')
-
-    asset = MDLAsset.new()
-    asset.initWithURL_vertexDescriptor_bufferAllocator_(
-      assetURL, meshDescriptor, allocator)
-
-    mdlMesh = asset.childObjectsOfClass_(MDLMesh).firstObject()
+    sphere = SCNSphere.sphereWithRadius_(0.75)
+    mdlMesh = MDLMesh.meshWithSCNGeometry_bufferAllocator_(sphere, allocator)
 
     self.mesh = MTKMesh.alloc()
     self.mesh.initWithMesh_device_error_(mdlMesh, self.device, err_ptr)
@@ -154,6 +108,8 @@ class Renderer:
     pipelineDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(
       self.mesh.vertexDescriptor())
 
+    pdbg.state(self.mesh.vertexDescriptor())
+    #pdbg.state(pipelineDescriptor.vertexDescriptor())
     self.pipelineState = self.device.newRenderPipelineStateWithDescriptor_error_(
       pipelineDescriptor, err_ptr)
 
@@ -172,20 +128,15 @@ class Renderer:
 
       renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
         renderPassDescriptor)
-
       renderEncoder.setRenderPipelineState_(self.pipelineState)
 
       _buffer = self.mesh.vertexBuffers().objectAtIndexedSubscript_(0).buffer()
       renderEncoder.setVertexBuffer_offset_atIndex_(_buffer, 0, 0)
 
-      renderEncoder.setTriangleFillMode_(1)
-
-      for submesh in self.mesh.submeshes():
-        #print(submesh.indexCount())
-        renderEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
-          3, submesh.indexCount(), submesh.indexType(),
-          submesh.indexBuffer().buffer(),
-          submesh.indexBuffer().offset())
+      submesh = self.mesh.submeshes().firstObject()
+      renderEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(
+        3, submesh.indexCount(), submesh.indexType(),
+        submesh.indexBuffer().buffer(), 0)
 
       renderEncoder.endEncoding()
 
@@ -240,8 +191,6 @@ class MetalViewController:
       self.mtkView = MTKView.alloc()
       self.mtkView.initWithFrame_device_(CGRectZero, device)
       self.mtkView.clearColor = (1.0, 1.0, 0.8, 1.0)
-      self.mtkView.isPaused = True
-      self.mtkView.enableSetNeedsDisplay = False
 
       self.renderer = Renderer.initWithMetalKitView_(self.mtkView)
       self.mtkView.delegate = self.renderer
@@ -257,7 +206,6 @@ class MetalViewController:
           view.centerYAnchor()),
         self.mtkView.widthAnchor().constraintEqualToAnchor_multiplier_(
           view.widthAnchor(), 1.0),
-        #self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(view.widthAnchor(), 1.0),
         self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(
           view.heightAnchor(), 1.0),
       ]
@@ -276,7 +224,7 @@ class MetalViewController:
     _vc = create_objc_class(**create_kwargs)
     self._viewController = _vc
 
-  @on_main_thread
+  #@on_main_thread
   def _init(self):
     self._override_viewController()
     vc = self._viewController.new().autorelease()
