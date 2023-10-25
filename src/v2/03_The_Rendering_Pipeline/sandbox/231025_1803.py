@@ -126,24 +126,22 @@ class MetalViewController:
       self.mtkView.isPaused = True
       self.mtkView.enableSetNeedsDisplay = False
 
+      mtk_layer = self.mtkView.layer()
+      mtk_layer.setBorderWidth_(2.0)
+      mtk_layer.setBorderColor_(UIColor.systemGrayTintColor().CGColor())
+
       self.renderer = Renderer.initWithMetalKitView_(self.mtkView)
       self.mtkView.delegate = self.renderer
 
       label = UILabel.new()
-      #systemDarkLightMidGrayColor
       label.setBackgroundColor_(UIColor.systemDarkLightMidGrayColor())
       label.setTextColor_(UIColor.systemDarkGrayTintColor())
       label.setText_('Hello, Metal! 😇')
       label.sizeToFit()
 
-      # xxx: `setBorder` 関係が反映されない
-      '''
       label_layer = label.layer()
       label_layer.setBorderWidth_(2.0)
-      label_layer.setBorderColor_(UIColor.systemIndigoColor())
-      #systemIndigoColor
-      #systemGrayTintColor
-      '''
+      label_layer.setBorderColor_(UIColor.systemGrayTintColor().CGColor())
 
       # --- layout
       view.addSubview_(self.mtkView)
