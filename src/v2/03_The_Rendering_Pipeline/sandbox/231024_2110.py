@@ -132,13 +132,15 @@ class MetalViewController:
       constraints = [
         self.mtkView.centerXAnchor().constraintEqualToAnchor_(
           view.centerXAnchor()),
-        self.mtkView.centerYAnchor().constraintEqualToAnchor_(
-          view.centerYAnchor()),
+        self.mtkView.topAnchor().constraintEqualToAnchor_constant_(
+          view.topAnchor(), 20),
+
+        # xxx: 縦横対応してない
         self.mtkView.widthAnchor().constraintEqualToAnchor_multiplier_(
-          view.widthAnchor(), 1.0),
+          view.widthAnchor(), 0.9),
         #self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(view.widthAnchor(), 1.0),
         self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(
-          view.heightAnchor(), 1.0),
+          view.widthAnchor(), 0.9),
       ]
       NSLayoutConstraint.activateConstraints_(constraints)
 
@@ -284,7 +286,7 @@ def present_objc(vc):
   case  7 : popover
   case  8 : blurOverFullScreen
   '''
-  vc.setModalPresentationStyle(0)
+  #vc.setModalPresentationStyle(0)
   root_vc.presentViewController_animated_completion_(vc, True, None)
 
 
