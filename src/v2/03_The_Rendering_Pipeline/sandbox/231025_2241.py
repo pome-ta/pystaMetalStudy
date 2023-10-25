@@ -1,18 +1,20 @@
 from pathlib import Path
 import ctypes
 
-from objc_util import ObjCClass, ObjCInstance, create_objc_class, on_main_thread, c, load_framework
+import numpy as np
+
+from objc_util import ObjCClass, ObjCInstance, create_objc_class, on_main_thread, c
 from objc_util import sel, CGRect, nsurl
 
 import pdbg
 
-TITLE = '3. The Rendering Pipeline'
-shader_path = Path('./final/Shaders.metal')
+TITLE = '3. The Rendering Pipeline --- challenge'
+shader_path = Path('./challenge/Shaders.metal')
+asset_path = Path('./challenge/train.usd')
 
 err_ptr = ctypes.c_void_p()
+MTLVertexFormatFloat3 = 30
 MTLPrimitiveTypeTriangle = 3
-
-load_framework('SceneKit')
 
 # --- navigation
 UINavigationController = ObjCClass('UINavigationController')
@@ -33,12 +35,11 @@ MTKMeshBufferAllocator = ObjCClass('MTKMeshBufferAllocator')
 MTKMesh = ObjCClass('MTKMesh')
 MTLCompileOptions = ObjCClass('MTLCompileOptions')
 MTLRenderPipelineDescriptor = ObjCClass('MTLRenderPipelineDescriptor')
+MTLVertexDescriptor = ObjCClass('MTLVertexDescriptor')
 
 # --- Model I/O
 MDLMesh = ObjCClass('MDLMesh')
-
-# --- SceneKit
-SCNBox = ObjCClass('SCNBox')
+MDLAsset = ObjCClass('MDLAsset')
 
 
 def MTLCreateSystemDefaultDevice():
@@ -56,6 +57,29 @@ def MTKMetalVertexDescriptorFromModelIO(modelIODescriptor):
   return ObjCInstance(_ptr)
 
 
+def MTKModelIOVertexDescriptorFromMetal(metalDescriptor):
+  _MTKModelIOVertexDescriptorFromMetal = c.MTKModelIOVertexDescriptorFromMetal
+  _MTKModelIOVertexDescriptorFromMetal.argtypes = [ctypes.c_void_p]
+  _MTKModelIOVertexDescriptorFromMetal.restype = ctypes.c_void_p
+  _ptr = _MTKModelIOVertexDescriptorFromMetal(metalDescriptor)
+  return ObjCInstance(_ptr)
+
+
+def get_assetURL(path: Path) -> nsurl:
+  _url = nsurl(str(path.resolve()))
+  return _url
+
+
+vector_float3 = np.dtype(
+  {
+    'names': ['x', 'y', 'z'],
+    'formats': [np.float32, np.float32, np.float32],
+    'offsets': [_offset * 4 for _offset in range(3)],
+    'itemsize': 16,
+  },
+  align=True)
+
+
 class Renderer:
 
   def __init__(self):
@@ -70,13 +94,26 @@ class Renderer:
     self.device = mtkView.device()
     allocator = MTKMeshBufferAllocator.alloc().initWithDevice_(self.device)
 
-    size = 0.8
+    assetURL = get_assetURL(asset_path)
 
-    box = SCNBox.boxWithWidth_height_length_chamferRadius_(
-      size, size, size, 0.0)
+    vertexDescriptor = MTLVertexDescriptor.new()
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+      0).format = MTLVertexFormatFloat3
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).offset = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).bufferIndex = 0
 
-    mdlMesh = MDLMesh.meshWithSCNGeometry_bufferAllocator_(box, allocator)
+    vertexDescriptor.layouts().objectAtIndexedSubscript_(
+      0).stride = vector_float3.itemsize
 
+    meshDescriptor = MTKModelIOVertexDescriptorFromMetal(vertexDescriptor)
+    meshDescriptor.attributes().objectAtIndexedSubscript_(0).setName_(
+      'position')
+
+    asset = MDLAsset.new()
+    asset.initWithURL_vertexDescriptor_bufferAllocator_(
+      assetURL, meshDescriptor, allocator)
+
+    mdlMesh = asset.childObjectsOfClass_(MDLMesh).firstObject()
     self.mesh = MTKMesh.alloc()
     self.mesh.initWithMesh_device_error_(mdlMesh, self.device, err_ptr)
 
@@ -216,18 +253,18 @@ class MetalViewController:
         self.mtkView.centerXAnchor().constraintEqualToAnchor_(
           view.centerXAnchor()),
         self.mtkView.topAnchor().constraintEqualToAnchor_constant_(
-          view.topAnchor(), 20),
+          view.topAnchor(), 8),
 
         # xxx: 縦横対応してない
         self.mtkView.widthAnchor().constraintEqualToAnchor_multiplier_(
-          view.widthAnchor(), 0.9),
+          view.widthAnchor(), 0.96),
         #self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(view.widthAnchor(), 1.0),
         self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(
           view.widthAnchor(), 0.64),
 
         # --- label
         label.topAnchor().constraintEqualToAnchor_constant_(
-          self.mtkView.bottomAnchor(), 20),
+          self.mtkView.bottomAnchor(), 8),
         label.centerXAnchor().constraintEqualToAnchor_(view.centerXAnchor()),
       ]
       NSLayoutConstraint.activateConstraints_(constraints)
