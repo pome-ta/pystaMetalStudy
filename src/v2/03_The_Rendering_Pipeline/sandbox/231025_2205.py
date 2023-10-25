@@ -267,8 +267,8 @@ class ObjcUIViewController:
     def doneButtonTapped_(_self, _cmd, _sender):
       this = ObjCInstance(_self)
       visibleViewController = this.visibleViewController()
-      visibleViewController.dismissViewControllerAnimated_completion_(
-        True, None)
+      visibleViewController.dismissViewControllerAnimated(True,
+                                                          completion=None)
 
     # --- `UINavigationController` set up
     _methods = [
@@ -310,9 +310,8 @@ class ObjcUIViewController:
       viewController.setEdgesForExtendedLayout_(0)
       #viewController.setExtendedLayoutIncludesOpaqueBars_(True)
 
-      done_btn = UIBarButtonItem.alloc(
-      ).initWithBarButtonSystemItem_target_action_(0, navigationController,
-                                                   sel('doneButtonTapped:'))
+      done_btn = UIBarButtonItem.alloc().initWithBarButtonSystemItem(
+        0, target=navigationController, action=sel('doneButtonTapped:'))
 
       visibleViewController = navigationController.visibleViewController()
 
