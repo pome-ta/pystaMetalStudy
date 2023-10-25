@@ -129,9 +129,9 @@ class MetalViewController:
       self.mtkView.delegate = self.renderer
 
       label = UILabel.new()
-      label.setText_('ほが')
+      label.setText_('ほが😇')
       label.sizeToFit()
-      pdbg.state(label)
+      
 
       # --- layout
       view.addSubview_(self.mtkView)
