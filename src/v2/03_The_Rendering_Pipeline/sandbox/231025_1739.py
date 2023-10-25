@@ -116,6 +116,8 @@ class MetalViewController:
       view = this.view()
       view.setBackgroundColor_(UIColor.systemDarkExtraLightGrayColor())
 
+      #view.setBackgroundColor_(UIColor.systemBackgroundColor())
+
       CGRectZero = CGRect((0.0, 0.0), (0.0, 0.0))
       device = MTLCreateSystemDefaultDevice()
 
@@ -129,16 +131,30 @@ class MetalViewController:
       self.mtkView.delegate = self.renderer
 
       label = UILabel.new()
+      #systemDarkLightMidGrayColor
+      label.setBackgroundColor_(UIColor.systemDarkLightMidGrayColor())
+      label.setTextColor_(UIColor.systemDarkGrayTintColor())
       label.setText_('ほが😇')
       label.sizeToFit()
+
+      # xxx: `setBorder` 関係が反映されない
+      '''
+      label_layer = label.layer()
+      label_layer.setBorderWidth_(2.0)
+      label_layer.setBorderColor_(UIColor.systemIndigoColor())
+      #systemIndigoColor
+      #systemGrayTintColor
+      '''
 
       # --- layout
       view.addSubview_(self.mtkView)
       view.addSubview_(label)
 
       self.mtkView.translatesAutoresizingMaskIntoConstraints = False
+      label.translatesAutoresizingMaskIntoConstraints = False
 
       constraints = [
+        # --- mtkView
         self.mtkView.centerXAnchor().constraintEqualToAnchor_(
           view.centerXAnchor()),
         self.mtkView.topAnchor().constraintEqualToAnchor_constant_(
@@ -150,8 +166,11 @@ class MetalViewController:
         #self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(view.widthAnchor(), 1.0),
         self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(
           view.widthAnchor(), 0.9),
+
+        # --- label
         label.topAnchor().constraintEqualToAnchor_constant_(
-          view.topAnchor(), 20),
+          self.mtkView.bottomAnchor(), 20),
+        label.centerXAnchor().constraintEqualToAnchor_(view.centerXAnchor()),
       ]
       NSLayoutConstraint.activateConstraints_(constraints)
 
