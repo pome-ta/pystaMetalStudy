@@ -1,3 +1,4 @@
+from pathlib import Path
 import ctypes
 
 import numpy as np
@@ -8,6 +9,10 @@ from objc_util import sel, CGRect, nsurl
 import pdbg
 
 TITLE = '3. The Rendering Pipeline'
+shader_path = Path('./final/Shaders.metal')
+
+err_ptr = ctypes.c_void_p()
+MTLPrimitiveTypeTriangle = 3
 
 load_framework('SceneKit')
 
@@ -28,6 +33,8 @@ NSLayoutConstraint = ObjCClass('NSLayoutConstraint')
 MTKView = ObjCClass('MTKView')
 MTKMeshBufferAllocator = ObjCClass('MTKMeshBufferAllocator')
 MTKMesh = ObjCClass('MTKMesh')
+MTLCompileOptions = ObjCClass('MTLCompileOptions')
+MTLRenderPipelineDescriptor = ObjCClass('MTLRenderPipelineDescriptor')
 
 # --- Model I/O
 MDLMesh = ObjCClass('MDLMesh')
@@ -43,7 +50,13 @@ def MTLCreateSystemDefaultDevice():
   return ObjCInstance(_MTLCreateSystemDefaultDevice())
 
 
-err_ptr = ctypes.c_void_p()
+def MTKMetalVertexDescriptorFromModelIO(modelIODescriptor):
+  _MTKMetalVertexDescriptorFromModelIO = c.MTKMetalVertexDescriptorFromModelIO
+  _MTKMetalVertexDescriptorFromModelIO.argtypes = [ctypes.c_void_p]
+  _MTKMetalVertexDescriptorFromModelIO.restype = ctypes.c_void_p
+  _ptr = _MTKMetalVertexDescriptorFromModelIO(modelIODescriptor)
+  return ObjCInstance(_ptr)
+
 
 vector_float3 = np.dtype(
   {
@@ -62,6 +75,7 @@ class Renderer:
     self.commandQueue: 'MTLCommandQueue'
     self.mesh: MTKMesh
     self.vertexBuffer: 'MTLBuffer'
+    self.pipelineState: 'MTLRenderPipelineState'
 
   def _init(self, mtkView: MTKView) -> 'MTKViewDelegate':
     self.device = mtkView.device()
@@ -78,11 +92,27 @@ class Renderer:
     self.mesh = MTKMesh.alloc()
     self.mesh.initWithMesh_device_error_(mdlMesh, self.device, err_ptr)
 
-    #pdbg.state(self.mesh.vertexBuffers().objectAtIndexedSubscript_(0).buffer())
     self.vertexBuffer = self.mesh.vertexBuffers().objectAtIndexedSubscript_(
       0).buffer()
 
     self.commandQueue = self.device.newCommandQueue()
+
+    source = shader_path.read_text('utf-8')
+    library = self.device.newLibraryWithSource_options_error_(
+      source, MTLCompileOptions.new(), err_ptr)
+    vertexFunction = library.newFunctionWithName_('vertex_main')
+    fragmentFunction = library.newFunctionWithName_('fragment_main')
+
+    pipelineDescriptor = MTLRenderPipelineDescriptor.new()
+    pipelineDescriptor.colorAttachments().objectAtIndexedSubscript_(
+      0).pixelFormat = 80  # .bgra8Unorm
+    pipelineDescriptor.vertexFunction = vertexFunction
+    pipelineDescriptor.fragmentFunction = fragmentFunction
+    pipelineDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(
+      self.mesh.vertexDescriptor())
+
+    self.pipelineState = self.device.newRenderPipelineStateWithDescriptor_error_(
+      pipelineDescriptor, err_ptr)
 
     return self._create_delegate()
 
@@ -92,15 +122,29 @@ class Renderer:
       this = ObjCInstance(_self)
       view = ObjCInstance(_view)
 
-      drawable = view.currentDrawable()
-
       commandBuffer = self.commandQueue.commandBuffer()
-      renderPassDescriptor = view.currentRenderPassDescriptor()
+      descriptor = view.currentRenderPassDescriptor()
 
       renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
-        renderPassDescriptor)
+        descriptor)
+
+      renderEncoder.setRenderPipelineState_(self.pipelineState)
+      renderEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
+
+      for submesh in self.mesh.submeshes():
+        indexCount = submesh.indexCount()
+        indexType = submesh.indexType()
+        indexBuffer = submesh.indexBuffer().buffer()
+        indexBufferOffset = submesh.indexBuffer().offset()
+        renderEncoder.drawIndexedPrimitives(
+          MTLPrimitiveTypeTriangle,
+          indexCount=indexCount,
+          indexType=indexType,
+          indexBuffer=indexBuffer,
+          indexBufferOffset=indexBufferOffset)
 
       renderEncoder.endEncoding()
+      drawable = view.currentDrawable()
       commandBuffer.presentDrawable_(drawable)
       commandBuffer.commit()
 
