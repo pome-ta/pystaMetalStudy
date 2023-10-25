@@ -56,12 +56,12 @@ def MTKMetalVertexDescriptorFromModelIO(modelIODescriptor):
   return ObjCInstance(_ptr)
 
 
-
 class Renderer:
 
   def __init__(self):
     self.device: 'MTLDevice'
     self.commandQueue: 'MTLCommandQueue'
+    self.library: 'MTLLibrary'
     self.mesh: MTKMesh
     self.vertexBuffer: 'MTLBuffer'
     self.pipelineState: 'MTLRenderPipelineState'
@@ -86,10 +86,10 @@ class Renderer:
     self.commandQueue = self.device.newCommandQueue()
 
     source = shader_path.read_text('utf-8')
-    library = self.device.newLibraryWithSource_options_error_(
+    self.library = self.device.newLibraryWithSource_options_error_(
       source, MTLCompileOptions.new(), err_ptr)
-    vertexFunction = library.newFunctionWithName_('vertex_main')
-    fragmentFunction = library.newFunctionWithName_('fragment_main')
+    vertexFunction = self.library.newFunctionWithName_('vertex_main')
+    fragmentFunction = self.library.newFunctionWithName_('fragment_main')
 
     pipelineDescriptor = MTLRenderPipelineDescriptor.new()
     pipelineDescriptor.colorAttachments().objectAtIndexedSubscript_(
@@ -223,7 +223,7 @@ class MetalViewController:
           view.widthAnchor(), 0.9),
         #self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(view.widthAnchor(), 1.0),
         self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(
-          view.widthAnchor(), 0.9),
+          view.widthAnchor(), 0.64),
 
         # --- label
         label.topAnchor().constraintEqualToAnchor_constant_(
