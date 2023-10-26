@@ -72,6 +72,12 @@ vector_float3 = np.dtype(
   align=True)
 
 
+class Quad:
+
+  def __init__(self):
+    pass
+
+
 class Renderer:
 
   def __init__(self):
