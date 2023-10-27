@@ -33,12 +33,6 @@
 #include <metal_stdlib>
 using namespace metal;
 
-/*
-vertex float4 vertex_main() {
-  return float4(0, 0, 1, 1);
-}
-*/
-
 
 vertex float4 vertex_main(
   constant float3 *vertices [[buffer(0)]],

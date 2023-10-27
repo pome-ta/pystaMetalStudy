@@ -45,6 +45,7 @@ UInt16 = np.dtype(np.uint16)
 
 
 class Quad:
+  '''
   _vertices = np.array(
     (
       -1,  1,  0,  # triangle 1
@@ -55,15 +56,26 @@ class Quad:
        1, -1,  0,
     ),
     dtype=Float)  # yapf: disable
-
+  '''
 
   def __init__(self, device: 'MTLDevice', scale: float = 1.0):
-    self.vertexBuffer: 'MTLBuffer'
+    #self.vertexBuffer: 'MTLBuffer'
+    self.vertices = (ctypes.c_float * 18)()
+    array_vertex = [
+      -1.0,  1.0,  0.0,  # triangle 1
+       1.0, -1.0,  0.0,
+      -1.0, -1.0,  0.0,
+      -1.0,  1.0,  0.0,  # triangle 2
+       1.0,  1.0,  0.0,
+       1.0, -1.0,  0.0,
+      ]  # yapf: disable
 
-    self.vertices = Quad._vertices * scale
+    for n, i in enumerate(array_vertex):
+      self.vertices[n] = i * scale
+    dataSize = self.vertices.__len__() * 4
 
     self.vertexBuffer = device.newBufferWithBytes_length_options_(
-      self.vertices.ctypes, Float.itemsize * self.vertices.size, 0)
+      self.vertices, dataSize, 0)
     #pdbg.state(self.vertexBuffer)
 
 
@@ -80,9 +92,10 @@ class Renderer:
   #@on_main_thread
   def _init(self, mtkView: MTKView) -> 'MTKViewDelegate':
     self.device = mtkView.device()
+    self.commandQueue = self.device.newCommandQueue()
     self.quad = Quad(self.device, 0.8)
     #pdbg.state(self.quad.vertexBuffer)
-    self.commandQueue = self.device.newCommandQueue()
+    
 
     source = shader_path.read_text('utf-8')
     #print(source)
@@ -95,7 +108,7 @@ class Renderer:
     pipelineDescriptor = MTLRenderPipelineDescriptor.new()
     pipelineDescriptor.vertexFunction = vertexFunction
     pipelineDescriptor.fragmentFunction = fragmentFunction
-    #pipelineDescriptor.colorAttachments().objectAtIndexedSubscript_( 0).pixelFormat = mtkView.colorPixelFormat()
+    pipelineDescriptor.colorAttachments().objectAtIndexedSubscript_(0).pixelFormat = mtkView.colorPixelFormat()
 
     self.pipelineState = self.device.newRenderPipelineStateWithDescriptor_error_(
       pipelineDescriptor, err_ptr)
@@ -116,10 +129,9 @@ class Renderer:
       renderEncoder.setVertexBuffer_offset_atIndex_(self.quad.vertexBuffer, 0,
                                                     0)
 
-      #renderEncoder.drawPrimitives_vertexStart_vertexCount_(MTLPrimitiveTypeTriangle, 0, self.quad.vertices.size)
+      renderEncoder.drawPrimitives_vertexStart_vertexCount_(MTLPrimitiveTypeTriangle, 0, self.quad.vertices.__len__())
 
-      renderEncoder.drawPrimitives_vertexStart_vertexCount_instanceCount_(
-        3, 0, self.quad.vertices.size, 1)  # .triangle
+      #renderEncoder.drawPrimitives_vertexStart_vertexCount_instanceCount_( 3, 0, self.quad.vertices.size, 1)  # .triangle
 
       renderEncoder.endEncoding()
       drawable = view.currentDrawable()
