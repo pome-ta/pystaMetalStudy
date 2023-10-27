@@ -41,21 +41,6 @@ def MTLCreateSystemDefaultDevice():
   return ObjCInstance(_MTLCreateSystemDefaultDevice())
 
 
-def MTKMetalVertexDescriptorFromModelIO(modelIODescriptor):
-  _MTKMetalVertexDescriptorFromModelIO = c.MTKMetalVertexDescriptorFromModelIO
-  _MTKMetalVertexDescriptorFromModelIO.argtypes = [ctypes.c_void_p]
-  _MTKMetalVertexDescriptorFromModelIO.restype = ctypes.c_void_p
-  _ptr = _MTKMetalVertexDescriptorFromModelIO(modelIODescriptor)
-  return ObjCInstance(_ptr)
-
-
-def MTKModelIOVertexDescriptorFromMetal(metalDescriptor):
-  _MTKModelIOVertexDescriptorFromMetal = c.MTKModelIOVertexDescriptorFromMetal
-  _MTKModelIOVertexDescriptorFromMetal.argtypes = [ctypes.c_void_p]
-  _MTKModelIOVertexDescriptorFromMetal.restype = ctypes.c_void_p
-  _ptr = _MTKModelIOVertexDescriptorFromMetal(metalDescriptor)
-  return ObjCInstance(_ptr)
-
 
 Float = np.dtype(np.float32)
 UInt16 = np.dtype(np.uint16)
