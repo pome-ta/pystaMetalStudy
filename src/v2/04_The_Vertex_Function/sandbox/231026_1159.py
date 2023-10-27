@@ -62,6 +62,9 @@ def MTKModelIOVertexDescriptorFromMetal(metalDescriptor):
   return ObjCInstance(_ptr)
 
 
+Float = np.dtype(np.float32)
+UInt16 = np.dtype(np.uint16)
+
 vector_float3 = np.dtype(
   {
     'names': ['x', 'y', 'z'],
@@ -73,9 +76,27 @@ vector_float3 = np.dtype(
 
 
 class Quad:
+  _vertices = np.array(
+    (
+      -1,  1,  0,  # triangle 1
+       1, -1,  0,
+      -1, -1,  0,
+      -1,  1,  0,  # triangle 2
+       1,  1,  0,
+       1, -1,  0,
+    ),
+    dtype=Float)  # yapf: disable
 
-  def __init__(self):
-    pass
+
+  def __init__(self, device: 'MTLDevice', scale: float = 1.0):
+    self.vertexBuffer: 'MTLBuffer'
+
+    vertices = Quad._vertices * scale
+    strides, *_ = vertices.strides
+
+    vertexBuffer = device.newBufferWithBytes_length_options_(
+      vertices.ctypes, Float.itemsize * vertices.size, 0)
+    self.vertexBuffer = vertexBuffer
 
 
 class Renderer:
@@ -88,8 +109,12 @@ class Renderer:
     self.vertexBuffer: 'MTLBuffer'
     self.pipelineState: 'MTLRenderPipelineState'
 
+    self.quad: Quad
+
   def _init(self, mtkView: MTKView) -> 'MTKViewDelegate':
     self.device = mtkView.device()
+    self.quad = Quad(self.device, 0.8)
+
     allocator = MTKMeshBufferAllocator.alloc().initWithDevice_(self.device)
 
     self.commandQueue = self.device.newCommandQueue()
