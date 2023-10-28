@@ -1,16 +1,18 @@
-import pathlib
+from pathlib import Path
 import ctypes
 
 import numpy as np
 
 from objc_util import ObjCClass, ObjCInstance, create_objc_class, on_main_thread, c
-from objc_util import sel, CGRect
+from objc_util import sel, CGRect, nsurl
 
 import pdbg
 
-TITLE = 'Numpy 構造体テスト'
-shader_path = pathlib.Path('./Shaders.metal')
+TITLE = '4. The Vertex Function'
+shader_path = Path('./Shaders.metal')
+
 err_ptr = ctypes.c_void_p()
+MTLPrimitiveTypeTriangle = 3
 
 # --- navigation
 UINavigationController = ObjCClass('UINavigationController')
@@ -21,8 +23,9 @@ UIBarButtonItem = ObjCClass('UIBarButtonItem')
 UIViewController = ObjCClass('UIViewController')
 
 # --- view
-NSLayoutConstraint = ObjCClass('NSLayoutConstraint')
 UIColor = ObjCClass('UIColor')
+UILabel = ObjCClass('UILabel')
+NSLayoutConstraint = ObjCClass('NSLayoutConstraint')
 
 # --- Metal
 MTKView = ObjCClass('MTKView')
@@ -37,7 +40,32 @@ def MTLCreateSystemDefaultDevice():
   return ObjCInstance(_MTLCreateSystemDefaultDevice())
 
 
-Float = np.dtype(np.float32, align=True)
+Float = np.dtype(np.float32)
+UInt16 = np.dtype(np.uint16)
+
+
+class Quad:
+  _vertices = np.array(
+    (
+      -1,  1,  0,  # triangle 1
+       1, -1,  0,
+      -1, -1,  0,
+      -1,  1,  0,  # triangle 2
+       1,  1,  0,
+       1, -1,  0,
+    ),
+    dtype=Float)  # yapf: disable
+
+  def __init__(self, device: 'MTLDevice', scale: float = 1.0):
+    self.vertexBuffer: 'MTLBuffer'
+    self.vertices = Quad._vertices * scale
+    
+    bytes = self.vertices.ctypes
+    length = Float.itemsize * self.vertices.size
+    
+
+    self.vertexBuffer = device.newBufferWithBytes_length_options_(
+      bytes, length, 0)
 
 
 class Renderer:
@@ -45,78 +73,54 @@ class Renderer:
   def __init__(self):
     self.device: 'MTLDevice'
     self.commandQueue: 'MTLCommandQueue'
-    self.vertexData: [float]
-    self.vertexBuffer: 'MTLBuffer'
-    self.rps: 'MTLRenderPipelineState'
+    self.library: 'MTLLibrary'
+    self.pipelineState: 'MTLRenderPipelineState'
 
+    self.quad: Quad
+
+  #@on_main_thread
   def _init(self, mtkView: MTKView) -> 'MTKViewDelegate':
     self.device = mtkView.device()
     self.commandQueue = self.device.newCommandQueue()
-    self._registerShaders()
-
-    return self._create_delegate()
-
-  def _registerShaders(self):
-    '''
-    self.vertexData = np.array((
-      -1.0, -1.0, 0.0, 1.0,
-       1.0, -1.0, 0.0, 1.0,
-       0.0,  1.0, 0.0, 1.0,
-    ),
-    dtype=Float)  # yapf: disable
-    '''
+    self.quad = Quad(self.device, 0.8)
     
-    v = np.array((
-      -1.0, -1.0, 0.0, 1.0,
-       1.0, -1.0, 0.0, 1.0,
-       0.0,  1.0, 0.0, 1.0,
-    ),
-    dtype=Float)  # yapf: disable
-    
-    self.vertexData = v * 0.5
-
-    self.vertexBuffer = self.device.newBufferWithBytes_length_options_(
-      self.vertexData.ctypes, Float.itemsize * self.vertexData.size, 0)
-
     source = shader_path.read_text('utf-8')
-    library = self.device.newLibraryWithSource_options_error_(
+    self.library = self.device.newLibraryWithSource_options_error_(
       source, MTLCompileOptions.new(), err_ptr)
 
-    vertex_func = library.newFunctionWithName_('vertex_func')
-    frag_func = library.newFunctionWithName_('fragment_func')
+    vertexFunction = self.library.newFunctionWithName_('vertex_main')
+    fragmentFunction = self.library.newFunctionWithName_('fragment_main')
 
-    rpld = MTLRenderPipelineDescriptor.new()
-    rpld.vertexFunction = vertex_func
-    rpld.fragmentFunction = frag_func
+    pipelineDescriptor = MTLRenderPipelineDescriptor.new()
+    pipelineDescriptor.vertexFunction = vertexFunction
+    pipelineDescriptor.fragmentFunction = fragmentFunction
+    pipelineDescriptor.colorAttachments().objectAtIndexedSubscript_(0).pixelFormat = mtkView.colorPixelFormat()
 
-    rpld.colorAttachments().objectAtIndexedSubscript(
-      0).pixelFormat = 80  # .bgra8Unorm
+    self.pipelineState = self.device.newRenderPipelineStateWithDescriptor_error_(
+      pipelineDescriptor, err_ptr)
 
-    self.rps = self.device.newRenderPipelineStateWithDescriptor_error_(
-      rpld, err_ptr)
+    return self._create_delegate()
 
   def _create_delegate(self):
     # --- `MTKViewDelegate` Methods
     def drawInMTKView_(_self, _cmd, _view):
-      this = ObjCInstance(_self)
       view = ObjCInstance(_view)
 
-      drawable = view.currentDrawable()
-      rpd = view.currentRenderPassDescriptor()
-      rpd.colorAttachments().objectAtIndexedSubscript(0).clearColor = (0.0,
-                                                                       0.5,
-                                                                       0.5,
-                                                                       1.0)
       commandBuffer = self.commandQueue.commandBuffer()
-      commandEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(rpd)
-      commandEncoder.setRenderPipelineState_(self.rps)
-      commandEncoder.setVertexBuffer_offset_atIndex_(self.vertexBuffer, 0, 0)
-      #commandEncoder.drawPrimitives_vertexStart_vertexCount_instanceCount_(3, 0, 3, 1)  # .triangle
+      descriptor = view.currentRenderPassDescriptor()
 
-      commandEncoder.drawPrimitives_vertexStart_vertexCount_(
-        3, 0, self.vertexData.size)  # .triangle
+      renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
+        descriptor)
 
-      commandEncoder.endEncoding()
+      renderEncoder.setVertexBuffer_offset_atIndex_(self.quad.vertexBuffer, 0,
+                                                    0)
+
+      renderEncoder.drawPrimitives_vertexStart_vertexCount_(MTLPrimitiveTypeTriangle, 0, self.quad.vertices.size)
+
+      #renderEncoder.drawPrimitives_vertexStart_vertexCount_instanceCount_( 3, 0, self.quad.vertices.size, 1)  # .triangle
+
+      renderEncoder.endEncoding()
+      drawable = view.currentDrawable()
       commandBuffer.presentDrawable_(drawable)
       commandBuffer.commit()
 
@@ -161,28 +165,43 @@ class MetalViewController:
       this = ObjCInstance(_self)
       view = this.view()
       view.setBackgroundColor_(UIColor.systemDarkExtraLightGrayColor())
+      #view.setBackgroundColor_(UIColor.systemBackgroundColor())
 
       CGRectZero = CGRect((0.0, 0.0), (0.0, 0.0))
+      device = MTLCreateSystemDefaultDevice()
 
       self.mtkView = MTKView.alloc()
-      self.mtkView.initWithFrame_device_(CGRectZero,
-                                         MTLCreateSystemDefaultDevice())
-      #self.mtkView.enableSetNeedsDisplay = True
-      #self.mtkView.clearColor = (0.0, 0.5, 1.0, 1.0)
+      self.mtkView.initWithFrame_device_(CGRectZero, device)
+      self.mtkView.clearColor = (1.0, 1.0, 0.8, 1.0)
+      self.mtkView.isPaused = True
+      self.mtkView.enableSetNeedsDisplay = False
 
       mtk_layer = self.mtkView.layer()
       mtk_layer.setBorderWidth_(2.0)
       mtk_layer.setBorderColor_(UIColor.systemGrayTintColor().CGColor())
 
       self.renderer = Renderer.initWithMetalKitView_(self.mtkView)
-      self.renderer.mtkView_drawableSizeWillChange_(self.mtkView, view.size())
       self.mtkView.delegate = self.renderer
+
+      label = UILabel.new()
+      label.setBackgroundColor_(UIColor.systemDarkLightMidGrayColor())
+      label.setTextColor_(UIColor.systemDarkGrayTintColor())
+      label.setText_('Hello, Metal! 😇')
+      label.sizeToFit()
+
+      label_layer = label.layer()
+      label_layer.setBorderWidth_(2.0)
+      label_layer.setBorderColor_(UIColor.systemGrayTintColor().CGColor())
 
       # --- layout
       view.addSubview_(self.mtkView)
+      view.addSubview_(label)
+
       self.mtkView.translatesAutoresizingMaskIntoConstraints = False
+      label.translatesAutoresizingMaskIntoConstraints = False
 
       constraints = [
+        # --- mtkView
         self.mtkView.centerXAnchor().constraintEqualToAnchor_(
           view.centerXAnchor()),
         self.mtkView.topAnchor().constraintEqualToAnchor_constant_(
@@ -194,6 +213,11 @@ class MetalViewController:
         #self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(view.widthAnchor(), 1.0),
         self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(
           view.widthAnchor(), 0.64),
+
+        # --- label
+        label.topAnchor().constraintEqualToAnchor_constant_(
+          self.mtkView.bottomAnchor(), 8),
+        label.centerXAnchor().constraintEqualToAnchor_(view.centerXAnchor()),
       ]
       NSLayoutConstraint.activateConstraints_(constraints)
 
@@ -210,7 +234,7 @@ class MetalViewController:
     _vc = create_objc_class(**create_kwargs)
     self._viewController = _vc
 
-  #@on_main_thread
+  @on_main_thread
   def _init(self):
     self._override_viewController()
     vc = self._viewController.new().autorelease()
@@ -232,8 +256,8 @@ class ObjcUIViewController:
     def doneButtonTapped_(_self, _cmd, _sender):
       this = ObjCInstance(_self)
       visibleViewController = this.visibleViewController()
-      visibleViewController.dismissViewControllerAnimated_completion_(
-        True, None)
+      visibleViewController.dismissViewControllerAnimated(True,
+                                                          completion=None)
 
     # --- `UINavigationController` set up
     _methods = [
@@ -270,14 +294,13 @@ class ObjcUIViewController:
       navigationBar.compactAppearance = appearance
       navigationBar.compactScrollEdgeAppearance = appearance
 
-      #navigationBar.prefersLargeTitles = True
+      navigationBar.prefersLargeTitles = True
 
       viewController.setEdgesForExtendedLayout_(0)
       #viewController.setExtendedLayoutIncludesOpaqueBars_(True)
 
-      done_btn = UIBarButtonItem.alloc(
-      ).initWithBarButtonSystemItem_target_action_(0, navigationController,
-                                                   sel('doneButtonTapped:'))
+      done_btn = UIBarButtonItem.alloc().initWithBarButtonSystemItem(
+        0, target=navigationController, action=sel('doneButtonTapped:'))
 
       visibleViewController = navigationController.visibleViewController()
 
@@ -347,4 +370,5 @@ if __name__ == '__main__':
   mtlvc = MetalViewController.new()
   ovc = ObjcUIViewController.new(mtlvc)
   present_objc(ovc)
+
 
