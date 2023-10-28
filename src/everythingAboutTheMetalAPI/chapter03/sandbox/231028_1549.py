@@ -37,7 +37,7 @@ def MTLCreateSystemDefaultDevice():
   return ObjCInstance(_MTLCreateSystemDefaultDevice())
 
 
-Float = np.dtype(np.float16, align=True)
+Float = np.dtype(np.float32, align=True)
 
 
 class Renderer:
@@ -57,38 +57,20 @@ class Renderer:
     return self._create_delegate()
 
   def _registerShaders(self):
-    '''
     self.vertexData = np.array((
-      1.0, -1.0, 0.0, 1.0,
-      1.0, -1.0, 0.0, 1.0,
-      0.0,  1.0, 0.0, 1.0,
+      -1.0, -1.0, 0.0, 1.0,
+       1.0, -1.0, 0.0, 1.0,
+       0.0,  1.0, 0.0, 1.0,
     ),
     dtype=Float)  # yapf: disable
-    '''
     #print(dir(self.vertexData))
     #print(self.vertexData.strides)
     #print(self.vertexData.data)
     #print(self.vertexData.nbytes)
     #print(dir(self.vertexData.ctypes))
-    self.vertexData = (ctypes.c_float * 12)()
-    '''
-    vertices = [
-      1.0, -1.0, 0.0, 1.0,
-      1.0, -1.0, 0.0, 1.0,
-      0.0,  1.0, 0.0, 1.0,
-    ]  # yapf: disable
-    '''
-    vertices = [
-      -1.0, -1.0, 0.0, 1.0, 1.0, -1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0,
-    ]# yapf: disable
-    for n, i in enumerate(vertices):
-      self.vertexData[n] = i
-
-    bytes = self.vertexData
-    length = self.vertexData.__len__() * 16
 
     self.vertexBuffer = self.device.newBufferWithBytes_length_options_(
-      bytes, length, 0)
+      self.vertexData.ctypes, Float.itemsize * self.vertexData.size, 0)
 
     source = shader_path.read_text('utf-8')
     library = self.device.newLibraryWithSource_options_error_(

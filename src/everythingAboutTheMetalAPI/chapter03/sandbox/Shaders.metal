@@ -23,3 +23,4 @@ vertex Vertex vertex_func(constant Vertex *vertices [[buffer(0)]],
 fragment float4 fragment_func(Vertex vert [[stage_in]]) {
     return float4(0.7, 1, 1, 1);
 }
+
