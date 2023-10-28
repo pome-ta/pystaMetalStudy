@@ -35,7 +35,7 @@ using namespace metal;
 
 
 vertex float4 vertex_main(
-  constant simd_float3 *vertices [[buffer(0)]],
+  constant packed_float3 *vertices [[buffer(0)]],
   uint vertexID [[vertex_id]])
 {
   float4 position = float4(vertices[vertexID], 1);
