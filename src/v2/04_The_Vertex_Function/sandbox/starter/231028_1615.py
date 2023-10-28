@@ -40,7 +40,7 @@ def MTLCreateSystemDefaultDevice():
   return ObjCInstance(_MTLCreateSystemDefaultDevice())
 
 
-Float = np.dtype(np.float32)
+Float = np.dtype(np.float32, align=True)
 UInt16 = np.dtype(np.uint16)
 
 
@@ -58,11 +58,10 @@ class Quad:
 
   def __init__(self, device: 'MTLDevice', scale: float = 1.0):
     self.vertexBuffer: 'MTLBuffer'
-    self.vertices = Quad._vertices * scale
-    
+    self.vertices = Quad._vertices  # * scale
+
     bytes = self.vertices.ctypes
     length = Float.itemsize * self.vertices.size
-    
 
     self.vertexBuffer = device.newBufferWithBytes_length_options_(
       bytes, length, 0)
@@ -83,7 +82,7 @@ class Renderer:
     self.device = mtkView.device()
     self.commandQueue = self.device.newCommandQueue()
     self.quad = Quad(self.device, 0.8)
-    
+
     source = shader_path.read_text('utf-8')
     self.library = self.device.newLibraryWithSource_options_error_(
       source, MTLCompileOptions.new(), err_ptr)
@@ -94,7 +93,8 @@ class Renderer:
     pipelineDescriptor = MTLRenderPipelineDescriptor.new()
     pipelineDescriptor.vertexFunction = vertexFunction
     pipelineDescriptor.fragmentFunction = fragmentFunction
-    pipelineDescriptor.colorAttachments().objectAtIndexedSubscript_(0).pixelFormat = mtkView.colorPixelFormat()
+    pipelineDescriptor.colorAttachments().objectAtIndexedSubscript_(
+      0).pixelFormat = mtkView.colorPixelFormat()
 
     self.pipelineState = self.device.newRenderPipelineStateWithDescriptor_error_(
       pipelineDescriptor, err_ptr)
@@ -112,12 +112,12 @@ class Renderer:
       renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
         descriptor)
 
+      renderEncoder.setRenderPipelineState_(self.pipelineState)
       renderEncoder.setVertexBuffer_offset_atIndex_(self.quad.vertexBuffer, 0,
                                                     0)
 
-      renderEncoder.drawPrimitives_vertexStart_vertexCount_(MTLPrimitiveTypeTriangle, 0, self.quad.vertices.size)
-
-      #renderEncoder.drawPrimitives_vertexStart_vertexCount_instanceCount_( 3, 0, self.quad.vertices.size, 1)  # .triangle
+      renderEncoder.drawPrimitives_vertexStart_vertexCount_(
+        MTLPrimitiveTypeTriangle, 0, self.quad.vertices.size)
 
       renderEncoder.endEncoding()
       drawable = view.currentDrawable()
