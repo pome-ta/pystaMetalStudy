@@ -58,7 +58,7 @@ class Quad:
 
   def __init__(self, device: 'MTLDevice', scale: float = 1.0):
     self.vertexBuffer: 'MTLBuffer'
-    self.vertices = Quad._vertices  # * scale
+    self.vertices = Quad._vertices * scale
 
     bytes = self.vertices.ctypes
     length = Float.itemsize * self.vertices.size
