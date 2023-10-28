@@ -9,7 +9,7 @@ from objc_util import sel, CGRect, nsurl
 import pdbg
 
 TITLE = '4. The Vertex Function ---start'
-shader_path = Path('./Shaders.metal')
+shader_path = Path('./float3.metal')
 
 err_ptr = ctypes.c_void_p()
 MTLPrimitiveTypeTriangle = 3
