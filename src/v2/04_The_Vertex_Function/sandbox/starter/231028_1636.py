@@ -63,8 +63,9 @@ class Quad:
     bytes = self.vertices.ctypes
     length = Float.itemsize * self.vertices.size
 
-    self.vertexBuffer = device.newBufferWithBytes_length_options_(
-      bytes, length, 0)
+    self.vertexBuffer = device.newBufferWithBytes(bytes,
+                                                  length=length,
+                                                  options=0)
 
 
 class Renderer:
@@ -84,20 +85,21 @@ class Renderer:
     self.quad = Quad(self.device, 0.8)
 
     source = shader_path.read_text('utf-8')
-    self.library = self.device.newLibraryWithSource_options_error_(
-      source, MTLCompileOptions.new(), err_ptr)
+    self.library = self.device.newLibraryWithSource(
+      source, options=MTLCompileOptions.new(), error=err_ptr)
 
     vertexFunction = self.library.newFunctionWithName_('vertex_main')
-    fragmentFunction = self.library.newFunctionWithName_('fragment_main')
+    fragmentFunction = self.library.newFunctionWithName('fragment_main')
 
     pipelineDescriptor = MTLRenderPipelineDescriptor.new()
     pipelineDescriptor.vertexFunction = vertexFunction
     pipelineDescriptor.fragmentFunction = fragmentFunction
-    pipelineDescriptor.colorAttachments().objectAtIndexedSubscript_(
+    pipelineDescriptor.colorAttachments().objectAtIndexedSubscript(
       0).pixelFormat = mtkView.colorPixelFormat()
 
-    self.pipelineState = self.device.newRenderPipelineStateWithDescriptor_error_(
-      pipelineDescriptor, err_ptr)
+    #self.pipelineState = self.device.newRenderPipelineStateWithDescriptor_error_(pipelineDescriptor, err_ptr)
+    self.pipelineState = self.device.newRenderPipelineStateWithDescriptor(
+      pipelineDescriptor, error=err_ptr)
 
     return self._create_delegate()
 
@@ -109,15 +111,17 @@ class Renderer:
       commandBuffer = self.commandQueue.commandBuffer()
       descriptor = view.currentRenderPassDescriptor()
 
-      renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor_(
+      renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor(
         descriptor)
 
-      renderEncoder.setRenderPipelineState_(self.pipelineState)
-      renderEncoder.setVertexBuffer_offset_atIndex_(self.quad.vertexBuffer, 0,
-                                                    0)
+      renderEncoder.setRenderPipelineState(self.pipelineState)
+      renderEncoder.setVertexBuffer(self.quad.vertexBuffer,
+                                    offset=0,
+                                    atIndex=0)
 
-      renderEncoder.drawPrimitives_vertexStart_vertexCount_(
-        MTLPrimitiveTypeTriangle, 0, self.quad.vertices.size)
+      renderEncoder.drawPrimitives(MTLPrimitiveTypeTriangle,
+                                   vertexStart=0,
+                                   vertexCount=self.quad.vertices.size)
 
       renderEncoder.endEncoding()
       drawable = view.currentDrawable()
