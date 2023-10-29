@@ -184,55 +184,55 @@ class MetalViewController:
       device = MTLCreateSystemDefaultDevice()
 
       self.mtkView = MTKView.alloc()
-      self.mtkView.initWithFrame_device_(CGRectZero, device)
+      self.mtkView.initWithFrame(CGRectZero, device=device)
       self.mtkView.clearColor = (1.0, 1.0, 0.8, 1.0)
       self.mtkView.isPaused = True
       self.mtkView.enableSetNeedsDisplay = False
 
       mtk_layer = self.mtkView.layer()
-      mtk_layer.setBorderWidth_(2.0)
-      mtk_layer.setBorderColor_(UIColor.systemGrayTintColor().CGColor())
+      mtk_layer.setBorderWidth(2.0)
+      mtk_layer.setBorderColor(UIColor.systemGrayTintColor().CGColor())
 
       self.renderer = Renderer.initWithMetalKitView_(self.mtkView)
       self.mtkView.delegate = self.renderer
 
       label = UILabel.new()
-      label.setBackgroundColor_(UIColor.systemDarkLightMidGrayColor())
-      label.setTextColor_(UIColor.systemDarkGrayTintColor())
-      label.setText_('Hello, Metal! 😇')
+      label.setBackgroundColor(UIColor.systemDarkLightMidGrayColor())
+      label.setTextColor(UIColor.systemDarkGrayTintColor())
+      label.setText('Hello, Metal! 😇')
       label.sizeToFit()
 
       label_layer = label.layer()
-      label_layer.setBorderWidth_(2.0)
-      label_layer.setBorderColor_(UIColor.systemGrayTintColor().CGColor())
+      label_layer.setBorderWidth(2.0)
+      label_layer.setBorderColor(UIColor.systemGrayTintColor().CGColor())
 
       # --- layout
-      view.addSubview_(self.mtkView)
-      view.addSubview_(label)
+      view.addSubview(self.mtkView)
+      view.addSubview(label)
 
       self.mtkView.translatesAutoresizingMaskIntoConstraints = False
       label.translatesAutoresizingMaskIntoConstraints = False
 
       constraints = [
         # --- mtkView
-        self.mtkView.centerXAnchor().constraintEqualToAnchor_(
+        self.mtkView.centerXAnchor().constraintEqualToAnchor(
           view.centerXAnchor()),
-        self.mtkView.topAnchor().constraintEqualToAnchor_constant_(
-          view.topAnchor(), 8),
+        self.mtkView.topAnchor().constraintEqualToAnchor(view.topAnchor(),
+                                                         constant=8),
 
         # xxx: 縦横対応してない
-        self.mtkView.widthAnchor().constraintEqualToAnchor_multiplier_(
-          view.widthAnchor(), 0.96),
+        self.mtkView.widthAnchor().constraintEqualToAnchor(view.widthAnchor(),
+                                                           multiplier=0.96),
         #self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(view.widthAnchor(), 1.0),
-        self.mtkView.heightAnchor().constraintEqualToAnchor_multiplier_(
-          view.heightAnchor(), 0.64),
+        self.mtkView.heightAnchor().constraintEqualToAnchor(
+          view.heightAnchor(), multiplier=0.64),
 
         # --- label
-        label.topAnchor().constraintEqualToAnchor_constant_(
-          self.mtkView.bottomAnchor(), 8),
-        label.centerXAnchor().constraintEqualToAnchor_(view.centerXAnchor()),
+        label.topAnchor().constraintEqualToAnchor(self.mtkView.bottomAnchor(),
+                                                  constant=8),
+        label.centerXAnchor().constraintEqualToAnchor(view.centerXAnchor()),
       ]
-      NSLayoutConstraint.activateConstraints_(constraints)
+      NSLayoutConstraint.activateConstraints(constraints)
 
     # --- `UIViewController` set up
     _methods = [
@@ -376,7 +376,7 @@ def present_objc(vc):
   case  8 : blurOverFullScreen
   '''
   vc.setModalPresentationStyle(0)
-  root_vc.presentViewController_animated_completion_(vc, True, None)
+  root_vc.presentViewController(vc, animated=True, completion=None)
 
 
 if __name__ == '__main__':
