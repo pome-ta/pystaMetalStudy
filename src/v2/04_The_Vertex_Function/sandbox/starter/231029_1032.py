@@ -76,7 +76,7 @@ class Renderer:
     self.pipelineState: 'MTLRenderPipelineState'
 
     self.quad: Quad
-    self.timer: Float = np.array(0, dtype=Float)
+    self.timer: Float = np.array(0.0, dtype=Float)
 
   #@on_main_thread
   def _init(self, mtkView: MTKView) -> 'MTKViewDelegate':
@@ -118,7 +118,7 @@ class Renderer:
       self.timer += 0.005
       currentTime = np.sin(self.timer)
 
-      renderEncoder.setVertexBytes(currentTime.byteswap,
+      renderEncoder.setVertexBytes(currentTime.tobytes,
                                    length=Float.itemsize,
                                    atIndex=11)
 

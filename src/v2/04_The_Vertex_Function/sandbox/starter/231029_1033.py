@@ -9,7 +9,7 @@ from objc_util import sel, CGRect, nsurl
 import pdbg
 
 TITLE = '4. The Vertex Function ---start'
-shader_path = Path('./timer.metal')
+shader_path = Path('./packed_float3.metal')
 
 err_ptr = ctypes.c_void_p()
 MTLPrimitiveTypeTriangle = 3
@@ -31,6 +31,7 @@ NSLayoutConstraint = ObjCClass('NSLayoutConstraint')
 MTKView = ObjCClass('MTKView')
 MTLCompileOptions = ObjCClass('MTLCompileOptions')
 MTLRenderPipelineDescriptor = ObjCClass('MTLRenderPipelineDescriptor')
+MTLVertexDescriptor = ObjCClass('MTLVertexDescriptor')
 
 
 def MTLCreateSystemDefaultDevice():
@@ -41,7 +42,6 @@ def MTLCreateSystemDefaultDevice():
 
 
 Float = np.dtype(np.float32, align=True)
-UInt16 = np.dtype(np.uint16)
 
 
 class Quad:
@@ -57,14 +57,15 @@ class Quad:
     dtype=Float)  # yapf: disable
 
   def __init__(self, device: 'MTLDevice', scale: float = 1.0):
-    self.vertices: [Float]
     self.vertexBuffer: 'MTLBuffer'
-
     self.vertices = Quad._vertices * scale
+
     bytes = self.vertices.ctypes
     length = Float.itemsize * self.vertices.size
-    vertexBuffer = device.newBufferWithBytes(bytes, length=length, options=0)
-    self.vertexBuffer = vertexBuffer
+
+    self.vertexBuffer = device.newBufferWithBytes(bytes,
+                                                  length=length,
+                                                  options=0)
 
 
 class Renderer:
@@ -76,9 +77,7 @@ class Renderer:
     self.pipelineState: 'MTLRenderPipelineState'
 
     self.quad: Quad
-    self.timer: Float = np.array(0, dtype=Float)
 
-  #@on_main_thread
   def _init(self, mtkView: MTKView) -> 'MTKViewDelegate':
     self.device = mtkView.device()
     self.commandQueue = self.device.newCommandQueue()
@@ -97,6 +96,9 @@ class Renderer:
     pipelineDescriptor.colorAttachments().objectAtIndexedSubscript(
       0).pixelFormat = mtkView.colorPixelFormat()
 
+    pipelineDescriptor.vertexDescriptor = MTLVertexDescriptor.vertexDescriptor(
+    )
+
     self.pipelineState = self.device.newRenderPipelineStateWithDescriptor(
       pipelineDescriptor, error=err_ptr)
 
@@ -113,18 +115,7 @@ class Renderer:
       renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor(
         descriptor)
 
-      
-
-      self.timer += 0.005
-      currentTime = np.sin(self.timer)
-
-      renderEncoder.setVertexBytes(currentTime.byteswap,
-                                   length=Float.itemsize,
-                                   atIndex=11)
-
-      
       renderEncoder.setRenderPipelineState(self.pipelineState)
-      
       renderEncoder.setVertexBuffer(self.quad.vertexBuffer,
                                     offset=0,
                                     atIndex=0)
@@ -133,7 +124,6 @@ class Renderer:
                                    vertexStart=0,
                                    vertexCount=self.quad.vertices.size)
 
-      
       renderEncoder.endEncoding()
       drawable = view.currentDrawable()
       commandBuffer.presentDrawable_(drawable)
@@ -311,7 +301,7 @@ class ObjcUIViewController:
 
       navigationBar.prefersLargeTitles = True
 
-      viewController.setEdgesForExtendedLayout_(0)
+      viewController.setEdgesForExtendedLayout(0)
       #viewController.setExtendedLayoutIncludesOpaqueBars_(True)
 
       done_btn = UIBarButtonItem.alloc().initWithBarButtonSystemItem(
@@ -322,7 +312,7 @@ class ObjcUIViewController:
       # --- navigationItem
       navigationItem = visibleViewController.navigationItem()
       navigationItem.rightBarButtonItem = done_btn
-      navigationItem.setTitle_(TITLE)
+      navigationItem.setTitle(TITLE)
 
     # --- `UINavigationControllerDelegate` set up
     _methods = [
@@ -345,8 +335,8 @@ class ObjcUIViewController:
     self._override_navigationController()
     _delegate = self.create_navigationControllerDelegate()
     nv = self._navigationController.alloc()
-    nv.initWithRootViewController_(vc).autorelease()
-    nv.setDelegate_(_delegate)
+    nv.initWithRootViewController(vc).autorelease()
+    nv.setDelegate(_delegate)
     return nv
 
   @classmethod
