@@ -13,7 +13,6 @@ TITLE = '4. The Vertex Function ---start'
 #shader_path = Path('./timer.metal')
 shader_path = Path('./packed_float3.metal')
 
-
 err_ptr = ctypes.c_void_p()
 MTLPrimitiveTypeTriangle = 3
 
@@ -44,11 +43,25 @@ def MTLCreateSystemDefaultDevice():
   return ObjCInstance(_MTLCreateSystemDefaultDevice())
 
 
-Float = np.dtype(np.float32)
-UInt16 = np.dtype(np.uint16)
+Float = np.dtype(np.float32, align=True)
+UInt16 = np.dtype(np.uint16, align=True)
+Vertex = np.dtype({
+  'names': ['x', 'y', 'z',],
+  'formats': [Float, Float, Float,],
+  'offsets': [o * Float.itemsize for o in range(3)],
+  'itemsize': 3 * Float.itemsize,
+}, align=True)  # yapf: disable
+simd_float3 = np.dtype({
+  'names': ['x', 'y', 'z',],
+  'formats': [Float, Float, Float,],
+  'offsets': [o * Float.itemsize for o in range(3)],
+  'itemsize': 16,
+}, align=True)  # yapf: disable
+
 
 
 class Quad:
+
   _oldVertices = np.array(
     (
       -1,  1,  0,  # triangle 1
@@ -162,10 +175,10 @@ class Renderer:
 
       #renderEncoder.setVertexBuffer(self.quad.indexBuffer, offset=0, atIndex=1)
 
-      #renderEncoder.drawPrimitives(MTLPrimitiveTypeTriangle,vertexStart=0,vertexCount=self.quad.indices.size)
       renderEncoder.drawPrimitives(MTLPrimitiveTypeTriangle,
                                    vertexStart=0,
-                                   vertexCount=self.quad.vertices.size)
+                                   vertexCount=self.quad.indices.size)
+      #renderEncoder.drawPrimitives(MTLPrimitiveTypeTriangle, vertexStart=0, vertexCount=self.quad.vertices.size)
       renderEncoder.endEncoding()
       drawable = view.currentDrawable()
       commandBuffer.presentDrawable_(drawable)
