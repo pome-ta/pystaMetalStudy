@@ -76,7 +76,7 @@ class Quad:
   def __init__(self, device: 'MTLDevice', scale: float = 1.0):
     self.vertexBuffer: 'MTLBuffer'
     self.indexBuffer: 'MTLBuffer'
-    
+
     self.vertices = Quad._vertices * scale
     v_bytes = self.vertices.ctypes
     v_length = Float.itemsize * self.vertices.size
@@ -85,7 +85,6 @@ class Quad:
                                                   length=v_length,
                                                   options=0)
 
-    
     self.indices = Quad._indices
     i_bytes = self.indices.ctypes
     i_length = UInt16.itemsize * self.indices.size
@@ -142,7 +141,7 @@ class Renderer:
       renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor(
         descriptor)
 
-      self.timer += 0.05
+      self.timer += 0.005
       currentTime = np.array(np.sin(self.timer), dtype=Float)
 
       renderEncoder.setVertexBytes(currentTime.ctypes,
@@ -159,8 +158,6 @@ class Renderer:
       renderEncoder.drawPrimitives(MTLPrimitiveTypeTriangle,
                                    vertexStart=0,
                                    vertexCount=self.quad.indices.size)
-
-      
       '''
       renderEncoder.endEncoding()
       drawable = view.currentDrawable()
