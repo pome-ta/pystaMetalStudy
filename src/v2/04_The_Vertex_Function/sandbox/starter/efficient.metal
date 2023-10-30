@@ -45,7 +45,6 @@ vertex float4 vertex_main(
   return position;
 }
 
-
 fragment float4 fragment_main() {
   return float4(0, 0, 1, 1);
 }

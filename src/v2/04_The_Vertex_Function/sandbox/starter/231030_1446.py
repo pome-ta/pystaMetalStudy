@@ -9,7 +9,10 @@ from objc_util import sel, CGRect, nsurl
 import pdbg
 
 TITLE = '4. The Vertex Function ---start'
-shader_path = Path('./efficient.metal')
+#shader_path = Path('./efficient.metal')
+#shader_path = Path('./timer.metal')
+shader_path = Path('./packed_float3.metal')
+
 
 err_ptr = ctypes.c_void_p()
 MTLPrimitiveTypeTriangle = 3
@@ -91,6 +94,10 @@ class Quad:
     self.indexBuffer = device.newBufferWithBytes(i_bytes,
                                                  length=i_length,
                                                  options=0)
+    print(self.indices)
+    print(self.indexBuffer)
+    print(UInt16.itemsize)
+    print(self.indices.size)
 
 
 class Renderer:
@@ -153,12 +160,12 @@ class Renderer:
                                     offset=0,
                                     atIndex=0)
 
-      renderEncoder.setVertexBuffer(self.quad.indexBuffer, offset=0, atIndex=1)
+      #renderEncoder.setVertexBuffer(self.quad.indexBuffer, offset=0, atIndex=1)
 
+      #renderEncoder.drawPrimitives(MTLPrimitiveTypeTriangle,vertexStart=0,vertexCount=self.quad.indices.size)
       renderEncoder.drawPrimitives(MTLPrimitiveTypeTriangle,
                                    vertexStart=0,
-                                   vertexCount=self.quad.indices.size)
-
+                                   vertexCount=self.quad.vertices.size)
       renderEncoder.endEncoding()
       drawable = view.currentDrawable()
       commandBuffer.presentDrawable_(drawable)
