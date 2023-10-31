@@ -160,7 +160,7 @@ class Renderer:
                                     offset=0,
                                     atIndex=0)
 
-      #renderEncoder.setVertexBuffer(self.quad.indexBuffer, offset=0, atIndex=1)
+      renderEncoder.setVertexBuffer(self.quad.indexBuffer, offset=0, atIndex=1)
 
       #renderEncoder.drawPrimitives(MTLPrimitiveTypeTriangle,vertexStart=0,vertexCount=self.quad.indices.size)
       renderEncoder.drawPrimitives(MTLPrimitiveTypeTriangle,
