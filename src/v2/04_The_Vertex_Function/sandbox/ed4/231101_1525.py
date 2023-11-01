@@ -8,10 +8,8 @@ from objc_util import sel, CGRect, nsurl
 
 import pdbg
 
-TITLE = '4. The Vertex Function ---start'
-shader_path = Path('./efficient.metal')
-#shader_path = Path('./timer.metal')
-#shader_path = Path('./packed_float3.metal')
+TITLE = '4. The Vertex Function'
+shader_path = Path('./Shaders.metal')
 
 err_ptr = ctypes.c_void_p()
 MTLPrimitiveTypeTriangle = 3
@@ -54,7 +52,6 @@ Vertex = np.dtype({
   'itemsize': 3 * Float.itemsize,
 }, align=True)  # yapf: disable
 
-PackedFloat3 = Vertex
 
 simd_float3 = np.dtype({
   'names': ['x', 'y', 'z',],
@@ -69,30 +66,21 @@ class Quad:
 
   _oldVertices = np.array(
     (
-      -1,  1,  0,  # triangle 1
-       1, -1,  0,
-      -1, -1,  0,
-      -1,  1,  0,  # triangle 2
-       1,  1,  0,
-       1, -1,  0,
-    ),
-    dtype=Float)  # yapf: disable
-  '''
-  _vertices = np.array(
-    [
-      -1,  1,  0,
-       1,  1,  0,
-      -1, -1,  0,
-       1, -1,  0,
-    ],
-    dtype=Float)  # yapf: disable
-  '''
+      np.array((-1,  1, 0), dtype=Vertex),  # triangle 1
+      np.array(( 1, -1, 0), dtype=Vertex),
+      np.array((-1, -1, 0), dtype=Vertex),
+      np.array((-1,  1, 0), dtype=Vertex),  # triangle 2
+      np.array(( 1,  1, 0), dtype=Vertex),
+      np.array(( 1, -1, 0), dtype=Vertex),
+    )
+  )  # yapf: disable
+
   _vertices = np.array(
     (
-      np.array((-1,  1,  0,), dtype=PackedFloat3),
-      np.array(( 1,  1,  0,), dtype=PackedFloat3),
-      np.array((-1, -1,  0,), dtype=PackedFloat3),
-      np.array(( 1, -1,  0,), dtype=PackedFloat3),
+      np.array((-1,  1,  0,), dtype=Vertex),
+      np.array(( 1,  1,  0,), dtype=Vertex),
+      np.array((-1, -1,  0,), dtype=Vertex),
+      np.array(( 1, -1,  0,), dtype=Vertex),
     )
   )  # yapf: disable
 
@@ -100,12 +88,22 @@ class Quad:
     (
       0, 3, 2,
       0, 1, 3,
-    ),
-    dtype=UInt16)  # yapf: disable
+    ), dtype=UInt16
+  )  # yapf: disable
+
+  _colors = np.array(
+    (
+      np.array([1, 0, 0], dtype=simd_float3),
+      np.array([0, 1, 0], dtype=simd_float3),
+      np.array([0, 0, 1], dtype=simd_float3),
+      np.array([1, 1, 0], dtype=simd_float3),
+    )
+  )  # yapf: disable
 
   def __init__(self, device: 'MTLDevice', scale: float = 1.0):
     self.vertexBuffer: 'MTLBuffer'
     self.indexBuffer: 'MTLBuffer'
+    self.colorBuffer: 'MTLBuffer'
 
     self.vertices = Quad._vertices
 
@@ -114,18 +112,27 @@ class Quad:
         pl3[name] *= scale
 
     v_bytes = self.vertices.ctypes
-    v_length = PackedFloat3.itemsize * self.vertices.size
-
-    self.vertexBuffer = device.newBufferWithBytes(v_bytes,
-                                                  length=v_length,
-                                                  options=0)
+    v_length = Vertex.itemsize * self.vertices.size
+    vertexBuffer = device.newBufferWithBytes(v_bytes,
+                                             length=v_length,
+                                             options=0)
+    self.vertexBuffer = vertexBuffer
 
     self.indices = Quad._indices
     i_bytes = self.indices.ctypes
     i_length = UInt16.itemsize * self.indices.size
-    self.indexBuffer = device.newBufferWithBytes(i_bytes,
-                                                 length=i_length,
-                                                 options=0)
+    indexBuffer = device.newBufferWithBytes(i_bytes,
+                                            length=i_length,
+                                            options=0)
+    self.indexBuffer = indexBuffer
+
+    self.colors = Quad._colors
+    c_bytes = self.colors.ctypes
+    c_length = simd_float3.itemsize * self.colors.size
+    colorBuffer = device.newBufferWithBytes(c_bytes,
+                                            length=c_length,
+                                            options=0)
+    self.colorBuffer = colorBuffer
 
 
 class Renderer:
@@ -156,7 +163,8 @@ class Renderer:
     pipelineDescriptor.fragmentFunction = fragmentFunction
     #pipelineDescriptor.colorAttachments().objectAtIndexedSubscript(0).pixelFormat = mtkView.colorPixelFormat()
 
-    pipelineDescriptor.vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
+    pipelineDescriptor.vertexDescriptor = MTLVertexDescriptor.vertexDescriptor(
+    )
     #pipelineDescriptor.vertexDescriptor = MTLVertexDescriptor.new()
 
     self.pipelineState = self.device.newRenderPipelineStateWithDescriptor(
@@ -193,10 +201,8 @@ class Renderer:
                                    vertexStart=0,
                                    vertexCount=self.quad.indices.size)
       #renderEncoder.drawPrimitives(MTLPrimitiveTypeTriangle, vertexStart=0, vertexCount=self.quad.vertices.size)
-      
-      #renderEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(3, self.indices.__len__(), 0, self.indexBuffer, 0)  # .triangle
 
-      
+      #renderEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(3, self.indices.__len__(), 0, self.indexBuffer, 0)  # .triangle
 
       renderEncoder.endEncoding()
       drawable = view.currentDrawable()
@@ -449,5 +455,5 @@ if __name__ == '__main__':
   mtlvc = MetalViewController.new()
   ovc = ObjcUIViewController.new(mtlvc)
   present_objc(ovc)
-  
+
 
