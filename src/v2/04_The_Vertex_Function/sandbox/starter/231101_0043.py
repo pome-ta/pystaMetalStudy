@@ -156,8 +156,8 @@ class Renderer:
     pipelineDescriptor.fragmentFunction = fragmentFunction
     #pipelineDescriptor.colorAttachments().objectAtIndexedSubscript(0).pixelFormat = mtkView.colorPixelFormat()
 
-    pipelineDescriptor.vertexDescriptor = MTLVertexDescriptor.vertexDescriptor(
-    )
+    pipelineDescriptor.vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
+    #pipelineDescriptor.vertexDescriptor = MTLVertexDescriptor.new()
 
     self.pipelineState = self.device.newRenderPipelineStateWithDescriptor(
       pipelineDescriptor, error=err_ptr)
@@ -175,7 +175,7 @@ class Renderer:
       renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor(
         descriptor)
 
-      self.timer += 0.005
+      #self.timer += 0.005
       currentTime = np.array(np.sin(self.timer), dtype=Float)
 
       renderEncoder.setVertexBytes(currentTime.ctypes,
@@ -193,6 +193,10 @@ class Renderer:
                                    vertexStart=0,
                                    vertexCount=self.quad.indices.size)
       #renderEncoder.drawPrimitives(MTLPrimitiveTypeTriangle, vertexStart=0, vertexCount=self.quad.vertices.size)
+      
+      #renderEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(3, self.indices.__len__(), 0, self.indexBuffer, 0)  # .triangle
+
+      
 
       renderEncoder.endEncoding()
       drawable = view.currentDrawable()
