@@ -50,7 +50,7 @@ vertex VertexOut vertex_main(
     VertexOut out {
       .position = in.position,
       .color = in.color,
-      .pointSize = 30
+      .pointSize = 30.0
     };
   return out;
 }

@@ -114,6 +114,13 @@ class Quad:
       for name in Vertex.names:
         pl3[name] *= scale
 
+    #print(self.vertices)
+    #print(dir(self.vertices))
+    #print(self.vertices.strides)
+    #print(Vertex.itemsize)
+    
+    #print(simd_float3.itemsize)
+
     v_bytes = self.vertices.ctypes
     v_length = Vertex.itemsize * self.vertices.size
     vertexBuffer = device.newBufferWithBytes(v_bytes,
@@ -128,6 +135,8 @@ class Quad:
                                             length=i_length,
                                             options=0)
     self.indexBuffer = indexBuffer
+    
+    
 
     self.colors = Quad._colors
     c_bytes = self.colors.ctypes
@@ -136,6 +145,7 @@ class Quad:
                                             length=c_length,
                                             options=0)
     self.colorBuffer = colorBuffer
+    #pdbg.state(self.vertexBuffer)
 
 
 class Renderer:
@@ -168,26 +178,34 @@ class Renderer:
 
     #pipelineDescriptor.vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
     #pipelineDescriptor.vertexDescriptor = MTLVertexDescriptor.new()
+
     vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+    #vertexDescriptor = MTLVertexDescriptor.new()
+    vertexDescriptor.attributes().objectAtIndexedSubscript(
       0).format = MTLVertexFormatFloat3
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).offset = 0
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).bufferIndex = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript(0).offset = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript(0).bufferIndex = 0
     vertexDescriptor.layouts().objectAtIndexedSubscript(
       0).stride = Vertex.itemsize
 
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(
+    vertexDescriptor.attributes().objectAtIndexedSubscript(
       1).format = MTLVertexFormatFloat3
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(1).offset = 0
-    vertexDescriptor.attributes().objectAtIndexedSubscript_(1).bufferIndex = 1
-    vertexDescriptor.layouts().objectAtIndexedSubscript_(
+    vertexDescriptor.attributes().objectAtIndexedSubscript(1).offset = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript(1).bufferIndex = 1
+    vertexDescriptor.layouts().objectAtIndexedSubscript(
       1).stride = simd_float3.itemsize
 
     pipelineDescriptor.vertexDescriptor = vertexDescriptor
+    
+    #pdbg.state(vertexDescriptor)
+    
 
     self.pipelineState = self.device.newRenderPipelineStateWithDescriptor(
       pipelineDescriptor, error=err_ptr)
 
+    
+    #pdbg.state(vertexDescriptor)
+    
     return self._create_delegate()
 
   def _create_delegate(self):
@@ -209,7 +227,6 @@ class Renderer:
                                    atIndex=11)
 
       renderEncoder.setRenderPipelineState(self.pipelineState)
-      
 
       # do drawing here
       renderEncoder.setVertexBuffer(self.quad.vertexBuffer,
@@ -217,20 +234,19 @@ class Renderer:
                                     atIndex=0)
 
       renderEncoder.setVertexBuffer(self.quad.colorBuffer, offset=0, atIndex=1)
-
       
-      '''
+      
+      
       renderEncoder.drawIndexedPrimitives(MTLPrimitiveTypePoint,
                                           indexCount=self.quad.indices.size,
                                           indexType=MTLIndexTypeUInt16,
                                           indexBuffer=self.indexBuffer,
                                           indexBufferOffset=0)
-      #renderEncoder.drawPrimitives(MTLPrimitiveTypeTriangle, vertexStart=0, vertexCount=self.quad.vertices.size)
-
-      #renderEncoder.drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(3, self.indices.__len__(), 0, self.indexBuffer, 0)  # .triangle
 
       
-      '''
+      
+      
+      
       renderEncoder.endEncoding()
       drawable = view.currentDrawable()
       commandBuffer.presentDrawable_(drawable)
