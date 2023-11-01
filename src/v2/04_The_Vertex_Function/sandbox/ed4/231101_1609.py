@@ -96,10 +96,10 @@ class Quad:
 
   _colors = np.array(
     (
-      np.array([1, 0, 0], dtype=simd_float3),
-      np.array([0, 1, 0], dtype=simd_float3),
-      np.array([0, 0, 1], dtype=simd_float3),
-      np.array([1, 1, 0], dtype=simd_float3),
+      np.array((1, 0, 0), dtype=simd_float3),
+      np.array((0, 1, 0), dtype=simd_float3),
+      np.array((0, 0, 1), dtype=simd_float3),
+      np.array((1, 1, 0), dtype=simd_float3),
     )
   )  # yapf: disable
 
@@ -168,18 +168,18 @@ class Renderer:
 
     #pipelineDescriptor.vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
     #pipelineDescriptor.vertexDescriptor = MTLVertexDescriptor.new()
-    vertexDescriptor = MTLVertexDescriptor.new()
-    vertexDescriptor.attributes().objectAtIndexedSubscript(
+    vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
       0).format = MTLVertexFormatFloat3
-    vertexDescriptor.attributes().objectAtIndexedSubscript(0).offset = 0
-    vertexDescriptor.attributes().objectAtIndexedSubscript(0).bufferIndex = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).offset = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(0).bufferIndex = 0
     vertexDescriptor.layouts().objectAtIndexedSubscript(
       0).stride = Vertex.itemsize
 
-    vertexDescriptor.attributes().objectAtIndexedSubscript(
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(
       1).format = MTLVertexFormatFloat3
-    vertexDescriptor.attributes().objectAtIndexedSubscript(1).offset = 0
-    vertexDescriptor.attributes().objectAtIndexedSubscript(1).bufferIndex = 1
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(1).offset = 0
+    vertexDescriptor.attributes().objectAtIndexedSubscript_(1).bufferIndex = 1
     vertexDescriptor.layouts().objectAtIndexedSubscript_(
       1).stride = simd_float3.itemsize
 
@@ -281,7 +281,7 @@ class MetalViewController:
       self.mtkView.initWithFrame(CGRectZero, device=device)
       self.mtkView.clearColor = (1.0, 1.0, 0.8, 1.0)
       self.mtkView.isPaused = True
-      self.mtkView.enableSetNeedsDisplay = False
+      #self.mtkView.enableSetNeedsDisplay = False
 
       mtk_layer = self.mtkView.layer()
       mtk_layer.setBorderWidth(2.0)
