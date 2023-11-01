@@ -1,6 +1,3 @@
-// [https://github.com/kodecocodes/met-materials/blob/editions/4.0/04-the-vertex-function/projects/final](https://github.com/kodecocodes/met-materials/blob/editions/4.0/04-the-vertex-function/projects/final/Vertex/Vertex/Shaders.metal)
-
-
 ///// Copyright (c) 2023 Kodeco Inc.
 /// 
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
