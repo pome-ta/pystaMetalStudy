@@ -18,5 +18,7 @@ buffer = device.newBufferWithLength(16, options=0)
 #print(f'Buffer is {buffer.length()} bytes in length')
 #pdbg.state(buffer)
 
-contents = ObjCInstance(buffer.contents())
-pdbg.state(contents)
+contents = buffer.contents()
+#pdbg.state(contents)
+pdbg.state(buffer)
+
