@@ -1,3 +1,8 @@
+# 📝 2023/11/03
+
+[Warren Moore – Thirty Days of Metal · GitHub](https://gist.github.com/ole/a1c95cf6a4ebbef2a7827a911301d503)
+
+
 # 📝 2023/11/02
 
 
