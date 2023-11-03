@@ -22,4 +22,7 @@ source = shader_path.read_text('utf-8')
 
 library = device.newLibraryWithSource(source, options=None, error=err_ptr)
 
-pdbg.state(library.functionNames())
+for name in library.functionNames():
+  function = library.newFunctionWithName(name)
+  print(function)
+
