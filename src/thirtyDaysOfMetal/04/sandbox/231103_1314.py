@@ -11,9 +11,8 @@ TITLE = 'Day 4'
 UIViewController = ObjCClass('UIViewController')
 UIColor = ObjCClass('UIColor')
 
-# --- Pythonista3 View setup
 
-
+# --- Pythonista3 UI setup
 @on_main_thread
 def present_objc(vc):
   app = ObjCClass('UIApplication').sharedApplication()
