@@ -11,11 +11,117 @@ TITLE = 'Day 4'
 UIViewController = ObjCClass('UIViewController')
 UIColor = ObjCClass('UIColor')
 
+# --- Pythonista3 View setup
+
+
+@on_main_thread
+def present_objc(vc):
+  app = ObjCClass('UIApplication').sharedApplication()
+  window = app.keyWindow() if app.keyWindow() else app.windows().firstObject()
+
+  root_vc = window.rootViewController()
+
+  while root_vc.presentedViewController():
+    root_vc = root_vc.presentedViewController()
+  vc.setModalPresentationStyle(0)
+  root_vc.presentViewController(vc, animated=True, completion=None)
+
+
+class ObjcUIViewController:
+
+  def __init__(self):
+    self._navigationController: UINavigationController
+
+  def _override_navigationController(self):
+    # --- `UINavigationController` Methods
+    def doneButtonTapped_(_self, _cmd, _sender):
+      this = ObjCInstance(_self)
+      visibleViewController = this.visibleViewController()
+      visibleViewController.dismissViewControllerAnimated(True,
+                                                          completion=None)
+
+    # --- `UINavigationController` set up
+    _methods = [
+      doneButtonTapped_,
+    ]
+
+    create_kwargs = {
+      'name': '_nv',
+      'superclass': ObjCClass('UINavigationController'),
+      'methods': _methods,
+    }
+    _nv = create_objc_class(**create_kwargs)
+    self._navigationController = _nv
+
+  def create_navigationControllerDelegate(self):
+    # --- `UINavigationControllerDelegate` Methods
+    def navigationController_willShowViewController_animated_(
+        _self, _cmd, _navigationController, _viewController, _animated):
+
+      navigationController = ObjCInstance(_navigationController)
+      viewController = ObjCInstance(_viewController)
+
+      # --- appearance
+      appearance = ObjCClass('UINavigationBarAppearance').alloc()
+      appearance.configureWithDefaultBackground()
+
+      # --- navigationBar
+      navigationBar = navigationController.navigationBar()
+
+      navigationBar.standardAppearance = appearance
+      navigationBar.scrollEdgeAppearance = appearance
+      navigationBar.compactAppearance = appearance
+      navigationBar.compactScrollEdgeAppearance = appearance
+
+      navigationBar.prefersLargeTitles = True
+
+      viewController.setEdgesForExtendedLayout(0)
+      #viewController.setExtendedLayoutIncludesOpaqueBars_(True)
+
+      uiBarButtonItem = ObjCClass('UIBarButtonItem').alloc()
+      done_btn = uiBarButtonItem.initWithBarButtonSystemItem(
+        0, target=navigationController, action=sel('doneButtonTapped:'))
+
+      visibleViewController = navigationController.visibleViewController()
+
+      # --- navigationItem
+      navigationItem = visibleViewController.navigationItem()
+      navigationItem.rightBarButtonItem = done_btn
+      navigationItem.setTitle(TITLE)
+
+    # --- `UINavigationControllerDelegate` set up
+    _methods = [
+      navigationController_willShowViewController_animated_,
+    ]
+    _protocols = [
+      'UINavigationControllerDelegate',
+    ]
+
+    create_kwargs = {
+      'name': '_nvDelegate',
+      'methods': _methods,
+      'protocols': _protocols,
+    }
+    _nvDelegate = create_objc_class(**create_kwargs)
+    return _nvDelegate.new()
+
+  @on_main_thread
+  def _init(self, vc: UIViewController):
+    self._override_navigationController()
+    _delegate = self.create_navigationControllerDelegate()
+    nv = self._navigationController.alloc()
+    nv.initWithRootViewController(vc).autorelease()
+    nv.setDelegate(_delegate)
+    return nv
+
+  @classmethod
+  def new(cls, vc: UIViewController) -> ObjCInstance:
+    _cls = cls()
+    return _cls._init(vc)
+
+
 # --- Metal
 MTKView = ObjCClass('MTKView')
-MTLCompileOptions = ObjCClass('MTLCompileOptions')
-MTLRenderPipelineDescriptor = ObjCClass('MTLRenderPipelineDescriptor')
-MTLVertexDescriptor = ObjCClass('MTLVertexDescriptor')
 
 
 def MTLCreateSystemDefaultDevice():
@@ -136,113 +242,8 @@ class MetalViewController:
     return _cls._init()
 
 
-class ObjcUIViewController:
-
-  def __init__(self):
-    self._navigationController: UINavigationController
-
-  def _override_navigationController(self):
-    # --- `UINavigationController` Methods
-    def doneButtonTapped_(_self, _cmd, _sender):
-      this = ObjCInstance(_self)
-      visibleViewController = this.visibleViewController()
-      visibleViewController.dismissViewControllerAnimated(True,
-                                                          completion=None)
-
-    # --- `UINavigationController` set up
-    _methods = [
-      doneButtonTapped_,
-    ]
-
-    create_kwargs = {
-      'name': '_nv',
-      'superclass': ObjCClass('UINavigationController'),
-      'methods': _methods,
-    }
-    _nv = create_objc_class(**create_kwargs)
-    self._navigationController = _nv
-
-  def create_navigationControllerDelegate(self):
-    # --- `UINavigationControllerDelegate` Methods
-    def navigationController_willShowViewController_animated_(
-        _self, _cmd, _navigationController, _viewController, _animated):
-
-      navigationController = ObjCInstance(_navigationController)
-      viewController = ObjCInstance(_viewController)
-
-      # --- appearance
-      appearance = ObjCClass('UINavigationBarAppearance').alloc()
-      appearance.configureWithDefaultBackground()
-
-      # --- navigationBar
-      navigationBar = navigationController.navigationBar()
-
-      navigationBar.standardAppearance = appearance
-      navigationBar.scrollEdgeAppearance = appearance
-      navigationBar.compactAppearance = appearance
-      navigationBar.compactScrollEdgeAppearance = appearance
-
-      navigationBar.prefersLargeTitles = True
-
-      viewController.setEdgesForExtendedLayout(0)
-      #viewController.setExtendedLayoutIncludesOpaqueBars_(True)
-
-      uiBarButtonItem = ObjCClass('UIBarButtonItem').alloc()
-      done_btn = uiBarButtonItem.initWithBarButtonSystemItem(
-        0, target=navigationController, action=sel('doneButtonTapped:'))
-
-      visibleViewController = navigationController.visibleViewController()
-
-      # --- navigationItem
-      navigationItem = visibleViewController.navigationItem()
-      navigationItem.rightBarButtonItem = done_btn
-      navigationItem.setTitle(TITLE)
-
-    # --- `UINavigationControllerDelegate` set up
-    _methods = [
-      navigationController_willShowViewController_animated_,
-    ]
-    _protocols = [
-      'UINavigationControllerDelegate',
-    ]
-
-    create_kwargs = {
-      'name': '_nvDelegate',
-      'methods': _methods,
-      'protocols': _protocols,
-    }
-    _nvDelegate = create_objc_class(**create_kwargs)
-    return _nvDelegate.new()
-
-  @on_main_thread
-  def _init(self, vc: UIViewController):
-    self._override_navigationController()
-    _delegate = self.create_navigationControllerDelegate()
-    nv = self._navigationController.alloc()
-    nv.initWithRootViewController(vc).autorelease()
-    nv.setDelegate(_delegate)
-    return nv
-
-  @classmethod
-  def new(cls, vc: UIViewController) -> ObjCInstance:
-    _cls = cls()
-    return _cls._init(vc)
-
-
-@on_main_thread
-def present_objc(vc):
-  app = ObjCClass('UIApplication').sharedApplication()
-  window = app.keyWindow() if app.keyWindow() else app.windows().firstObject()
-
-  root_vc = window.rootViewController()
-
-  while root_vc.presentedViewController():
-    root_vc = root_vc.presentedViewController()
-  vc.setModalPresentationStyle(0)
-  root_vc.presentViewController(vc, animated=True, completion=None)
-
-
 if __name__ == '__main__':
+  # xxx: ここでインスタンス作った方が安定する、、、？
   mtlvc = MetalViewController.new()
   ovc = ObjcUIViewController.new(mtlvc)
   present_objc(ovc)
