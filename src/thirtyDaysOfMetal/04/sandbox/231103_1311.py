@@ -1,14 +1,11 @@
 import ctypes
 
 from objc_util import ObjCClass, ObjCInstance, create_objc_class, on_main_thread, c
-from objc_util import sel, CGRect, nsurl
+from objc_util import sel, CGRect
 
 import pdbg
 
 TITLE = 'Day 4'
-
-err_ptr = ctypes.c_void_p()
-MTLPrimitiveTypeTriangle = 3
 
 # --- UIKit
 UIViewController = ObjCClass('UIViewController')
@@ -127,7 +124,7 @@ class MetalViewController:
     _delegate = create_objc_class(**create_kwargs)
     return _delegate.new()
 
-  #@on_main_thread
+  @on_main_thread
   def _init(self):
     self._override_viewController()
     vc = self._viewController.new().autorelease()
@@ -217,7 +214,7 @@ class ObjcUIViewController:
     _nvDelegate = create_objc_class(**create_kwargs)
     return _nvDelegate.new()
 
-  #@on_main_thread
+  @on_main_thread
   def _init(self, vc: UIViewController):
     self._override_navigationController()
     _delegate = self.create_navigationControllerDelegate()
@@ -234,7 +231,7 @@ class ObjcUIViewController:
 
 @on_main_thread
 def present_objc(view_controller):
-  vc = ObjcUIViewController.new(view_controller.new())
+  vc = ObjcUIViewController.new(view_controller)
   app = ObjCClass('UIApplication').sharedApplication()
   window = app.keyWindow() if app.keyWindow() else app.windows().firstObject()
 
@@ -247,6 +244,6 @@ def present_objc(view_controller):
 
 
 if __name__ == '__main__':
-  #mtlvc = MetalViewController.new()
-  present_objc(MetalViewController)
+  mtlvc = MetalViewController.new()
+  present_objc(mtlvc)
 
