@@ -1,3 +1,9 @@
+# 📝 2023/11/04
+
+[Memory layout in Swift - The.Swift.Dev.](https://theswiftdev.com/memory-layout-in-swift/)
+
+
+
 # 📝 2023/11/01
 
 

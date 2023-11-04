@@ -9,6 +9,10 @@ shader_path = Path('./Shaders.metal')
 
 err_ptr = ctypes.c_void_p()
 
+MTLStorageModeShared = 0
+MTLResourceStorageModeShift = 4
+MTLResourceStorageModeShared = MTLStorageModeShared << MTLResourceStorageModeShift
+
 
 def MTLCreateSystemDefaultDevice():
   _MTLCreateSystemDefaultDevice = c.MTLCreateSystemDefaultDevice
@@ -18,12 +22,25 @@ def MTLCreateSystemDefaultDevice():
 
 
 device = MTLCreateSystemDefaultDevice()
-source = shader_path.read_text('utf-8')
+commandQueue = device.newCommandQueue()
 
+source = shader_path.read_text('utf-8')
 library = device.newLibraryWithSource(source, options=None, error=err_ptr)
 
-for name in library.functionNames():
-  function = library.newFunctionWithName(name)
-  print(function)
+kernelFunction = library.newFunctionWithName('add_two_values')
 
+computePipeline = device.newComputePipelineStateWithFunction(kernelFunction,
+                                                             error=err_ptr)
+
+elementCount = 256
+
+# MemoryLayout<Float>.stride = 4
+inputBufferA = device.newBufferWithLength(4 * elementCount,
+                                          options=MTLResourceStorageModeShared)
+inputBufferB = device.newBufferWithLength(4 * elementCount,
+                                          options=MTLResourceStorageModeShared)
+outputBuffer = device.newBufferWithLength(4 * elementCount,
+                                          options=MTLResourceStorageModeShared)
+
+pdbg.state(inputBufferA.contents())
 
