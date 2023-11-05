@@ -25,7 +25,7 @@ device = MTLCreateSystemDefaultDevice()
 
 buffer = device.newBufferWithLength(16, options=0)
 
-#print(f'Buffer is {buffer.length()} bytes in length')
+print(f'Buffer is {buffer.length()} bytes in length')
 #pdbg.state(buffer)
 
 contents = buffer.contents()
