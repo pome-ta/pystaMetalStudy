@@ -33,4 +33,7 @@ contents = buffer.contents()
 
 #pdbg.state(contents)
 #print(contents.value)
-pdbg.state(buffer)
+#pdbg.state(buffer)
+#print(buffer.compressionType())
+
+pdbg.state(buffer.resourceRef())
