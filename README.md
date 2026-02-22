@@ -8,6 +8,10 @@
 以下列記は、実装日誌的なメモ
 
 
+# 📝 2026/02/23
+
+[pystaRubiconObjcSandBox/playground/Metal/BeginningMetal at main · pome-ta/pystaRubiconObjcSandBox](https://github.com/pome-ta/pystaRubiconObjcSandBox/tree/main/playground/Metal/BeginningMetal)
+
 # 📝 2023/10/19
 
 
