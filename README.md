@@ -12,6 +12,9 @@
 
 [pystaRubiconObjcSandBox/playground/Metal/BeginningMetal at main · pome-ta/pystaRubiconObjcSandBox](https://github.com/pome-ta/pystaRubiconObjcSandBox/tree/main/playground/Metal/BeginningMetal)
 
+rubicon でMetal を再度挑戦中。
+
+
 # 📝 2023/10/19
 
 
